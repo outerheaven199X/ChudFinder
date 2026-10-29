@@ -10,6 +10,7 @@ import {
   writingAnalysis,
   claimAutopsy,
   mediaComparison,
+  reviewedCorroboration,
 } from './analysis.ts';
 import { cleanText, violatesBoundaries } from './sanitize.ts';
 import {
@@ -47,6 +48,16 @@ function mkEvidence(e: NewEvidence): Evidence {
   if (value.media) {
     const m = { ...(value.media as any) };
     delete m.observedAt;
+    if (m.verification) {
+      m.verification = { ...m.verification };
+      delete m.verification.checkedAt;
+    }
+    if (m.instances)
+      m.instances = m.instances.map((i: any) => {
+        const item = { ...i };
+        delete item.retrievedAt;
+        return item;
+      });
     value.media = m;
   }
   return Evidence.parse({
@@ -251,8 +262,10 @@ export function evidenceFromObservation(input: AccountObservation): Evidence[] {
     const matches = all.filter((e) => similarity((e.value.post as Post).text, seed) >= 0.8);
     const dated = matches
       .filter((e) => (e.value.post as Post).createdAt)
-      .sort((a, b) =>
-        (a.value.post as Post).createdAt!.localeCompare((b.value.post as Post).createdAt!),
+      .sort(
+        (a, b) =>
+          Date.parse((a.value.post as Post).createdAt!) -
+          Date.parse((b.value.post as Post).createdAt!),
       );
     const start = (dated[0]?.value.post as Post | undefined)?.createdAt || null,
       end = (dated.at(-1)?.value.post as Post | undefined)?.createdAt || null;
@@ -306,7 +319,7 @@ export function mergeEvidence(existing: Evidence[], incoming: Evidence[]): Evide
   }
   return [...map.values()];
 }
-type F = Omit<Finding, 'id' | 'caveats' | 'strength'> & { caveats?: string[] };
+type F = Omit<Finding, 'id' | 'caveats' | 'strength'> & { caveats?: string[]; claimScope?: string };
 function finding(f: F, current: Evidence[]): Finding {
   const evidenceIds = [...new Set(f.evidenceIds)].sort(),
     ev = current.filter((e) => evidenceIds.includes(e.id));
@@ -315,9 +328,22 @@ function finding(f: F, current: Evidence[]): Finding {
   );
   const domains = new Set(direct.flatMap((e) => (e.url ? [new URL(e.url).hostname] : [])));
   // Independent corroboration requires explicit dependency review; domain count alone never earns 3 bars.
-  const bars = ev.length >= 2 && direct.length > 0 && f.status !== 'conflict' ? 2 : 1;
+  const corroboration = f.claimScope
+    ? reviewedCorroboration(
+        f.claimScope,
+        current
+          .filter((e) => e.kind === 'source_document')
+          .map((e) => e.value.document as SourceDocument),
+      )
+    : null;
+  const bars = corroboration?.eligible
+    ? 3
+    : ev.length >= 2 && direct.length > 0 && f.status !== 'conflict'
+      ? 2
+      : 1;
+  const { claimScope: _, ...fields } = f;
   return Finding.parse({
-    ...f,
+    ...fields,
     caveats: f.caveats || [],
     evidenceIds,
     id: hashId('fd', f.title, f.statement, evidenceIds),
@@ -329,6 +355,7 @@ function finding(f: F, current: Evidence[]): Finding {
           ? 'Conflicting evidence reduces strength.'
           : 'Source independence is not established by different domains.',
         'Three bars require independently corroborated direct evidence; not inferred from count alone.',
+        ...(corroboration?.reasons || []),
       ],
     },
   });
@@ -347,7 +374,9 @@ export function analyze(handle: string, current: Evidence[]): Analysis {
   const h = handle.toLowerCase(),
     mine = current.filter((e) => e.subject.toLowerCase() === h);
   const one = (kind: Evidence['kind']) =>
-    mine.filter((e) => e.kind === kind).sort((a, b) => b.observedAt.localeCompare(a.observedAt))[0];
+    mine
+      .filter((e) => e.kind === kind)
+      .sort((a, b) => Date.parse(b.observedAt) - Date.parse(a.observedAt))[0];
   const based = one('about_based_in'),
     via = one('about_connected_via'),
     acc = one('about_location_accuracy'),
@@ -661,6 +690,37 @@ export function analyze(handle: string, current: Evidence[]): Analysis {
         ['Publisher rating is evidence to inspect, not absolute truth.'],
       );
   }
+  const reviewedClaims = [
+    ...new Set(
+      sources.flatMap((d) =>
+        d.independenceReview ? (d.comparisons || []).map((c) => c.claim) : [],
+      ),
+    ),
+  ];
+  for (const claim of reviewedClaims) {
+    const r = reviewedCorroboration(claim, sources);
+    add({
+      capability: 'claims',
+      title: 'Reviewed source agreement',
+      claimScope: claim,
+      statement: cleanText(
+        (r.eligible
+          ? 'Corroborated passage agreement, conditional on recorded user independence reviews: '
+          : 'Independence upgrade withheld: ') + claim,
+        600,
+      ),
+      basis: r.eligible ? 'corroborated' : 'inferred',
+      status: 'info',
+      confidence: r.eligible ? 'medium' : 'low',
+      country: null,
+      evidenceIds: docsEv
+        .filter((e) => r.sources.some((s) => s.url === (e.value.document as SourceDocument).url))
+        .map((e) => e.id),
+      caveats: [
+        'Three bars refer to this narrow passage agreement under the recorded review. They are not a truth probability or an assessment of the account.',
+      ],
+    });
+  }
   const mediaEv = current.filter((e) => e.kind === 'media');
   if (mediaEv.length) {
     const r = mediaComparison(mediaEv.map((e) => e.value.media as MediaObservation));
@@ -670,6 +730,47 @@ export function analyze(handle: string, current: Evidence[]): Analysis {
       `${r.matches.length} perceptually similar pairs; ${r.matches.filter((m) => m.dateConflict).length} candidate date conflicts. ${r.method}`,
       mediaEv,
     );
+    const checked = new Set<string>();
+    for (const e of mediaEv) {
+      const m = e.value.media as MediaObservation,
+        key = m.sha256 || e.id;
+      if (checked.has(key)) continue;
+      checked.add(key);
+      const v = m.verification;
+      if (v)
+        info(
+          'claims',
+          'Content Credentials',
+          `Supplied file ${key.slice(0, 16)}: signature ${v.signature}; asset binding ${v.binding}; certificate trust ${v.trust}. SDK: ${v.sdkState}. Signer: ${v.issuer || 'unavailable'}.`,
+          [e],
+          v.signature === 'invalid' || v.binding === 'mismatch' ? 'conflict' : 'info',
+          [
+            'A valid signature does not prove the depicted event. URL association is user-supplied.',
+            'Offline validation; remote manifests and online revocation checks are disabled.',
+          ],
+        );
+      if (m.instances?.length) {
+        const dated = m.instances
+          .filter((i) => i.publishedAt)
+          .sort((a, b) => Date.parse(a.publishedAt!) - Date.parse(b.publishedAt!));
+        const earliest = dated[0],
+          conflict =
+            !!earliest &&
+            !!m.claimedEventDate &&
+            Date.parse(earliest.publishedAt!) < Date.parse(m.claimedEventDate);
+        info(
+          'claims',
+          'Earlier media instances',
+          `${m.instances.length} provider candidates. ${earliest ? 'Earliest observed repository upload: ' + earliest.publishedAt + '; ' + earliest.sourceUrl : 'No defensible publication dates returned.'}${conflict ? ' This precedes the user-claimed event date; review context.' : ''}`,
+          [e],
+          conflict ? 'conflict' : 'info',
+          [
+            'Repository upload time is not event time or proof of first publication. Exact-byte matches and visual candidates have different meanings.',
+          ],
+        );
+        for (const instance of m.instances) edge('links_to', m.url, instance.sourceUrl, [e.id]);
+      }
+    }
   }
   info(
     'claims',
@@ -855,7 +956,7 @@ export function validateSnapshot(s: Snapshot, evidence: Evidence[]) {
         posts = examined.filter((p) => similarity(p.text, v.query) >= 0.8),
         dated = posts
           .filter((p) => p.createdAt)
-          .sort((a, b) => a.createdAt!.localeCompare(b.createdAt!));
+          .sort((a, b) => Date.parse(a.createdAt!) - Date.parse(b.createdAt!));
       if (
         JSON.stringify(posts.map((p) => p.id)) !== JSON.stringify(v.postIds) ||
         JSON.stringify([...new Set(posts.map((p) => p.handle.toLowerCase()))]) !==

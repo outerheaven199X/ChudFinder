@@ -1,4 +1,4 @@
-# Chud Finder 3.0
+# Chud Finder 3.1
 
 Chud Finder is a Manifest V3 extension for explicit, evidence-backed investigations of public X accounts and claims. The seven-stage workspace runs locally without Grok. It retains the ANTIMEME design, five tabs, versioned evidence store and PNG/JSON/thread receipts.
 
@@ -7,7 +7,7 @@ This is a release candidate. Approved X API access is required for live post col
 ## Install
 
 1. Run `npm ci`, `npm run typecheck`, and `npm test` with Node 22.22.2+, 24.15.0+, or 26+ and Python 3 (`python` on PATH).
-2. Open `brave://extensions`, enable developer mode, and load `dist/` unpacked. The build also writes `chud-finder-3.0.0.zip` with the manifest at its root.
+2. Open `brave://extensions`, enable developer mode, and load `dist/` unpacked. The build also writes `chud-finder-3.1.0.zip` with the manifest at its root.
 3. Open **Investigations** from the toolbar, or select a **CF** badge on X and choose **Investigate**. Nothing is collected when you scroll or hover.
 4. User observations and JSON imports work immediately. For programmatic sources, configure the optional local adapter below.
 
@@ -42,15 +42,19 @@ Every count is calculated from stored records. A repeated phrase, synchronized p
 
 Posting analysis defaults to 24 posts across seven dates and compares full/half windows and lower-activity days. These thresholds are heuristic and configurable at the pure-function boundary. Quiet hours are not a location or sleep estimate. Writing compares spelling/date/punctuation/length features within the account, without a native-speaker baseline.
 
-Evidence-strength bars describe the basis of each finding, not the probability of deception. One bar is limited evidence. Two require several observations including a direct source. Three are conservatively withheld until independent corroboration can be established; different source domains alone do not qualify.
+Evidence-strength bars describe the basis of each finding, not the probability of deception. One bar is limited evidence. Two require several observations including a direct source. Three require matching dated passages from directly retrieved sources, distinct user-reviewed origin groups, and no recorded shared host, citation dependency or conflicting scoped comparison. Independence reviews and rationales are explicitly user-captured judgments. Three bars apply only to narrow passage agreement, conditional on those reviews; domains alone cannot establish independence.
 
 ## Verification tools and their limits
 
-Retrieve a dated source, select a specific assertion and paste its exact original passage into **Compare cited passage**. Exact normalized agreement, equal-scope numeric differences, negation changes and removed qualifiers are deterministic. Broader semantic claims stay unverified. Conflicting scoped comparisons produce mixed evidence. The source passage is verified against the retrieved text; a source agreeing with wording is not universal proof of truth.
+Retrieve a dated source and select a specific assertion. **Find matching passages** ranks candidate excerpts from the retrieved documents and shows surrounding context. Inspect a candidate before comparing it. Exact normalized agreement, equal-scope numeric differences, negation changes and removed qualifiers are deterministic. Broader semantic claims stay unverified. Conflicting scoped comparisons produce mixed evidence. Source agreement is not universal proof of truth.
 
 Quote and organizational comparisons use the same source records. They do not reconstruct a pseudonymous person's identity. Explicit citation links form the source-dependency graph; repeated attribution is distinguished from corroboration. Retrieved ClaimReview records retain publisher ratings and dates. General Community Notes retrieval is unavailable in this adapter and is shown as such.
 
-Media comparison computes local difference hashes for supplied images or four video frames. Similarity and date conflicts are review candidates. Event/publication dates are user-supplied. Internet reverse-image search, EXIF event verification and C2PA signature validation are not implemented. A visible C2PA marker is only an unverified metadata observation. The tool does not classify media as AI-generated from appearance.
+Media comparison computes local difference hashes for supplied images or four video frames, plus file SHA-1/SHA-256. EXIF date fields are read locally while camera, artist and GPS identifiers are excluded. Metadata dates remain editable observations, not verified event dates.
+
+**Verify Content Credentials locally** sends a selected file (up to 16 MB) to the loopback adapter's C2PA SDK worker. Signature validity, file binding and certificate trust are separate results. The worker has a deadline; remote manifest and OCSP requests are disabled. A valid signature is not proof of the depicted event. Imported verification claims are downgraded to unverified.
+
+**Find exact file on Commons** sends only the SHA-1 fingerprint to the documented Wikimedia API. Results preserve actual repository upload dates and links. This bounded lookup cannot find re-encoded copies or prove first publication. Optional **Google Vision** web detection sends a user-selected public image URL in one explicit, potentially paid request when `GOOGLE_VISION_API_KEY` is configured server-side. It returns matching-page candidates with unknown dates. It has not been tested with a paid live request. No detector labels images as AI-generated from appearance.
 
 Receipts contain the current evidence set, URLs, observation/publication dates, coverage, strength reasons and correction links to earlier versions. The PNG has a source appendix; oversized reports direct the user to complete JSON. Thread drafts are local text only. There is no hosted permalink or automatic posting.
 

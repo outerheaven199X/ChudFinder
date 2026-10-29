@@ -1,6 +1,6 @@
 /* Single acquisition boundary. Network credentials live only in the local adapter service. */
 import { z } from 'zod';
-import { AccountObservation, Coverage, Post, SourceDocument } from './schemas.ts';
+import { AccountObservation, Coverage, Post, SourceDocument, MediaInstance } from './schemas.ts';
 
 export interface ProviderCapabilities {
   account: boolean;
@@ -36,6 +36,9 @@ export const SourceResult = z
 export type AccountEvidence = z.infer<typeof AccountResult>;
 export type PostResult = z.infer<typeof PostResult>;
 export type SourceResult = z.infer<typeof SourceResult>;
+export const MediaSearchResult = z
+  .object({ instances: z.array(MediaInstance).max(30), coverage: Coverage })
+  .strict();
 export interface EvidenceProvider {
   id: string;
   getAccount(handle: string): Promise<AccountEvidence>;
@@ -130,8 +133,9 @@ export class PublicEvidenceProvider implements EvidenceProvider {
       ...NONE,
       sources: true,
       search: true,
+      mediaSearch: true,
       limitations: [
-        'Public document search uses Wikipedia for source discovery. Retrieved pages are evidence, not automatic truth determinations.',
+        'Public document search uses Wikipedia; media search supports Commons exact files and separately configured Google Vision. Retrieved records are evidence, not automatic truth determinations.',
       ],
     };
   }
@@ -159,6 +163,9 @@ export class PublicEvidenceProvider implements EvidenceProvider {
   async searchClaims(query: ClaimQuery) {
     return SourceResult.parse(await this.send('sources', query));
   }
+  async searchMedia(query: { sha1?: string; imageUrl?: string; provider: 'commons' | 'google' }) {
+    return MediaSearchResult.parse(await this.send('media-search', query));
+  }
 }
 export class UserEvidenceProvider implements EvidenceProvider {
   id = 'UserEvidenceProvider';
@@ -171,6 +178,25 @@ export class UserEvidenceProvider implements EvidenceProvider {
       about: o.about ? { ...o.about, provenance: 'user_captured' } : null,
       posts: o.posts.map((p) => ({ ...p, capturedFrom: 'user_evidence' })),
       sources: o.sources?.map((s) => ({ ...s, provider: this.id, provenance: 'user_captured' })),
+      media: o.media?.map((m) => ({
+        ...m,
+        verification: m.verification
+          ? {
+              ...m.verification,
+              provider: 'UserEvidenceProvider',
+              signature: 'unverified',
+              binding: 'unverified',
+              trust: 'unverified',
+              limitations: ['Imported result; local signature validation has not run.'],
+            }
+          : undefined,
+        instances: m.instances?.map((i) => ({
+          ...i,
+          provider: 'UserEvidenceProvider',
+          match: 'user_supplied',
+          dateBasis: 'user_supplied',
+        })),
+      })),
     });
   }
   capabilities() {

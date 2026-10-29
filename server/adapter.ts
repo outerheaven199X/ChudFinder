@@ -9,6 +9,7 @@ import { z } from 'zod';
 import { AccountObservation, Post, SourceDocument } from '../src/shared/schemas.ts';
 import { coverage } from '../src/shared/providers.ts';
 import { cleanText, safeHttpsUrl } from '../src/shared/sanitize.ts';
+import { verifyMedia, mediaSearch } from './media.ts';
 
 const ALLOWED_HOSTS = new Set([
   'api.x.com',
@@ -17,6 +18,8 @@ const ALLOWED_HOSTS = new Set([
   'www.nasa.gov',
   'science.nasa.gov',
   'images-api.nasa.gov',
+  'commons.wikimedia.org',
+  'vision.googleapis.com',
   ...(process.env.CF_PUBLIC_HOSTS || '')
     .split(',')
     .map((x) => x.trim())
@@ -375,6 +378,7 @@ export async function sourceOperation(payload: any, s: Session) {
 }
 export async function enrichment(payload: any, s: Session) {
   if (!process.env.XAI_API_KEY) throw new Error('Optional Grok unavailable: no server-side key');
+  if (!process.env.XAI_MODEL) throw new Error('Choose an available XAI_MODEL in the adapter environment before enrichment');
   const evidence = z
     .array(z.object({ id: z.string(), summary: z.string().max(600) }).strict())
     .max(100)
@@ -384,7 +388,7 @@ export async function enrichment(payload: any, s: Session) {
     s,
     { Authorization: 'Bearer ' + process.env.XAI_API_KEY, 'Content-Type': 'application/json' },
     JSON.stringify({
-      model: process.env.XAI_MODEL || 'grok-4.7',
+      model: process.env.XAI_MODEL,
       max_output_tokens: 500,
       input: [
         {
@@ -447,11 +451,11 @@ export function startServer(port = Number(process.env.CF_PORT || 8787)) {
       let body = '';
       for await (const chunk of req) {
         body += chunk;
-        if (body.length > 1_000_000) throw new Error('Request too large');
+        if (body.length > 22_000_000) throw new Error('Request too large');
       }
       const { operation, payload, budget } = z
         .object({
-          operation: z.enum(['capabilities', 'account', 'posts', 'post', 'sources', 'enrich']),
+          operation: z.enum(['capabilities', 'account', 'posts', 'post', 'sources', 'enrich', 'verify-media', 'media-search']),
           payload: z.unknown(),
           budget: z.number().int().min(1).max(20).optional(),
         })
@@ -462,9 +466,15 @@ export function startServer(port = Number(process.env.CF_PORT || 8787)) {
         operation === 'capabilities'
           ? {
               x: !!process.env.X_API_BEARER_TOKEN,
-              grok: !!process.env.XAI_API_KEY,
+              grok: !!process.env.XAI_API_KEY && !!process.env.XAI_MODEL,
+              mediaVerification: true,
+              mediaSearch: {commons:true, google:!!process.env.GOOGLE_VISION_API_KEY},
               sourceHosts: [...ALLOWED_HOSTS].filter((h) => !h.startsWith('api.')),
             }
+          : operation === 'verify-media'
+            ? await verifyMedia(payload, controller.signal)
+          : operation === 'media-search'
+            ? await mediaSearch(payload, s, requestJson)
           : operation === 'sources'
             ? await sourceOperation(payload, s)
             : operation === 'enrich'

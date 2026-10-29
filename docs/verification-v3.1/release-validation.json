@@ -1,0 +1,29 @@
+{
+  "version": "3.1.0",
+  "branch": "feat/authorized-evidence-story",
+  "previousCommit": "0bb4a8f4dc9ba67726f7754e3b605e2f2e333283",
+  "package": "chud-finder-3.1.0.zip",
+  "bytes": 715384,
+  "files": 24,
+  "sha256": "1bc44aa56a1be9499ff341aa8b3fbdbaa2159f59bbe0ca6fb317e5b5bf4d8dc2",
+  "zipIntegrity": "passed",
+  "forbiddenAcquisitionScan": "passed",
+  "sequentialBuildHashesMatch": true,
+  "tests": {
+    "node": 55,
+    "legacySettings": 16,
+    "legacyPure": 17,
+    "python": 1
+  },
+  "browserChecks": 12,
+  "environment": {
+    "platform": "Windows x64",
+    "node": "v24.22.1",
+    "python": "3.11.9",
+    "brave": "156.0.8078.74",
+    "c2pa": "0.9.11",
+    "exifr": "7.1.3"
+  },
+  "paidLiveRequests": 0,
+  "checkedAt": "2026-10-29T23:49:39.069952+00:00"
+}

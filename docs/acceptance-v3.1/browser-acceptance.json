@@ -1,0 +1,24 @@
+{
+  "browser": "156.0.8078.74",
+  "extensionId": "ccdfkdhkegiedogidmbnpihjglhbcahi",
+  "packageVersion": "3.1.0",
+  "checks": [
+    "Extension loaded; actual loopback CORS provider connection established.",
+    "Seven story stages generated without Grok.",
+    "NASA article retrieved through production background and adapter.",
+    "Matching-post search returned a genuine unavailable state (no X API credential).",
+    "Dated source-passage agreement shown, with scope limitation. No X post was fabricated.",
+    "JSON, PNG and thread draft exported through the installed extension UI.",
+    "Previous snapshot remains accessible and isolated from new sources.",
+    "Refresh preserves the retrieved NASA source and its scoped comparison.",
+    "Native C2PA verification ran through the installed extension; signature validity and untrusted test certificate shown separately.",
+    "Live Commons exact-byte image lookup retrieved a real repository upload date and clickable source.",
+    "Refresh preserves prior source/media evidence and its original observation times.",
+    "Synthetic narrative counts and pointer/keyboard relationship evidence rendered in Brave."
+  ],
+  "errors": [],
+  "liveSubject": "NASA",
+  "sourceUrl": "https://www.nasa.gov/history/july-20-1969-one-giant-leap-for-mankind/",
+  "livePostCount": 0,
+  "scope": "Official NASA account investigation with a retrieved NASA article. X post acquisition and search unavailable; no live propagation dataset."
+}

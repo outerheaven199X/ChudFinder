@@ -3,7 +3,14 @@
 import { currentSnapshot } from '../shared/engine.ts';
 import { claimPrompt, grokUrl, narrativePrompt, originPrompt } from '../shared/prompts.ts';
 import { safeHttpsUrl } from '../shared/sanitize.ts';
-import type { Evidence, Finding, Investigation, Post, Snapshot } from '../shared/schemas.ts';
+import type {
+  Evidence,
+  Finding,
+  Investigation,
+  Post,
+  Snapshot,
+  MediaObservation,
+} from '../shared/schemas.ts';
 
 export const TABS = ['Overview', 'Origin', 'Narrative', 'Claims', 'Evidence'] as const;
 export type Tab = (typeof TABS)[number];
@@ -315,12 +322,7 @@ function postCard(ctx: RenderCtx, p: Post, extra?: HTMLElement[]): HTMLElement {
   m.appendChild(link(d, p.url, 'open post'));
   if (p.lang) m.appendChild(el(d, 'span', 'mono', ' \u00b7 lang ' + p.lang));
   m.appendChild(
-    el(
-      d,
-      'span',
-      'mono',
-      ' \u00b7 ' + (SOURCE_LABEL[p.capturedFrom] || p.capturedFrom),
-    ),
+    el(d, 'span', 'mono', ' \u00b7 ' + (SOURCE_LABEL[p.capturedFrom] || p.capturedFrom)),
   );
   c.appendChild(m);
   if (p.authorCreatedAt)
@@ -345,7 +347,10 @@ function orderedPosts(s: Snapshot): Post[] {
   const focus = s.focusPostId ? own.find((p) => p.id === s.focusPostId) : undefined;
   const rest = own
     .filter((p) => p !== focus)
-    .sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''));
+    .sort(
+      (a, b) =>
+        (b.createdAt ? Date.parse(b.createdAt) : 0) - (a.createdAt ? Date.parse(a.createdAt) : 0),
+    );
   return focus ? [focus, ...rest] : rest;
 }
 
@@ -421,6 +426,53 @@ function claims(ctx: RenderCtx, s: Snapshot): HTMLElement {
   }
   for (const f of s.findings.filter((f) => f.capability === 'claims'))
     root.appendChild(findingCard(ctx, f, evidenceMap(ctx.inv)));
+  const seen = new Set<string>();
+  for (const e of ctx.inv.evidence.filter(
+    (e) => s.evidenceIds.includes(e.id) && e.kind === 'media',
+  )) {
+    const m = e.value.media as MediaObservation,
+      key = m.sha256 || e.id;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    const card = el(d, 'section', 'card media-details');
+    card.append(
+      el(d, 'h3', 'mono', 'MEDIA SOURCES'),
+      button(ctx, e.id, { type: 'show-evidence', id: e.id }, 'chip mono'),
+      link(d, m.url, 'User-associated source URL'),
+    );
+    if (m.verification) {
+      const v = m.verification,
+        detail = el(d, 'details');
+      detail.append(
+        el(d, 'summary', 'mono', 'Signature verification details'),
+        el(d, 'p', 'meta', v.codes.join(' · ')),
+        el(d, 'p', 'caveat', v.limitations.join(' ')),
+      );
+      card.append(detail);
+    }
+    for (const i of m.instances || []) {
+      const line = el(d, 'p', 'meta');
+      line.append(
+        link(d, i.sourceUrl, i.title),
+        el(
+          d,
+          'span',
+          'mono',
+          ' / ' + i.match + ' / ' + i.dateBasis + ' / ' + (i.publishedAt || 'date unavailable'),
+        ),
+      );
+      card.append(line);
+    }
+    if (Object.keys(m.metadata).length) {
+      const detail = el(d, 'details');
+      detail.append(
+        el(d, 'summary', 'mono', 'Embedded metadata (not verified event facts)'),
+        el(d, 'pre', 'raw', JSON.stringify(m.metadata, null, 2)),
+      );
+      card.append(detail);
+    }
+    root.append(card);
+  }
   return root;
 }
 

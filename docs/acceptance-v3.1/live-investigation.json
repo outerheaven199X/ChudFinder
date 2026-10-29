@@ -1,0 +1,1701 @@
+{
+  "createdAt": "2026-10-29T23:49:33.238Z",
+  "currentVersion": 4,
+  "events": [
+    {
+      "at": "2026-10-29T23:49:33.238Z",
+      "detail": "0 submitted posts; 0 evidence records.",
+      "type": "created",
+      "version": 1
+    },
+    {
+      "at": "2026-10-29T23:49:33.238Z",
+      "detail": "10 deterministic findings.",
+      "type": "analyzed",
+      "version": 1
+    },
+    {
+      "at": "2026-10-29T23:49:34.839Z",
+      "detail": "0 submitted posts; 1 evidence records.",
+      "type": "refreshed",
+      "version": 2
+    },
+    {
+      "at": "2026-10-29T23:49:34.839Z",
+      "detail": "10 deterministic findings.",
+      "type": "analyzed",
+      "version": 2
+    },
+    {
+      "at": "2026-10-29T23:49:34.936Z",
+      "detail": "0 submitted posts; 1 evidence records.",
+      "type": "refreshed",
+      "version": 3
+    },
+    {
+      "at": "2026-10-29T23:49:34.936Z",
+      "detail": "11 deterministic findings.",
+      "type": "analyzed",
+      "version": 3
+    },
+    {
+      "at": "2026-10-29T23:49:35.010Z",
+      "detail": "0 submitted posts; 1 evidence records.",
+      "type": "refreshed",
+      "version": 4
+    },
+    {
+      "at": "2026-10-29T23:49:35.010Z",
+      "detail": "11 deterministic findings.",
+      "type": "analyzed",
+      "version": 4
+    },
+    {
+      "at": "2026-10-29T23:49:35.238Z",
+      "detail": "Exported JSON",
+      "type": "exported",
+      "version": 4
+    },
+    {
+      "at": "2026-10-29T23:49:36.384Z",
+      "detail": "Exported PNG",
+      "type": "exported",
+      "version": 4
+    },
+    {
+      "at": "2026-10-29T23:49:36.448Z",
+      "detail": "Exported X thread draft",
+      "type": "exported",
+      "version": 4
+    }
+  ],
+  "evidence": [
+    {
+      "firstSeenAt": "2026-10-29T23:49:34.835Z",
+      "id": "ev_cswsgmm6fe",
+      "kind": "source_document",
+      "lastSeenAt": "2026-10-29T23:49:34.835Z",
+      "observedAt": "2026-10-29T23:49:34.835Z",
+      "provenance": "external_source",
+      "provider": "PublicEvidenceProvider",
+      "publishedAt": "2019-07-20T12:30:00.000Z",
+      "source": "public_evidence",
+      "subject": "NASA",
+      "summary": "July 20, 1969: One Giant Leap For Mankind - NASA",
+      "url": "https://www.nasa.gov/history/july-20-1969-one-giant-leap-for-mankind/",
+      "value": {
+        "document": {
+          "citations": [],
+          "factChecks": [],
+          "provenance": "external_source",
+          "provider": "PublicEvidenceProvider",
+          "publishedAt": "2019-07-20T12:30:00.000Z",
+          "retrievedAt": "2026-10-29T23:49:34.835Z",
+          "text": "4 min readJuly 20, 1969: One Giant Leap For MankindNASAJul 20, 2019 Article\n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n\nJuly 1969. It’s a little over eight years since the flights of Gagarin and Shepard, followed quickly by President Kennedy’s challenge to put a man on the moon before the decade is out.\nIt is only seven months since NASA’s made a bold decision to send Apollo 8 all the way to the moon on the first manned flight of the massive Saturn V rocket.\nNow, on the morning of July 16, Apollo 11 astronauts Neil Armstrong, Buzz Aldrin and Michael Collins sit atop another Saturn V at Launch Complex 39A at the Kennedy Space Center. The three-stage 363-foot rocket will use its 7.5 million pounds of thrust to propel them into space and into history.\nAt 9:32 a.m. EDT, the engines fire and Apollo 11 clears the tower. About 12 minutes later, the crew is in Earth orbit. (› Play Audio)\nAfter one and a half orbits, Apollo 11 gets a “go” for what mission controllers call “Translunar Injection” – in other words, it’s time to head for the moon. Three days later the crew is in lunar orbit. A day after that, Armstrong and Aldrin climb into the lunar module Eagle and begin the descent, while Collins orbits in the command module Columbia. \n\nApollo 11 Commander Neil Armstrong working at an equipment storage area on the lunar module. This is one of the few photos that show Armstrong during the moonwalk. Click image to enlarge.\nNASA\n\nCollins later writes that Eagle is “the weirdest looking contraption I have ever seen in the sky,” but it will prove its worth.\nWhen it comes time to set Eagle down in the Sea of Tranquility, Armstrong improvises, manually piloting the ship past an area littered with boulders. During the final seconds of descent, Eagle’s computer is sounding alarms.\nIt turns out to be a simple case of the computer trying to do too many things at once, but as Aldrin will later point out, “unfortunately it came up when we did not want to be trying to solve these particular problems.”\n\nSmoke and flames signal the opening of a historic journey as the Saturn V clears the launch pad. Click image to enlarge.\nNASA\n\nWhen the lunar module lands at 4:17 p.m EDT, only 30 seconds of fuel remain. Armstrong radios “Houston, Tranquility Base here. The Eagle has landed.” Mission control erupts in celebration as the tension breaks, and a controller tells the crew “You got a bunch of guys about to turn blue, we’re breathing again.”\nArmstrong will later confirm that landing was his biggest concern, saying “the unknowns were rampant,” and “there were just a thousand things to worry about.”\nAt 10:56 p.m. EDT Armstrong is ready to plant the first human foot on another world. With more than half a billion people watching on television, he climbs down the ladder and proclaims: “That’s one small step for a man, one giant leap for mankind.”\n\nAldrin joins him shortly, and offers a simple but powerful description of the lunar surface: “magnificent desolation.” They explore the surface for two and a half hours, collecting samples and taking photographs.\n\nBuzz Aldrin climbs down the Eagle’s ladder to the surface. Click image to enlarge.\nNASA\n\nThey leave behind an American flag, a patch honoring the fallen Apollo 1 crew, and a plaque on one of Eagle’s legs. It reads, “Here men from the planet Earth first set foot upon the moon. July 1969 A.D. We came in peace for all mankind.”\nArmstrong and Aldrin blast off and dock with Collins in Columbia. Collins later says that “for the first time,” he “really felt that we were going to carry this thing off.”\nThe crew splashes down off Hawaii on July 24. Kennedy’s challenge has been met. Men from Earth have walked on the moon and returned safely home.\n\nCrater 308 stands out in sharp relief in this photo from lunar orbit. Click image to enlarge.\nNASA\n\nIn an interview years later, Armstrong praises the “hundreds of thousands” of people behind the project. “Every guy that’s setting up the tests, cranking the torque wrench, and so on, is saying, man or woman, ‘If anything goes wrong here, it’s not going to be my fault.’” (› Read 2001 Interview, 172 Kb PDF)\nIn a post-flight press conference, Armstrong calls the flight “a beginning of a new age,” while Collins talks about future journeys to Mars.\nOver the next three and a half years, 10 astronauts will follow in their footsteps. Gene Cernan, commander of the last Apollo mission leaves the lunar surface with these words: “We leave as we came and, God willing, as we shall return, with peace, and hope for all mankind.”\n \n \n Explore More\n \n \n \n \n \n \n \n \n \n 4 min read\n The View from Above: The Gemini Visual Acuity Experiments\n \n \n \n Article\n \n \n 2 months ago \n \n \n \n \n \n \n \n \n \n \n \n 6 min read\n NASA Glenn’s Legacy Forged Through Decades of Flight Research\n \n \n \n Article\n \n \n 2 months ago \n \n \n \n \n \n \n \n \n \n \n \n 4 min read\n 20 Years of Space Communications and Navigation\n \n \n \n Article\n \n \n 6 months ago \n \n \n \n \n \n \n \n\n \n \n \n \n Share\n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n Details\n \n \n \n Last Updated\n \n Jun 13, 2024\n \n \n \n Related TermsNASA HistoryApollo 11Buzz AldrinMichael CollinsNeil A. Armstrong",
+          "title": "July 20, 1969: One Giant Leap For Mankind - NASA",
+          "url": "https://www.nasa.gov/history/july-20-1969-one-giant-leap-for-mankind/"
+        }
+      }
+    },
+    {
+      "firstSeenAt": "2026-10-29T23:49:34.835Z",
+      "id": "ev_1k0oep8owai",
+      "kind": "source_document",
+      "lastSeenAt": "2026-10-29T23:49:34.835Z",
+      "observedAt": "2026-10-29T23:49:34.835Z",
+      "provenance": "external_source",
+      "provider": "PublicEvidenceProvider",
+      "publishedAt": "2019-07-20T12:30:00.000Z",
+      "source": "public_evidence",
+      "subject": "NASA",
+      "summary": "July 20, 1969: One Giant Leap For Mankind - NASA",
+      "url": "https://www.nasa.gov/history/july-20-1969-one-giant-leap-for-mankind/",
+      "value": {
+        "document": {
+          "citations": [],
+          "comparisons": [
+            {
+              "claim": "The crew splashes down off Hawaii on July 24.",
+              "kind": "factual",
+              "passage": "The crew splashes down off Hawaii on July 24."
+            }
+          ],
+          "factChecks": [],
+          "provenance": "external_source",
+          "provider": "PublicEvidenceProvider",
+          "publishedAt": "2019-07-20T12:30:00.000Z",
+          "retrievedAt": "2026-10-29T23:49:34.835Z",
+          "text": "4 min readJuly 20, 1969: One Giant Leap For MankindNASAJul 20, 2019 Article\n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n\nJuly 1969. It’s a little over eight years since the flights of Gagarin and Shepard, followed quickly by President Kennedy’s challenge to put a man on the moon before the decade is out.\nIt is only seven months since NASA’s made a bold decision to send Apollo 8 all the way to the moon on the first manned flight of the massive Saturn V rocket.\nNow, on the morning of July 16, Apollo 11 astronauts Neil Armstrong, Buzz Aldrin and Michael Collins sit atop another Saturn V at Launch Complex 39A at the Kennedy Space Center. The three-stage 363-foot rocket will use its 7.5 million pounds of thrust to propel them into space and into history.\nAt 9:32 a.m. EDT, the engines fire and Apollo 11 clears the tower. About 12 minutes later, the crew is in Earth orbit. (› Play Audio)\nAfter one and a half orbits, Apollo 11 gets a “go” for what mission controllers call “Translunar Injection” – in other words, it’s time to head for the moon. Three days later the crew is in lunar orbit. A day after that, Armstrong and Aldrin climb into the lunar module Eagle and begin the descent, while Collins orbits in the command module Columbia. \n\nApollo 11 Commander Neil Armstrong working at an equipment storage area on the lunar module. This is one of the few photos that show Armstrong during the moonwalk. Click image to enlarge.\nNASA\n\nCollins later writes that Eagle is “the weirdest looking contraption I have ever seen in the sky,” but it will prove its worth.\nWhen it comes time to set Eagle down in the Sea of Tranquility, Armstrong improvises, manually piloting the ship past an area littered with boulders. During the final seconds of descent, Eagle’s computer is sounding alarms.\nIt turns out to be a simple case of the computer trying to do too many things at once, but as Aldrin will later point out, “unfortunately it came up when we did not want to be trying to solve these particular problems.”\n\nSmoke and flames signal the opening of a historic journey as the Saturn V clears the launch pad. Click image to enlarge.\nNASA\n\nWhen the lunar module lands at 4:17 p.m EDT, only 30 seconds of fuel remain. Armstrong radios “Houston, Tranquility Base here. The Eagle has landed.” Mission control erupts in celebration as the tension breaks, and a controller tells the crew “You got a bunch of guys about to turn blue, we’re breathing again.”\nArmstrong will later confirm that landing was his biggest concern, saying “the unknowns were rampant,” and “there were just a thousand things to worry about.”\nAt 10:56 p.m. EDT Armstrong is ready to plant the first human foot on another world. With more than half a billion people watching on television, he climbs down the ladder and proclaims: “That’s one small step for a man, one giant leap for mankind.”\n\nAldrin joins him shortly, and offers a simple but powerful description of the lunar surface: “magnificent desolation.” They explore the surface for two and a half hours, collecting samples and taking photographs.\n\nBuzz Aldrin climbs down the Eagle’s ladder to the surface. Click image to enlarge.\nNASA\n\nThey leave behind an American flag, a patch honoring the fallen Apollo 1 crew, and a plaque on one of Eagle’s legs. It reads, “Here men from the planet Earth first set foot upon the moon. July 1969 A.D. We came in peace for all mankind.”\nArmstrong and Aldrin blast off and dock with Collins in Columbia. Collins later says that “for the first time,” he “really felt that we were going to carry this thing off.”\nThe crew splashes down off Hawaii on July 24. Kennedy’s challenge has been met. Men from Earth have walked on the moon and returned safely home.\n\nCrater 308 stands out in sharp relief in this photo from lunar orbit. Click image to enlarge.\nNASA\n\nIn an interview years later, Armstrong praises the “hundreds of thousands” of people behind the project. “Every guy that’s setting up the tests, cranking the torque wrench, and so on, is saying, man or woman, ‘If anything goes wrong here, it’s not going to be my fault.’” (› Read 2001 Interview, 172 Kb PDF)\nIn a post-flight press conference, Armstrong calls the flight “a beginning of a new age,” while Collins talks about future journeys to Mars.\nOver the next three and a half years, 10 astronauts will follow in their footsteps. Gene Cernan, commander of the last Apollo mission leaves the lunar surface with these words: “We leave as we came and, God willing, as we shall return, with peace, and hope for all mankind.”\n \n \n Explore More\n \n \n \n \n \n \n \n \n \n 4 min read\n The View from Above: The Gemini Visual Acuity Experiments\n \n \n \n Article\n \n \n 2 months ago \n \n \n \n \n \n \n \n \n \n \n \n 6 min read\n NASA Glenn’s Legacy Forged Through Decades of Flight Research\n \n \n \n Article\n \n \n 2 months ago \n \n \n \n \n \n \n \n \n \n \n \n 4 min read\n 20 Years of Space Communications and Navigation\n \n \n \n Article\n \n \n 6 months ago \n \n \n \n \n \n \n \n\n \n \n \n \n Share\n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n Details\n \n \n \n Last Updated\n \n Jun 13, 2024\n \n \n \n Related TermsNASA HistoryApollo 11Buzz AldrinMichael CollinsNeil A. Armstrong",
+          "title": "July 20, 1969: One Giant Leap For Mankind - NASA",
+          "url": "https://www.nasa.gov/history/july-20-1969-one-giant-leap-for-mankind/"
+        }
+      }
+    }
+  ],
+  "id": "inv_th6wj3eags",
+  "schemaVersion": 1,
+  "snapshots": [
+    {
+      "account": {
+        "aboutObservedAt": null,
+        "basedIn": null,
+        "basedInCountry": null,
+        "basedInIsRegion": false,
+        "connectedVia": null,
+        "handle": "NASA",
+        "locationAccurate": null,
+        "profileLocation": null
+      },
+      "adapterVersion": "provider@3",
+      "claims": [],
+      "correction": {
+        "previousVersion": null,
+        "reason": "New observation snapshot; prior versions remain available."
+      },
+      "coverage": [
+        {
+          "complete": false,
+          "end": null,
+          "fields": [],
+          "limitations": [
+            "No feed crawling. No external search performed for this selection."
+          ],
+          "nextCursor": null,
+          "provider": "UserEvidenceProvider",
+          "query": "Explicit account/post selection",
+          "recordsExamined": 0,
+          "retrievedAt": "2026-10-29T23:49:33.235Z",
+          "start": null,
+          "status": "ok"
+        },
+        {
+          "complete": false,
+          "end": null,
+          "fields": [],
+          "limitations": [
+            "Approved X API access is not configured."
+          ],
+          "nextCursor": null,
+          "provider": "XOfficialProvider",
+          "query": "NASA",
+          "recordsExamined": 0,
+          "retrievedAt": "2026-10-29T23:49:33.237Z",
+          "start": null,
+          "status": "unavailable"
+        }
+      ],
+      "createdAt": "2026-10-29T23:49:33.238Z",
+      "displayRoles": {
+        "E-01": [],
+        "E-02": [],
+        "E-03": [],
+        "E-04": [],
+        "E-05": [],
+        "E-06": [],
+        "E-07": [],
+        "E-08": [],
+        "N-1": [],
+        "N-2": [],
+        "N-3": []
+      },
+      "edges": [],
+      "engine": "deterministic@3.1.0",
+      "evidenceIds": [],
+      "findings": [
+        {
+          "basis": "unknown",
+          "capability": "origin",
+          "caveats": [
+            "An operating-region display does not establish physical location or factual accuracy."
+          ],
+          "confidence": "none",
+          "country": null,
+          "evidenceIds": [],
+          "id": "fd_21h1nnn3chr",
+          "statement": "UNAVAILABLE: no authorized source for X-reported operating region.",
+          "status": "undetermined",
+          "strength": {
+            "bars": 1,
+            "reasons": [
+              "0 supporting observations; 0 direct source domains.",
+              "Source independence is not established by different domains.",
+              "Three bars require independently corroborated direct evidence; not inferred from count alone."
+            ]
+          },
+          "title": "Account based in"
+        },
+        {
+          "basis": "unknown",
+          "capability": "origin",
+          "caveats": [],
+          "confidence": "none",
+          "country": null,
+          "evidenceIds": [],
+          "id": "fd_35rqoyydv2",
+          "statement": "UNAVAILABLE: connection/app-store region.",
+          "status": "info",
+          "strength": {
+            "bars": 1,
+            "reasons": [
+              "0 supporting observations; 0 direct source domains.",
+              "Source independence is not established by different domains.",
+              "Three bars require independently corroborated direct evidence; not inferred from count alone."
+            ]
+          },
+          "title": "Connected via"
+        },
+        {
+          "basis": "unknown",
+          "capability": "vpn",
+          "caveats": [],
+          "confidence": "none",
+          "country": null,
+          "evidenceIds": [],
+          "id": "fd_1vfvatq0j7o",
+          "statement": "UNAVAILABLE: location-accuracy note.",
+          "status": "info",
+          "strength": {
+            "bars": 1,
+            "reasons": [
+              "0 supporting observations; 0 direct source domains.",
+              "Source independence is not established by different domains.",
+              "Three bars require independently corroborated direct evidence; not inferred from count alone."
+            ]
+          },
+          "title": "X location-accuracy note"
+        },
+        {
+          "basis": "unknown",
+          "capability": "origin",
+          "caveats": [],
+          "confidence": "none",
+          "country": null,
+          "evidenceIds": [],
+          "id": "fd_15ibyetbzia",
+          "statement": "UNAVAILABLE: self-described location.",
+          "status": "info",
+          "strength": {
+            "bars": 1,
+            "reasons": [
+              "0 supporting observations; 0 direct source domains.",
+              "Source independence is not established by different domains.",
+              "Three bars require independently corroborated direct evidence; not inferred from count alone."
+            ]
+          },
+          "title": "Profile location"
+        },
+        {
+          "basis": "unknown",
+          "capability": "origin",
+          "caveats": [
+            "Travel, relocation, organizations, shared accounts, jokes and stale information can explain disagreements."
+          ],
+          "confidence": "none",
+          "country": null,
+          "evidenceIds": [],
+          "id": "fd_qkdasbuxlb",
+          "statement": "Insufficient evidence to compare the fields.",
+          "status": "undetermined",
+          "strength": {
+            "bars": 1,
+            "reasons": [
+              "0 supporting observations; 0 direct source domains.",
+              "Source independence is not established by different domains.",
+              "Three bars require independently corroborated direct evidence; not inferred from count alone."
+            ]
+          },
+          "title": "Location comparison"
+        },
+        {
+          "basis": "unknown",
+          "capability": "vpn",
+          "caveats": [
+            "Schedulers, shift work, travel and content teams can produce misleading patterns. No precise routine or location is inferred."
+          ],
+          "confidence": "none",
+          "country": null,
+          "evidenceIds": [],
+          "id": "fd_1egm65cw0ko",
+          "statement": "INSUFFICIENT SAMPLE: no timestamped posts.",
+          "status": "undetermined",
+          "strength": {
+            "bars": 1,
+            "reasons": [
+              "0 supporting observations; 0 direct source domains.",
+              "Source independence is not established by different domains.",
+              "Three bars require independently corroborated direct evidence; not inferred from count alone."
+            ]
+          },
+          "title": "Posting-hour pattern"
+        },
+        {
+          "basis": "unknown",
+          "capability": "narrative",
+          "caveats": [
+            "Within-account textual differences do not establish authorship or identity."
+          ],
+          "confidence": "none",
+          "country": null,
+          "evidenceIds": [],
+          "id": "fd_22s53e8tj9g",
+          "statement": "INSUFFICIENT SAMPLE",
+          "status": "info",
+          "strength": {
+            "bars": 1,
+            "reasons": [
+              "0 supporting observations; 0 direct source domains.",
+              "Source independence is not established by different domains.",
+              "Three bars require independently corroborated direct evidence; not inferred from count alone."
+            ]
+          },
+          "title": "Writing pattern"
+        },
+        {
+          "basis": "unknown",
+          "capability": "narrative",
+          "caveats": [],
+          "confidence": "none",
+          "country": null,
+          "evidenceIds": [],
+          "id": "fd_1lmqptd1fs2",
+          "statement": "UNAVAILABLE: no account post sample.",
+          "status": "undetermined",
+          "strength": {
+            "bars": 1,
+            "reasons": [
+              "0 supporting observations; 0 direct source domains.",
+              "Source independence is not established by different domains.",
+              "Three bars require independently corroborated direct evidence; not inferred from count alone."
+            ]
+          },
+          "title": "Narrative focus"
+        },
+        {
+          "basis": "unknown",
+          "capability": "narrative",
+          "caveats": [],
+          "confidence": "none",
+          "country": null,
+          "evidenceIds": [],
+          "id": "fd_1tcdgp416ij",
+          "statement": "UNAVAILABLE: no matching-post search results.",
+          "status": "undetermined",
+          "strength": {
+            "bars": 1,
+            "reasons": [
+              "0 supporting observations; 0 direct source domains.",
+              "Source independence is not established by different domains.",
+              "Three bars require independently corroborated direct evidence; not inferred from count alone."
+            ]
+          },
+          "title": "EARLIEST OBSERVED COPY"
+        },
+        {
+          "basis": "unknown",
+          "capability": "claims",
+          "caveats": [],
+          "confidence": "none",
+          "country": null,
+          "evidenceIds": [],
+          "id": "fd_1ujx2rrs244",
+          "statement": "UNAVAILABLE: no authorized Community Notes records in this snapshot.",
+          "status": "undetermined",
+          "strength": {
+            "bars": 1,
+            "reasons": [
+              "0 supporting observations; 0 direct source domains.",
+              "Source independence is not established by different domains.",
+              "Three bars require independently corroborated direct evidence; not inferred from count alone."
+            ]
+          },
+          "title": "Community Notes"
+        }
+      ],
+      "focusPostId": null,
+      "headline": "Investigation of @NASA: 0 account posts observed; location unavailable.",
+      "posts": [],
+      "story": [
+        {
+          "evidenceIds": [],
+          "findingIds": [
+            "fd_21h1nnn3chr",
+            "fd_35rqoyydv2",
+            "fd_1vfvatq0j7o"
+          ],
+          "text": "UNAVAILABLE: no authorized source for X-reported operating region.\nUNAVAILABLE: connection/app-store region.\nUNAVAILABLE: location-accuracy note.",
+          "title": "01 / REPORTED ORIGIN"
+        },
+        {
+          "evidenceIds": [],
+          "findingIds": [
+            "fd_15ibyetbzia",
+            "fd_qkdasbuxlb"
+          ],
+          "text": "UNAVAILABLE: self-described location.\nInsufficient evidence to compare the fields.",
+          "title": "02 / SELF-DESCRIBED LOCATION"
+        },
+        {
+          "evidenceIds": [],
+          "findingIds": [
+            "fd_1egm65cw0ko"
+          ],
+          "text": "INSUFFICIENT SAMPLE: no timestamped posts.",
+          "title": "03 / POSTING PATTERN"
+        },
+        {
+          "evidenceIds": [],
+          "findingIds": [
+            "fd_22s53e8tj9g"
+          ],
+          "text": "INSUFFICIENT SAMPLE",
+          "title": "04 / WRITING PATTERN"
+        },
+        {
+          "evidenceIds": [],
+          "findingIds": [
+            "fd_1lmqptd1fs2"
+          ],
+          "text": "UNAVAILABLE: no account post sample.",
+          "title": "05 / NARRATIVE FOCUS"
+        },
+        {
+          "evidenceIds": [],
+          "findingIds": [
+            "fd_1tcdgp416ij"
+          ],
+          "text": "UNAVAILABLE: no matching-post search results.",
+          "title": "06 / SOURCE & AMPLIFICATION"
+        },
+        {
+          "evidenceIds": [],
+          "findingIds": [
+            "fd_21h1nnn3chr",
+            "fd_35rqoyydv2",
+            "fd_1vfvatq0j7o",
+            "fd_15ibyetbzia",
+            "fd_qkdasbuxlb",
+            "fd_1egm65cw0ko",
+            "fd_22s53e8tj9g",
+            "fd_1lmqptd1fs2",
+            "fd_1tcdgp416ij",
+            "fd_1ujx2rrs244"
+          ],
+          "text": "No established location contradiction.\nUNAVAILABLE: no authorized source for X-reported operating region.\nUNAVAILABLE: self-described location.\nINSUFFICIENT SAMPLE: no timestamped posts.\nUNAVAILABLE: no matching-post search results.\n0 of 0 post-claim candidates have scoped source comparisons. 0 additional source-passage comparisons are recorded in Claims.\nUnresolved: completeness of search, original source, source independence and causal amplification. Physical location and common control are not established.",
+          "title": "07 / THE READ"
+        }
+      ],
+      "telemetry": {
+        "cacheHits": 0,
+        "cost": null,
+        "failures": 0,
+        "posts": 0,
+        "profiles": 0,
+        "requests": 0,
+        "status": "partial",
+        "tokens": null
+      },
+      "version": 1
+    },
+    {
+      "account": {
+        "aboutObservedAt": null,
+        "basedIn": null,
+        "basedInCountry": null,
+        "basedInIsRegion": false,
+        "connectedVia": null,
+        "handle": "NASA",
+        "locationAccurate": null,
+        "profileLocation": null
+      },
+      "adapterVersion": "provider@3",
+      "claims": [],
+      "correction": {
+        "previousVersion": 1,
+        "reason": "Added evidence; compare with previous version."
+      },
+      "coverage": [
+        {
+          "complete": false,
+          "end": null,
+          "fields": [],
+          "limitations": [
+            "No feed crawling. No external search performed for this selection."
+          ],
+          "nextCursor": null,
+          "provider": "UserEvidenceProvider",
+          "query": "Explicit account/post selection",
+          "recordsExamined": 0,
+          "retrievedAt": "2026-10-29T23:49:33.235Z",
+          "start": null,
+          "status": "ok"
+        },
+        {
+          "complete": false,
+          "end": null,
+          "fields": [],
+          "limitations": [
+            "Approved X API access is not configured."
+          ],
+          "nextCursor": null,
+          "provider": "XOfficialProvider",
+          "query": "NASA",
+          "recordsExamined": 0,
+          "retrievedAt": "2026-10-29T23:49:33.237Z",
+          "start": null,
+          "status": "unavailable"
+        },
+        {
+          "complete": false,
+          "end": null,
+          "fields": [
+            "sourceText",
+            "citations",
+            "publicationDateWhenAvailable"
+          ],
+          "limitations": [],
+          "nextCursor": null,
+          "provider": "PublicEvidenceProvider",
+          "query": "",
+          "recordsExamined": 1,
+          "retrievedAt": "2026-10-29T23:49:33.297Z",
+          "start": null,
+          "status": "ok"
+        }
+      ],
+      "createdAt": "2026-10-29T23:49:34.839Z",
+      "displayRoles": {
+        "E-01": [],
+        "E-02": [],
+        "E-03": [],
+        "E-04": [],
+        "E-05": [],
+        "E-06": [],
+        "E-07": [],
+        "E-08": [],
+        "N-1": [],
+        "N-2": [],
+        "N-3": []
+      },
+      "edges": [],
+      "engine": "deterministic@3.1.0",
+      "evidenceIds": [
+        "ev_cswsgmm6fe"
+      ],
+      "findings": [
+        {
+          "basis": "unknown",
+          "capability": "origin",
+          "caveats": [
+            "An operating-region display does not establish physical location or factual accuracy."
+          ],
+          "confidence": "none",
+          "country": null,
+          "evidenceIds": [],
+          "id": "fd_21h1nnn3chr",
+          "statement": "UNAVAILABLE: no authorized source for X-reported operating region.",
+          "status": "undetermined",
+          "strength": {
+            "bars": 1,
+            "reasons": [
+              "0 supporting observations; 0 direct source domains.",
+              "Source independence is not established by different domains.",
+              "Three bars require independently corroborated direct evidence; not inferred from count alone."
+            ]
+          },
+          "title": "Account based in"
+        },
+        {
+          "basis": "unknown",
+          "capability": "origin",
+          "caveats": [],
+          "confidence": "none",
+          "country": null,
+          "evidenceIds": [],
+          "id": "fd_35rqoyydv2",
+          "statement": "UNAVAILABLE: connection/app-store region.",
+          "status": "info",
+          "strength": {
+            "bars": 1,
+            "reasons": [
+              "0 supporting observations; 0 direct source domains.",
+              "Source independence is not established by different domains.",
+              "Three bars require independently corroborated direct evidence; not inferred from count alone."
+            ]
+          },
+          "title": "Connected via"
+        },
+        {
+          "basis": "unknown",
+          "capability": "vpn",
+          "caveats": [],
+          "confidence": "none",
+          "country": null,
+          "evidenceIds": [],
+          "id": "fd_1vfvatq0j7o",
+          "statement": "UNAVAILABLE: location-accuracy note.",
+          "status": "info",
+          "strength": {
+            "bars": 1,
+            "reasons": [
+              "0 supporting observations; 0 direct source domains.",
+              "Source independence is not established by different domains.",
+              "Three bars require independently corroborated direct evidence; not inferred from count alone."
+            ]
+          },
+          "title": "X location-accuracy note"
+        },
+        {
+          "basis": "unknown",
+          "capability": "origin",
+          "caveats": [],
+          "confidence": "none",
+          "country": null,
+          "evidenceIds": [],
+          "id": "fd_15ibyetbzia",
+          "statement": "UNAVAILABLE: self-described location.",
+          "status": "info",
+          "strength": {
+            "bars": 1,
+            "reasons": [
+              "0 supporting observations; 0 direct source domains.",
+              "Source independence is not established by different domains.",
+              "Three bars require independently corroborated direct evidence; not inferred from count alone."
+            ]
+          },
+          "title": "Profile location"
+        },
+        {
+          "basis": "unknown",
+          "capability": "origin",
+          "caveats": [
+            "Travel, relocation, organizations, shared accounts, jokes and stale information can explain disagreements."
+          ],
+          "confidence": "none",
+          "country": null,
+          "evidenceIds": [],
+          "id": "fd_qkdasbuxlb",
+          "statement": "Insufficient evidence to compare the fields.",
+          "status": "undetermined",
+          "strength": {
+            "bars": 1,
+            "reasons": [
+              "0 supporting observations; 0 direct source domains.",
+              "Source independence is not established by different domains.",
+              "Three bars require independently corroborated direct evidence; not inferred from count alone."
+            ]
+          },
+          "title": "Location comparison"
+        },
+        {
+          "basis": "unknown",
+          "capability": "vpn",
+          "caveats": [
+            "Schedulers, shift work, travel and content teams can produce misleading patterns. No precise routine or location is inferred."
+          ],
+          "confidence": "none",
+          "country": null,
+          "evidenceIds": [],
+          "id": "fd_1egm65cw0ko",
+          "statement": "INSUFFICIENT SAMPLE: no timestamped posts.",
+          "status": "undetermined",
+          "strength": {
+            "bars": 1,
+            "reasons": [
+              "0 supporting observations; 0 direct source domains.",
+              "Source independence is not established by different domains.",
+              "Three bars require independently corroborated direct evidence; not inferred from count alone."
+            ]
+          },
+          "title": "Posting-hour pattern"
+        },
+        {
+          "basis": "unknown",
+          "capability": "narrative",
+          "caveats": [
+            "Within-account textual differences do not establish authorship or identity."
+          ],
+          "confidence": "none",
+          "country": null,
+          "evidenceIds": [],
+          "id": "fd_22s53e8tj9g",
+          "statement": "INSUFFICIENT SAMPLE",
+          "status": "info",
+          "strength": {
+            "bars": 1,
+            "reasons": [
+              "0 supporting observations; 0 direct source domains.",
+              "Source independence is not established by different domains.",
+              "Three bars require independently corroborated direct evidence; not inferred from count alone."
+            ]
+          },
+          "title": "Writing pattern"
+        },
+        {
+          "basis": "unknown",
+          "capability": "narrative",
+          "caveats": [],
+          "confidence": "none",
+          "country": null,
+          "evidenceIds": [],
+          "id": "fd_1lmqptd1fs2",
+          "statement": "UNAVAILABLE: no account post sample.",
+          "status": "undetermined",
+          "strength": {
+            "bars": 1,
+            "reasons": [
+              "0 supporting observations; 0 direct source domains.",
+              "Source independence is not established by different domains.",
+              "Three bars require independently corroborated direct evidence; not inferred from count alone."
+            ]
+          },
+          "title": "Narrative focus"
+        },
+        {
+          "basis": "unknown",
+          "capability": "narrative",
+          "caveats": [],
+          "confidence": "none",
+          "country": null,
+          "evidenceIds": [],
+          "id": "fd_1tcdgp416ij",
+          "statement": "UNAVAILABLE: no matching-post search results.",
+          "status": "undetermined",
+          "strength": {
+            "bars": 1,
+            "reasons": [
+              "0 supporting observations; 0 direct source domains.",
+              "Source independence is not established by different domains.",
+              "Three bars require independently corroborated direct evidence; not inferred from count alone."
+            ]
+          },
+          "title": "EARLIEST OBSERVED COPY"
+        },
+        {
+          "basis": "unknown",
+          "capability": "claims",
+          "caveats": [],
+          "confidence": "none",
+          "country": null,
+          "evidenceIds": [],
+          "id": "fd_1ujx2rrs244",
+          "statement": "UNAVAILABLE: no authorized Community Notes records in this snapshot.",
+          "status": "undetermined",
+          "strength": {
+            "bars": 1,
+            "reasons": [
+              "0 supporting observations; 0 direct source domains.",
+              "Source independence is not established by different domains.",
+              "Three bars require independently corroborated direct evidence; not inferred from count alone."
+            ]
+          },
+          "title": "Community Notes"
+        }
+      ],
+      "focusPostId": null,
+      "headline": "Investigation of @NASA: 0 account posts observed; location unavailable.",
+      "posts": [],
+      "story": [
+        {
+          "evidenceIds": [],
+          "findingIds": [
+            "fd_21h1nnn3chr",
+            "fd_35rqoyydv2",
+            "fd_1vfvatq0j7o"
+          ],
+          "text": "UNAVAILABLE: no authorized source for X-reported operating region.\nUNAVAILABLE: connection/app-store region.\nUNAVAILABLE: location-accuracy note.",
+          "title": "01 / REPORTED ORIGIN"
+        },
+        {
+          "evidenceIds": [],
+          "findingIds": [
+            "fd_15ibyetbzia",
+            "fd_qkdasbuxlb"
+          ],
+          "text": "UNAVAILABLE: self-described location.\nInsufficient evidence to compare the fields.",
+          "title": "02 / SELF-DESCRIBED LOCATION"
+        },
+        {
+          "evidenceIds": [],
+          "findingIds": [
+            "fd_1egm65cw0ko"
+          ],
+          "text": "INSUFFICIENT SAMPLE: no timestamped posts.",
+          "title": "03 / POSTING PATTERN"
+        },
+        {
+          "evidenceIds": [],
+          "findingIds": [
+            "fd_22s53e8tj9g"
+          ],
+          "text": "INSUFFICIENT SAMPLE",
+          "title": "04 / WRITING PATTERN"
+        },
+        {
+          "evidenceIds": [],
+          "findingIds": [
+            "fd_1lmqptd1fs2"
+          ],
+          "text": "UNAVAILABLE: no account post sample.",
+          "title": "05 / NARRATIVE FOCUS"
+        },
+        {
+          "evidenceIds": [],
+          "findingIds": [
+            "fd_1tcdgp416ij"
+          ],
+          "text": "UNAVAILABLE: no matching-post search results.",
+          "title": "06 / SOURCE & AMPLIFICATION"
+        },
+        {
+          "evidenceIds": [],
+          "findingIds": [
+            "fd_21h1nnn3chr",
+            "fd_35rqoyydv2",
+            "fd_1vfvatq0j7o",
+            "fd_15ibyetbzia",
+            "fd_qkdasbuxlb",
+            "fd_1egm65cw0ko",
+            "fd_22s53e8tj9g",
+            "fd_1lmqptd1fs2",
+            "fd_1tcdgp416ij",
+            "fd_1ujx2rrs244"
+          ],
+          "text": "No established location contradiction.\nUNAVAILABLE: no authorized source for X-reported operating region.\nUNAVAILABLE: self-described location.\nINSUFFICIENT SAMPLE: no timestamped posts.\nUNAVAILABLE: no matching-post search results.\n0 of 0 post-claim candidates have scoped source comparisons. 0 additional source-passage comparisons are recorded in Claims.\nUnresolved: completeness of search, original source, source independence and causal amplification. Physical location and common control are not established.",
+          "title": "07 / THE READ"
+        }
+      ],
+      "telemetry": {
+        "cacheHits": 0,
+        "cost": null,
+        "failures": 0,
+        "posts": 0,
+        "profiles": 0,
+        "requests": 1,
+        "status": "partial",
+        "tokens": null
+      },
+      "version": 2
+    },
+    {
+      "account": {
+        "aboutObservedAt": null,
+        "basedIn": null,
+        "basedInCountry": null,
+        "basedInIsRegion": false,
+        "connectedVia": null,
+        "handle": "NASA",
+        "locationAccurate": null,
+        "profileLocation": null
+      },
+      "adapterVersion": "provider@3",
+      "claims": [],
+      "correction": {
+        "previousVersion": 2,
+        "reason": "Added evidence; compare with previous version."
+      },
+      "coverage": [
+        {
+          "complete": false,
+          "end": null,
+          "fields": [],
+          "limitations": [
+            "No feed crawling. No external search performed for this selection."
+          ],
+          "nextCursor": null,
+          "provider": "UserEvidenceProvider",
+          "query": "Explicit account/post selection",
+          "recordsExamined": 0,
+          "retrievedAt": "2026-10-29T23:49:33.235Z",
+          "start": null,
+          "status": "ok"
+        },
+        {
+          "complete": false,
+          "end": null,
+          "fields": [],
+          "limitations": [
+            "Approved X API access is not configured."
+          ],
+          "nextCursor": null,
+          "provider": "XOfficialProvider",
+          "query": "NASA",
+          "recordsExamined": 0,
+          "retrievedAt": "2026-10-29T23:49:33.237Z",
+          "start": null,
+          "status": "unavailable"
+        },
+        {
+          "complete": false,
+          "end": null,
+          "fields": [
+            "sourceText",
+            "citations",
+            "publicationDateWhenAvailable"
+          ],
+          "limitations": [],
+          "nextCursor": null,
+          "provider": "PublicEvidenceProvider",
+          "query": "",
+          "recordsExamined": 1,
+          "retrievedAt": "2026-10-29T23:49:33.297Z",
+          "start": null,
+          "status": "ok"
+        }
+      ],
+      "createdAt": "2026-10-29T23:49:34.936Z",
+      "displayRoles": {
+        "E-01": [],
+        "E-02": [],
+        "E-03": [],
+        "E-04": [],
+        "E-05": [],
+        "E-06": [],
+        "E-07": [],
+        "E-08": [],
+        "N-1": [],
+        "N-2": [],
+        "N-3": []
+      },
+      "edges": [],
+      "engine": "deterministic@3.1.0",
+      "evidenceIds": [
+        "ev_1k0oep8owai"
+      ],
+      "findings": [
+        {
+          "basis": "unknown",
+          "capability": "origin",
+          "caveats": [
+            "An operating-region display does not establish physical location or factual accuracy."
+          ],
+          "confidence": "none",
+          "country": null,
+          "evidenceIds": [],
+          "id": "fd_21h1nnn3chr",
+          "statement": "UNAVAILABLE: no authorized source for X-reported operating region.",
+          "status": "undetermined",
+          "strength": {
+            "bars": 1,
+            "reasons": [
+              "0 supporting observations; 0 direct source domains.",
+              "Source independence is not established by different domains.",
+              "Three bars require independently corroborated direct evidence; not inferred from count alone."
+            ]
+          },
+          "title": "Account based in"
+        },
+        {
+          "basis": "unknown",
+          "capability": "origin",
+          "caveats": [],
+          "confidence": "none",
+          "country": null,
+          "evidenceIds": [],
+          "id": "fd_35rqoyydv2",
+          "statement": "UNAVAILABLE: connection/app-store region.",
+          "status": "info",
+          "strength": {
+            "bars": 1,
+            "reasons": [
+              "0 supporting observations; 0 direct source domains.",
+              "Source independence is not established by different domains.",
+              "Three bars require independently corroborated direct evidence; not inferred from count alone."
+            ]
+          },
+          "title": "Connected via"
+        },
+        {
+          "basis": "unknown",
+          "capability": "vpn",
+          "caveats": [],
+          "confidence": "none",
+          "country": null,
+          "evidenceIds": [],
+          "id": "fd_1vfvatq0j7o",
+          "statement": "UNAVAILABLE: location-accuracy note.",
+          "status": "info",
+          "strength": {
+            "bars": 1,
+            "reasons": [
+              "0 supporting observations; 0 direct source domains.",
+              "Source independence is not established by different domains.",
+              "Three bars require independently corroborated direct evidence; not inferred from count alone."
+            ]
+          },
+          "title": "X location-accuracy note"
+        },
+        {
+          "basis": "unknown",
+          "capability": "origin",
+          "caveats": [],
+          "confidence": "none",
+          "country": null,
+          "evidenceIds": [],
+          "id": "fd_15ibyetbzia",
+          "statement": "UNAVAILABLE: self-described location.",
+          "status": "info",
+          "strength": {
+            "bars": 1,
+            "reasons": [
+              "0 supporting observations; 0 direct source domains.",
+              "Source independence is not established by different domains.",
+              "Three bars require independently corroborated direct evidence; not inferred from count alone."
+            ]
+          },
+          "title": "Profile location"
+        },
+        {
+          "basis": "unknown",
+          "capability": "origin",
+          "caveats": [
+            "Travel, relocation, organizations, shared accounts, jokes and stale information can explain disagreements."
+          ],
+          "confidence": "none",
+          "country": null,
+          "evidenceIds": [],
+          "id": "fd_qkdasbuxlb",
+          "statement": "Insufficient evidence to compare the fields.",
+          "status": "undetermined",
+          "strength": {
+            "bars": 1,
+            "reasons": [
+              "0 supporting observations; 0 direct source domains.",
+              "Source independence is not established by different domains.",
+              "Three bars require independently corroborated direct evidence; not inferred from count alone."
+            ]
+          },
+          "title": "Location comparison"
+        },
+        {
+          "basis": "unknown",
+          "capability": "vpn",
+          "caveats": [
+            "Schedulers, shift work, travel and content teams can produce misleading patterns. No precise routine or location is inferred."
+          ],
+          "confidence": "none",
+          "country": null,
+          "evidenceIds": [],
+          "id": "fd_1egm65cw0ko",
+          "statement": "INSUFFICIENT SAMPLE: no timestamped posts.",
+          "status": "undetermined",
+          "strength": {
+            "bars": 1,
+            "reasons": [
+              "0 supporting observations; 0 direct source domains.",
+              "Source independence is not established by different domains.",
+              "Three bars require independently corroborated direct evidence; not inferred from count alone."
+            ]
+          },
+          "title": "Posting-hour pattern"
+        },
+        {
+          "basis": "unknown",
+          "capability": "narrative",
+          "caveats": [
+            "Within-account textual differences do not establish authorship or identity."
+          ],
+          "confidence": "none",
+          "country": null,
+          "evidenceIds": [],
+          "id": "fd_22s53e8tj9g",
+          "statement": "INSUFFICIENT SAMPLE",
+          "status": "info",
+          "strength": {
+            "bars": 1,
+            "reasons": [
+              "0 supporting observations; 0 direct source domains.",
+              "Source independence is not established by different domains.",
+              "Three bars require independently corroborated direct evidence; not inferred from count alone."
+            ]
+          },
+          "title": "Writing pattern"
+        },
+        {
+          "basis": "unknown",
+          "capability": "narrative",
+          "caveats": [],
+          "confidence": "none",
+          "country": null,
+          "evidenceIds": [],
+          "id": "fd_1lmqptd1fs2",
+          "statement": "UNAVAILABLE: no account post sample.",
+          "status": "undetermined",
+          "strength": {
+            "bars": 1,
+            "reasons": [
+              "0 supporting observations; 0 direct source domains.",
+              "Source independence is not established by different domains.",
+              "Three bars require independently corroborated direct evidence; not inferred from count alone."
+            ]
+          },
+          "title": "Narrative focus"
+        },
+        {
+          "basis": "unknown",
+          "capability": "narrative",
+          "caveats": [],
+          "confidence": "none",
+          "country": null,
+          "evidenceIds": [],
+          "id": "fd_1tcdgp416ij",
+          "statement": "UNAVAILABLE: no matching-post search results.",
+          "status": "undetermined",
+          "strength": {
+            "bars": 1,
+            "reasons": [
+              "0 supporting observations; 0 direct source domains.",
+              "Source independence is not established by different domains.",
+              "Three bars require independently corroborated direct evidence; not inferred from count alone."
+            ]
+          },
+          "title": "EARLIEST OBSERVED COPY"
+        },
+        {
+          "basis": "inferred",
+          "capability": "claims",
+          "caveats": [],
+          "confidence": "low",
+          "country": null,
+          "evidenceIds": [
+            "ev_1k0oep8owai"
+          ],
+          "id": "fd_177n0qqj3pd",
+          "statement": "supported: Exact normalized assertion matches the dated source passage. This establishes source agreement, not universal truth.",
+          "status": "info",
+          "strength": {
+            "bars": 1,
+            "reasons": [
+              "1 supporting observations; 1 direct source domains.",
+              "Source independence is not established by different domains.",
+              "Three bars require independently corroborated direct evidence; not inferred from count alone."
+            ]
+          },
+          "title": "Source passage comparison"
+        },
+        {
+          "basis": "unknown",
+          "capability": "claims",
+          "caveats": [],
+          "confidence": "none",
+          "country": null,
+          "evidenceIds": [],
+          "id": "fd_1ujx2rrs244",
+          "statement": "UNAVAILABLE: no authorized Community Notes records in this snapshot.",
+          "status": "undetermined",
+          "strength": {
+            "bars": 1,
+            "reasons": [
+              "0 supporting observations; 0 direct source domains.",
+              "Source independence is not established by different domains.",
+              "Three bars require independently corroborated direct evidence; not inferred from count alone."
+            ]
+          },
+          "title": "Community Notes"
+        }
+      ],
+      "focusPostId": null,
+      "headline": "Investigation of @NASA: 0 account posts observed; location unavailable.",
+      "posts": [],
+      "story": [
+        {
+          "evidenceIds": [],
+          "findingIds": [
+            "fd_21h1nnn3chr",
+            "fd_35rqoyydv2",
+            "fd_1vfvatq0j7o"
+          ],
+          "text": "UNAVAILABLE: no authorized source for X-reported operating region.\nUNAVAILABLE: connection/app-store region.\nUNAVAILABLE: location-accuracy note.",
+          "title": "01 / REPORTED ORIGIN"
+        },
+        {
+          "evidenceIds": [],
+          "findingIds": [
+            "fd_15ibyetbzia",
+            "fd_qkdasbuxlb"
+          ],
+          "text": "UNAVAILABLE: self-described location.\nInsufficient evidence to compare the fields.",
+          "title": "02 / SELF-DESCRIBED LOCATION"
+        },
+        {
+          "evidenceIds": [],
+          "findingIds": [
+            "fd_1egm65cw0ko"
+          ],
+          "text": "INSUFFICIENT SAMPLE: no timestamped posts.",
+          "title": "03 / POSTING PATTERN"
+        },
+        {
+          "evidenceIds": [],
+          "findingIds": [
+            "fd_22s53e8tj9g"
+          ],
+          "text": "INSUFFICIENT SAMPLE",
+          "title": "04 / WRITING PATTERN"
+        },
+        {
+          "evidenceIds": [],
+          "findingIds": [
+            "fd_1lmqptd1fs2"
+          ],
+          "text": "UNAVAILABLE: no account post sample.",
+          "title": "05 / NARRATIVE FOCUS"
+        },
+        {
+          "evidenceIds": [],
+          "findingIds": [
+            "fd_1tcdgp416ij"
+          ],
+          "text": "UNAVAILABLE: no matching-post search results.",
+          "title": "06 / SOURCE & AMPLIFICATION"
+        },
+        {
+          "evidenceIds": [
+            "ev_1k0oep8owai"
+          ],
+          "findingIds": [
+            "fd_21h1nnn3chr",
+            "fd_35rqoyydv2",
+            "fd_1vfvatq0j7o",
+            "fd_15ibyetbzia",
+            "fd_qkdasbuxlb",
+            "fd_1egm65cw0ko",
+            "fd_22s53e8tj9g",
+            "fd_1lmqptd1fs2",
+            "fd_1tcdgp416ij",
+            "fd_177n0qqj3pd",
+            "fd_1ujx2rrs244"
+          ],
+          "text": "No established location contradiction.\nUNAVAILABLE: no authorized source for X-reported operating region.\nUNAVAILABLE: self-described location.\nINSUFFICIENT SAMPLE: no timestamped posts.\nUNAVAILABLE: no matching-post search results.\n0 of 0 post-claim candidates have scoped source comparisons. 1 additional source-passage comparisons are recorded in Claims.\nUnresolved: completeness of search, original source, source independence and causal amplification. Physical location and common control are not established.",
+          "title": "07 / THE READ"
+        }
+      ],
+      "version": 3
+    },
+    {
+      "account": {
+        "aboutObservedAt": null,
+        "basedIn": null,
+        "basedInCountry": null,
+        "basedInIsRegion": false,
+        "connectedVia": null,
+        "handle": "NASA",
+        "locationAccurate": null,
+        "profileLocation": null
+      },
+      "adapterVersion": "provider@3",
+      "claims": [],
+      "correction": {
+        "previousVersion": 3,
+        "reason": "Added evidence; compare with previous version."
+      },
+      "coverage": [
+        {
+          "complete": false,
+          "end": null,
+          "fields": [],
+          "limitations": [
+            "No feed crawling. No external search performed for this selection."
+          ],
+          "nextCursor": null,
+          "provider": "UserEvidenceProvider",
+          "query": "Explicit account/post selection",
+          "recordsExamined": 0,
+          "retrievedAt": "2026-10-29T23:49:33.235Z",
+          "start": null,
+          "status": "ok"
+        },
+        {
+          "complete": false,
+          "end": null,
+          "fields": [],
+          "limitations": [
+            "Approved X API access is not configured."
+          ],
+          "nextCursor": null,
+          "provider": "XOfficialProvider",
+          "query": "NASA",
+          "recordsExamined": 0,
+          "retrievedAt": "2026-10-29T23:49:33.237Z",
+          "start": null,
+          "status": "unavailable"
+        },
+        {
+          "complete": false,
+          "end": null,
+          "fields": [
+            "sourceText",
+            "citations",
+            "publicationDateWhenAvailable"
+          ],
+          "limitations": [],
+          "nextCursor": null,
+          "provider": "PublicEvidenceProvider",
+          "query": "",
+          "recordsExamined": 1,
+          "retrievedAt": "2026-10-29T23:49:33.297Z",
+          "start": null,
+          "status": "ok"
+        },
+        {
+          "complete": false,
+          "end": null,
+          "fields": [],
+          "limitations": [
+            "Recent, bounded API sample. About fields are unavailable.",
+            "X_API_BEARER_TOKEN is not configured in the adapter service."
+          ],
+          "nextCursor": null,
+          "provider": "XOfficialProvider",
+          "query": "{\"text\":\"\\\"Apollo 11\\\"\",\"limit\":100}",
+          "recordsExamined": 0,
+          "retrievedAt": "2026-10-29T23:49:35.008Z",
+          "start": null,
+          "status": "unavailable"
+        }
+      ],
+      "createdAt": "2026-10-29T23:49:35.010Z",
+      "displayRoles": {
+        "E-01": [],
+        "E-02": [],
+        "E-03": [],
+        "E-04": [],
+        "E-05": [],
+        "E-06": [],
+        "E-07": [],
+        "E-08": [],
+        "N-1": [],
+        "N-2": [],
+        "N-3": []
+      },
+      "edges": [],
+      "engine": "deterministic@3.1.0",
+      "evidenceIds": [
+        "ev_1k0oep8owai"
+      ],
+      "findings": [
+        {
+          "basis": "unknown",
+          "capability": "origin",
+          "caveats": [
+            "An operating-region display does not establish physical location or factual accuracy."
+          ],
+          "confidence": "none",
+          "country": null,
+          "evidenceIds": [],
+          "id": "fd_21h1nnn3chr",
+          "statement": "UNAVAILABLE: no authorized source for X-reported operating region.",
+          "status": "undetermined",
+          "strength": {
+            "bars": 1,
+            "reasons": [
+              "0 supporting observations; 0 direct source domains.",
+              "Source independence is not established by different domains.",
+              "Three bars require independently corroborated direct evidence; not inferred from count alone."
+            ]
+          },
+          "title": "Account based in"
+        },
+        {
+          "basis": "unknown",
+          "capability": "origin",
+          "caveats": [],
+          "confidence": "none",
+          "country": null,
+          "evidenceIds": [],
+          "id": "fd_35rqoyydv2",
+          "statement": "UNAVAILABLE: connection/app-store region.",
+          "status": "info",
+          "strength": {
+            "bars": 1,
+            "reasons": [
+              "0 supporting observations; 0 direct source domains.",
+              "Source independence is not established by different domains.",
+              "Three bars require independently corroborated direct evidence; not inferred from count alone."
+            ]
+          },
+          "title": "Connected via"
+        },
+        {
+          "basis": "unknown",
+          "capability": "vpn",
+          "caveats": [],
+          "confidence": "none",
+          "country": null,
+          "evidenceIds": [],
+          "id": "fd_1vfvatq0j7o",
+          "statement": "UNAVAILABLE: location-accuracy note.",
+          "status": "info",
+          "strength": {
+            "bars": 1,
+            "reasons": [
+              "0 supporting observations; 0 direct source domains.",
+              "Source independence is not established by different domains.",
+              "Three bars require independently corroborated direct evidence; not inferred from count alone."
+            ]
+          },
+          "title": "X location-accuracy note"
+        },
+        {
+          "basis": "unknown",
+          "capability": "origin",
+          "caveats": [],
+          "confidence": "none",
+          "country": null,
+          "evidenceIds": [],
+          "id": "fd_15ibyetbzia",
+          "statement": "UNAVAILABLE: self-described location.",
+          "status": "info",
+          "strength": {
+            "bars": 1,
+            "reasons": [
+              "0 supporting observations; 0 direct source domains.",
+              "Source independence is not established by different domains.",
+              "Three bars require independently corroborated direct evidence; not inferred from count alone."
+            ]
+          },
+          "title": "Profile location"
+        },
+        {
+          "basis": "unknown",
+          "capability": "origin",
+          "caveats": [
+            "Travel, relocation, organizations, shared accounts, jokes and stale information can explain disagreements."
+          ],
+          "confidence": "none",
+          "country": null,
+          "evidenceIds": [],
+          "id": "fd_qkdasbuxlb",
+          "statement": "Insufficient evidence to compare the fields.",
+          "status": "undetermined",
+          "strength": {
+            "bars": 1,
+            "reasons": [
+              "0 supporting observations; 0 direct source domains.",
+              "Source independence is not established by different domains.",
+              "Three bars require independently corroborated direct evidence; not inferred from count alone."
+            ]
+          },
+          "title": "Location comparison"
+        },
+        {
+          "basis": "unknown",
+          "capability": "vpn",
+          "caveats": [
+            "Schedulers, shift work, travel and content teams can produce misleading patterns. No precise routine or location is inferred."
+          ],
+          "confidence": "none",
+          "country": null,
+          "evidenceIds": [],
+          "id": "fd_1egm65cw0ko",
+          "statement": "INSUFFICIENT SAMPLE: no timestamped posts.",
+          "status": "undetermined",
+          "strength": {
+            "bars": 1,
+            "reasons": [
+              "0 supporting observations; 0 direct source domains.",
+              "Source independence is not established by different domains.",
+              "Three bars require independently corroborated direct evidence; not inferred from count alone."
+            ]
+          },
+          "title": "Posting-hour pattern"
+        },
+        {
+          "basis": "unknown",
+          "capability": "narrative",
+          "caveats": [
+            "Within-account textual differences do not establish authorship or identity."
+          ],
+          "confidence": "none",
+          "country": null,
+          "evidenceIds": [],
+          "id": "fd_22s53e8tj9g",
+          "statement": "INSUFFICIENT SAMPLE",
+          "status": "info",
+          "strength": {
+            "bars": 1,
+            "reasons": [
+              "0 supporting observations; 0 direct source domains.",
+              "Source independence is not established by different domains.",
+              "Three bars require independently corroborated direct evidence; not inferred from count alone."
+            ]
+          },
+          "title": "Writing pattern"
+        },
+        {
+          "basis": "unknown",
+          "capability": "narrative",
+          "caveats": [],
+          "confidence": "none",
+          "country": null,
+          "evidenceIds": [],
+          "id": "fd_1lmqptd1fs2",
+          "statement": "UNAVAILABLE: no account post sample.",
+          "status": "undetermined",
+          "strength": {
+            "bars": 1,
+            "reasons": [
+              "0 supporting observations; 0 direct source domains.",
+              "Source independence is not established by different domains.",
+              "Three bars require independently corroborated direct evidence; not inferred from count alone."
+            ]
+          },
+          "title": "Narrative focus"
+        },
+        {
+          "basis": "unknown",
+          "capability": "narrative",
+          "caveats": [],
+          "confidence": "none",
+          "country": null,
+          "evidenceIds": [],
+          "id": "fd_1tcdgp416ij",
+          "statement": "UNAVAILABLE: no matching-post search results.",
+          "status": "undetermined",
+          "strength": {
+            "bars": 1,
+            "reasons": [
+              "0 supporting observations; 0 direct source domains.",
+              "Source independence is not established by different domains.",
+              "Three bars require independently corroborated direct evidence; not inferred from count alone."
+            ]
+          },
+          "title": "EARLIEST OBSERVED COPY"
+        },
+        {
+          "basis": "inferred",
+          "capability": "claims",
+          "caveats": [],
+          "confidence": "low",
+          "country": null,
+          "evidenceIds": [
+            "ev_1k0oep8owai"
+          ],
+          "id": "fd_177n0qqj3pd",
+          "statement": "supported: Exact normalized assertion matches the dated source passage. This establishes source agreement, not universal truth.",
+          "status": "info",
+          "strength": {
+            "bars": 1,
+            "reasons": [
+              "1 supporting observations; 1 direct source domains.",
+              "Source independence is not established by different domains.",
+              "Three bars require independently corroborated direct evidence; not inferred from count alone."
+            ]
+          },
+          "title": "Source passage comparison"
+        },
+        {
+          "basis": "unknown",
+          "capability": "claims",
+          "caveats": [],
+          "confidence": "none",
+          "country": null,
+          "evidenceIds": [],
+          "id": "fd_1ujx2rrs244",
+          "statement": "UNAVAILABLE: no authorized Community Notes records in this snapshot.",
+          "status": "undetermined",
+          "strength": {
+            "bars": 1,
+            "reasons": [
+              "0 supporting observations; 0 direct source domains.",
+              "Source independence is not established by different domains.",
+              "Three bars require independently corroborated direct evidence; not inferred from count alone."
+            ]
+          },
+          "title": "Community Notes"
+        }
+      ],
+      "focusPostId": null,
+      "headline": "Investigation of @NASA: 0 account posts observed; location unavailable.",
+      "posts": [],
+      "story": [
+        {
+          "evidenceIds": [],
+          "findingIds": [
+            "fd_21h1nnn3chr",
+            "fd_35rqoyydv2",
+            "fd_1vfvatq0j7o"
+          ],
+          "text": "UNAVAILABLE: no authorized source for X-reported operating region.\nUNAVAILABLE: connection/app-store region.\nUNAVAILABLE: location-accuracy note.",
+          "title": "01 / REPORTED ORIGIN"
+        },
+        {
+          "evidenceIds": [],
+          "findingIds": [
+            "fd_15ibyetbzia",
+            "fd_qkdasbuxlb"
+          ],
+          "text": "UNAVAILABLE: self-described location.\nInsufficient evidence to compare the fields.",
+          "title": "02 / SELF-DESCRIBED LOCATION"
+        },
+        {
+          "evidenceIds": [],
+          "findingIds": [
+            "fd_1egm65cw0ko"
+          ],
+          "text": "INSUFFICIENT SAMPLE: no timestamped posts.",
+          "title": "03 / POSTING PATTERN"
+        },
+        {
+          "evidenceIds": [],
+          "findingIds": [
+            "fd_22s53e8tj9g"
+          ],
+          "text": "INSUFFICIENT SAMPLE",
+          "title": "04 / WRITING PATTERN"
+        },
+        {
+          "evidenceIds": [],
+          "findingIds": [
+            "fd_1lmqptd1fs2"
+          ],
+          "text": "UNAVAILABLE: no account post sample.",
+          "title": "05 / NARRATIVE FOCUS"
+        },
+        {
+          "evidenceIds": [],
+          "findingIds": [
+            "fd_1tcdgp416ij"
+          ],
+          "text": "UNAVAILABLE: no matching-post search results.",
+          "title": "06 / SOURCE & AMPLIFICATION"
+        },
+        {
+          "evidenceIds": [
+            "ev_1k0oep8owai"
+          ],
+          "findingIds": [
+            "fd_21h1nnn3chr",
+            "fd_35rqoyydv2",
+            "fd_1vfvatq0j7o",
+            "fd_15ibyetbzia",
+            "fd_qkdasbuxlb",
+            "fd_1egm65cw0ko",
+            "fd_22s53e8tj9g",
+            "fd_1lmqptd1fs2",
+            "fd_1tcdgp416ij",
+            "fd_177n0qqj3pd",
+            "fd_1ujx2rrs244"
+          ],
+          "text": "No established location contradiction.\nUNAVAILABLE: no authorized source for X-reported operating region.\nUNAVAILABLE: self-described location.\nINSUFFICIENT SAMPLE: no timestamped posts.\nUNAVAILABLE: no matching-post search results.\n0 of 0 post-claim candidates have scoped source comparisons. 1 additional source-passage comparisons are recorded in Claims.\nUnresolved: completeness of search, original source, source independence and causal amplification. Physical location and common control are not established.",
+          "title": "07 / THE READ"
+        }
+      ],
+      "telemetry": {
+        "cacheHits": 0,
+        "cost": null,
+        "failures": 0,
+        "posts": 0,
+        "profiles": 0,
+        "requests": 0,
+        "status": "partial",
+        "tokens": null
+      },
+      "version": 4
+    }
+  ],
+  "subject": {
+    "handle": "NASA",
+    "type": "account"
+  },
+  "updatedAt": "2026-10-29T23:49:35.010Z"
+}

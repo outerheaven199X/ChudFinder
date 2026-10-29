@@ -1,0 +1,16 @@
+
+> chud-finder@3.1.0 test:browser
+> node tools/live-investigation.mjs
+
+Chud Finder adapter listening on loopback port 18879; 1 authorized extension origins.
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+page.waitForFunction: Timeout 30000ms exceeded.
+    at <REPO>\tools\live-investigation.mjs:150:14 {
+  log: [],
+  name: 'TimeoutError'
+}
+
+Node.js v24.22.1

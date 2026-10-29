@@ -13,8 +13,10 @@ import {
   loadInvestigation,
 } from './store.ts';
 import type { IndexEntry } from './store.ts';
-import { fingerprint } from './media.ts';
+import { fingerprint, fileDigests } from './media.ts';
 import { GROK_BOT_TEMPLATE_URL } from './config.ts';
+import { matchingPassages } from '../shared/analysis.ts';
+import type { SourceDocument } from '../shared/schemas.ts';
 
 declare const chrome: any;
 const $ = (id: string) => document.getElementById(id)!;
@@ -323,6 +325,7 @@ async function initControls() {
       ? `X API: ${r.x ? 'configured' : 'unavailable'}; Grok: ${r.grok ? 'configured (opt-in)' : 'unavailable'}.`
       : r?.error || 'Provider unavailable';
     $('enrichGrok').hidden = !r?.grok;
+    $('searchGoogleMedia').hidden = !r?.mediaSearch?.google;
   };
   bind('saveProvider', async () => {
     const u = new URL(value('adapterUrl'));
@@ -382,6 +385,43 @@ async function initControls() {
       kind: value('comparisonKind'),
     }),
   );
+  bind('findPassages', async () => {
+    if (!inv) throw new Error('Start an investigation and retrieve sources first');
+    const snap = currentSnapshot(inv, version),
+      documents = inv.evidence
+        .filter((e) => snap.evidenceIds.includes(e.id) && e.kind === 'source_document')
+        .map((e) => e.value.document as SourceDocument);
+    const matches = matchingPassages(value('claimText'), documents),
+      root = $('passageMatches');
+    root.textContent = matches.length
+      ? 'Candidate passages from retrieved sources. Select and inspect the surrounding context before comparing.'
+      : 'No matching passage in retrieved sources. The original remains unavailable.';
+    for (const match of matches) {
+      const box = el(document, 'section', 'card'),
+        label = el(
+          document,
+          'p',
+          'meta',
+          match.url + ' / ' + (match.publishedAt || 'publication date unavailable'),
+        ),
+        context = el(document, 'p', 'statement', match.context),
+        choose = el(document, 'button', 'btn', 'Use this passage');
+      choose.addEventListener('click', () => {
+        ($('sourceSelect') as HTMLSelectElement).value = match.url;
+        ($('sourcePassage') as HTMLTextAreaElement).value = match.passage;
+        $('sourceSelect').dispatchEvent(new Event('change'));
+      });
+      box.append(label, context, choose);
+      root.append(box);
+    }
+  });
+  bind('reviewSource', () =>
+    run('review-source', {
+      url: value('sourceSelect'),
+      group: value('sourceGroup'),
+      rationale: value('sourceRationale'),
+    }),
+  );
   bind('importEvidence', async () => {
     const f = ($('evidenceFile') as HTMLInputElement).files?.[0];
     if (!f || f.size > 1_000_000)
@@ -395,22 +435,49 @@ async function initControls() {
       correction: value('correctionReason') || undefined,
     });
   });
-  bind('addMedia', async () => {
+  const mediaSamples = async () => {
     const f = ($('mediaFile') as HTMLInputElement).files?.[0];
     if (!f) throw new Error('Choose media to compare');
     const samples = await fingerprint(f);
-    for (const sample of samples)
-      await run('add-media', {
-        media: {
-          ...sample,
-          url: value('mediaUrl'),
-          observedAt: new Date().toISOString(),
-          publishedAt: value('mediaPublished') || null,
-          claimedEventDate: value('mediaClaimed') || null,
-          provenance: 'user_captured',
-        },
-      });
+    const digests = await fileDigests(f);
+    return {
+      file: f,
+      samples: samples.map((sample) => ({
+        ...sample,
+        ...digests,
+        url: value('mediaUrl'),
+        observedAt: new Date().toISOString(),
+        publishedAt: value('mediaPublished') || null,
+        claimedEventDate: value('mediaClaimed') || null,
+        provenance: 'user_captured' as const,
+      })),
+    };
+  };
+  bind('addMedia', async () => {
+    const { samples } = await mediaSamples();
+    for (const media of samples) await run('add-media', { media });
   });
+  bind('verifyMedia', async () => {
+    const f = ($('mediaFile') as HTMLInputElement).files?.[0];
+    if (!f || f.size > 16_000_000)
+      throw new Error('Choose a file under 16 MB for local Content Credentials verification');
+    const { file, samples } = await mediaSamples();
+    const data = await new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(String(reader.result).split(',')[1]);
+      reader.onerror = () => reject(new Error('Cannot read selected file'));
+      reader.readAsDataURL(file);
+    });
+    await run('verify-media', { samples, data, mimeType: file.type });
+  });
+  const searchMedia = async (provider: 'commons' | 'google') => {
+    const f = ($('mediaFile') as HTMLInputElement).files?.[0];
+    if (!f) throw new Error('Choose and fingerprint a file before searching');
+    const { sha1 } = await fileDigests(f);
+    return run('media-search', { sha1, imageUrl: value('mediaUrl') || undefined, provider });
+  };
+  bind('searchCommonsMedia', () => searchMedia('commons'));
+  bind('searchGoogleMedia', () => searchMedia('google'));
   bind('enrichGrok', async () => {
     const r = await run('enrich');
     $('grokSuggestions').textContent =

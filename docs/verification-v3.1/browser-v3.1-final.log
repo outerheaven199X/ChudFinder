@@ -1,0 +1,6 @@
+
+> chud-finder@3.1.0 test:browser
+> node tools/live-investigation.mjs
+
+Chud Finder adapter listening on loopback port 18879; 1 authorized extension origins.
+{"ok":true,"checks":12,"output":"<WORKSPACE>\\outputs\\acceptance-v3.1"}

@@ -1,0 +1,16 @@
+{
+  "error": "page.waitForFunction: Timeout 30000ms exceeded.",
+  "checks": [
+    "Extension loaded; actual loopback CORS provider connection established.",
+    "Seven story stages generated without Grok.",
+    "NASA article retrieved through production background and adapter.",
+    "Matching-post search returned a genuine unavailable state (no X API credential).",
+    "Dated source-passage agreement shown, with scope limitation. No X post was fabricated.",
+    "JSON, PNG and thread draft exported through the installed extension UI.",
+    "Previous snapshot remains accessible and isolated from new sources.",
+    "Native C2PA verification ran through the installed extension; signature validity and untrusted test certificate shown separately.",
+    "Live Commons exact-byte image lookup retrieved a real repository upload date and clickable source.",
+    "Refresh preserves prior source/media evidence and its original observation times."
+  ],
+  "errors": []
+}

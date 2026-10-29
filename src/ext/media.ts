@@ -1,4 +1,38 @@
 /* Local fingerprints of user-selected media. No uploading and no generative detection. */
+import exifr from 'exifr';
+export async function fileDigests(file: File) {
+  const bytes = await file.arrayBuffer();
+  const hex = (buffer: ArrayBuffer) =>
+    [...new Uint8Array(buffer)].map((b) => b.toString(16).padStart(2, '0')).join('');
+  return {
+    sha1: hex(await crypto.subtle.digest('SHA-1', bytes)),
+    sha256: hex(await crypto.subtle.digest('SHA-256', bytes)),
+  };
+}
+export async function dateMetadata(file: File): Promise<Record<string, string>> {
+  try {
+    const data = await exifr.parse(file, {
+      pick: ['DateTimeOriginal', 'CreateDate', 'ModifyDate', 'OffsetTimeOriginal', 'Software'],
+      reviveValues: false,
+      gps: false,
+    });
+    return Object.fromEntries(
+      Object.entries(data || {})
+        .filter(([k]) =>
+          [
+            'DateTimeOriginal',
+            'CreateDate',
+            'ModifyDate',
+            'OffsetTimeOriginal',
+            'Software',
+          ].includes(k),
+        )
+        .map(([k, v]) => [k, String(v).slice(0, 250)]),
+    );
+  } catch {
+    return { metadataRead: 'No supported EXIF date fields decoded' };
+  }
+}
 export function differenceHash(pixels: Uint8ClampedArray): string {
   if (pixels.length !== 9 * 8 * 4) throw new Error('Fingerprint needs a 9x8 RGBA sample');
   const grey = (i: number) => 0.299 * pixels[i] + 0.587 * pixels[i + 1] + 0.114 * pixels[i + 2];
@@ -25,10 +59,11 @@ export async function fingerprint(
   };
   const header = new TextDecoder('latin1').decode(await file.slice(0, 1_000_000).arrayBuffer());
   const metadata = {
+    ...(await dateMetadata(file)),
     type: file.type,
     bytes: String(file.size),
     c2pa: header.includes('c2pa')
-      ? 'C2PA marker observed in first MB; signature NOT verified'
+      ? 'C2PA marker observed in first MB; fingerprinting does not validate signatures. See separate verification result.'
       : 'No marker observed in first MB; absence is inconclusive',
   };
   try {

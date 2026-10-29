@@ -1,0 +1,17 @@
+1/9 Provenance check on @NASA (Chud Finder, 2026-10-29): Investigation of @NASA: 0 account posts observed; location unavailable.
+
+2/9 [unknown] Location comparison: Insufficient evidence to compare the fields.
+
+3/9 [unknown] Account based in: UNAVAILABLE: no authorized source for X-reported operating region.
+
+4/9 [unknown] X location-accuracy note: UNAVAILABLE: location-accuracy note.
+
+5/9 [unknown] Posting-hour pattern: INSUFFICIENT SAMPLE: no timestamped posts.
+
+6/9 [unknown] Connected via: UNAVAILABLE: connection/app-store region.
+
+7/9 [unknown] Profile location: UNAVAILABLE: self-described location.
+
+8/9 Receipt inv_th6wj3eags / v4 / 2026-10-29T23:49:35.010Z. Previous: 3. Added evidence; compare with previous version.
+
+9/9 Method: authorized providers and labeled user observations. Bounded coverage; location and shared wording do not prove truth or common control. Full sources, dates and strength criteria are in the matching JSON receipt.

@@ -91,7 +91,7 @@ export function narrativeAnalysis(posts: Post[]) {
 export function writingAnalysis(posts: Post[], minimum = 8) {
   const sorted = posts
     .filter((p) => p.createdAt && p.text)
-    .sort((a, b) => a.createdAt!.localeCompare(b.createdAt!));
+    .sort((a, b) => Date.parse(a.createdAt!) - Date.parse(b.createdAt!));
   const changes: { label: string; before: string; after: string; feature: string }[] = [];
   const templates: string[][] = [];
   for (const p of sorted) {
@@ -240,6 +240,81 @@ export function claimAutopsy(text: string, sources: SourceDocument[]) {
       : 'No dated source passage scoped to this assertion. Source discovery and human review remain necessary.',
   };
 }
+/** Rank inspectable passages from already-retrieved documents; never invent an original source. */
+export function matchingPassages(claim: string, sources: SourceDocument[]) {
+  const key = comparisonText(claim);
+  if (key.length < 10) return [];
+  return sources
+    .flatMap((source) => {
+      const sentences = source.text.match(/[^.!?\n]+(?:[.!?]+|$)/g) || [];
+      return sentences
+        .map((sentence, index) => {
+          const passage = sentence.trim();
+          const exact = comparisonText(passage).includes(key);
+          const score = exact ? 1 : similarity(claim, passage);
+          return {
+            url: source.url,
+            passage,
+            context: sentences
+              .slice(Math.max(0, index - 1), index + 2)
+              .join('')
+              .trim()
+              .slice(0, 4000),
+            score,
+            publishedAt: source.publishedAt,
+          };
+        })
+        .filter((r) => r.passage.length >= 10 && r.passage.length <= 4000 && r.score >= 0.5);
+    })
+    .sort((a, b) => b.score - a.score || a.url.localeCompare(b.url))
+    .slice(0, 8);
+}
+export function reviewedCorroboration(claim: string, sources: SourceDocument[]) {
+  const result = claimAutopsy(claim, sources),
+    docs = [...new Map(result.matches.map((m) => [m.source.url, m.source])).values()];
+  const reasons: string[] = [];
+  if (docs.length < 2) reasons.push('Fewer than two scoped source observations.');
+  if (result.matches.some((m) => m.status !== 'supported'))
+    reasons.push('At least one scoped comparison is unresolved or disagrees.');
+  if (docs.some((d) => d.provenance !== 'external_source' || !d.publishedAt))
+    reasons.push('Each source must be retrieved directly and dated.');
+  if (docs.some((d) => !d.independenceReview))
+    reasons.push('Source independence has not been reviewed.');
+  if (
+    new Set(docs.map((d) => d.independenceReview?.group.trim().toLowerCase())).size !== docs.length
+  )
+    reasons.push('Sources share an origin group.');
+  for (let i = 0; i < docs.length; i++)
+    for (let j = i + 1; j < docs.length; j++) {
+      const a = docs[i],
+        b = docs[j],
+        ah = new URL(a.url).hostname.replace(/^www\./, ''),
+        bh = new URL(b.url).hostname.replace(/^www\./, '');
+      const ac = a.citations.map(normalizedUrl),
+        bc = b.citations.map(normalizedUrl);
+      if (
+        ah === bh ||
+        ah.endsWith('.' + bh) ||
+        bh.endsWith('.' + ah) ||
+        ac.includes(normalizedUrl(b.url)) ||
+        bc.includes(normalizedUrl(a.url)) ||
+        ac.some((u) => u && bc.includes(u))
+      )
+        reasons.push(
+          'Shared host or recorded citation dependency prevents an independence upgrade.',
+        );
+    }
+  return {
+    eligible: reasons.length === 0,
+    sources: docs,
+    reasons: reasons.length
+      ? [...new Set(reasons)]
+      : [
+          'Dated retrieved passages agree on this narrow assertion; no conflicting scoped comparison or recorded common citation was found.',
+          'Source independence is explicitly reviewed by the user, not proven by domain count. Review rationales are in the cited evidence.',
+        ],
+  };
+}
 export function mediaComparison(media: MediaObservation[]) {
   const matches: {
     a: number;
@@ -261,7 +336,7 @@ export function mediaComparison(media: MediaObservation[]) {
           b = media[j],
           dated = [a, b]
             .filter((x) => x.publishedAt)
-            .sort((a, b) => a.publishedAt!.localeCompare(b.publishedAt!));
+            .sort((a, b) => Date.parse(a.publishedAt!) - Date.parse(b.publishedAt!));
         const earlier = dated[0]?.publishedAt || null;
         matches.push({
           a: i,
@@ -269,13 +344,16 @@ export function mediaComparison(media: MediaObservation[]) {
           distance,
           earlier,
           dateConflict:
-            !!earlier && [a, b].some((x) => !!x.claimedEventDate && x.claimedEventDate > earlier),
+            !!earlier &&
+            [a, b].some(
+              (x) => !!x.claimedEventDate && Date.parse(x.claimedEventDate) > Date.parse(earlier),
+            ),
         });
       }
     }
   return {
     matches,
     method:
-      '64-bit difference hash; Hamming distance <= 8. Similarity is a review candidate, not proof of the same event. Dates and metadata are user-supplied; C2PA signatures are not verified.',
+      '64-bit difference hash; Hamming distance <= 8. Similarity is a review candidate, not proof of the same event. Supplied dates and embedded metadata are not independently verified event dates. Separate Content Credentials results describe file integrity.',
   };
 }

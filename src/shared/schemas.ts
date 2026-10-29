@@ -5,7 +5,7 @@
 import { z } from 'zod';
 
 export const SCHEMA_VERSION = 1 as const;
-export const ENGINE_VERSION = 'deterministic@3.0.0';
+export const ENGINE_VERSION = 'deterministic@3.1.0';
 
 const handle = z.string().regex(/^[A-Za-z0-9_]{1,15}$/);
 const iso = z.iso.datetime({ offset: true });
@@ -48,6 +48,15 @@ export const SourceDocument = z
     text: z.string().max(100000),
     citations: z.array(httpsUrl).max(100),
     provenance: z.enum(['external_source', 'user_captured']),
+    independenceReview: z
+      .object({
+        group: z.string().min(2).max(100),
+        rationale: z.string().min(20).max(600),
+        reviewedAt: iso,
+        provenance: z.literal('user_captured'),
+      })
+      .strict()
+      .optional(),
     // Explicit passage comparisons are scoped to the submitted claim, never inferred from nationality.
     comparisons: z
       .array(
@@ -78,6 +87,41 @@ export const SourceDocument = z
   })
   .strict();
 export type SourceDocument = z.infer<typeof SourceDocument>;
+export const MediaVerification = z
+  .object({
+    provider: z.enum(['LocalC2PA', 'UserEvidenceProvider']),
+    checkedAt: iso,
+    sha256: z.string().regex(/^[0-9a-f]{64}$/),
+    signature: z.enum(['validated', 'invalid', 'absent', 'unverified']),
+    binding: z.enum(['matched', 'mismatch', 'unverified']),
+    trust: z.enum(['trusted', 'untrusted', 'unverified']),
+    sdkState: z.string().max(80),
+    codes: z.array(z.string().max(150)).max(100),
+    issuer: z.string().max(200).nullable(),
+    signedAt: iso.nullable(),
+    limitations: z.array(z.string().max(600)).max(15),
+  })
+  .strict();
+export type MediaVerification = z.infer<typeof MediaVerification>;
+export const MediaInstance = z
+  .object({
+    sourceUrl: httpsUrl,
+    imageUrl: httpsUrl.nullable(),
+    title: z.string().max(300),
+    publishedAt: iso.nullable(),
+    dateBasis: z.enum(['repository_upload', 'unavailable', 'user_supplied']),
+    match: z.enum([
+      'exact_sha1',
+      'full_image',
+      'partial_image',
+      'visually_similar',
+      'user_supplied',
+    ]),
+    provider: z.string().max(80),
+    retrievedAt: iso,
+  })
+  .strict();
+export type MediaInstance = z.infer<typeof MediaInstance>;
 export const MediaObservation = z
   .object({
     url: httpsUrl,
@@ -88,6 +132,16 @@ export const MediaObservation = z
     frameSeconds: z.number().min(0).nullable(),
     metadata: z.record(z.string(), z.string().max(500)),
     provenance: z.literal('user_captured'),
+    sha1: z
+      .string()
+      .regex(/^[0-9a-f]{40}$/)
+      .optional(),
+    sha256: z
+      .string()
+      .regex(/^[0-9a-f]{64}$/)
+      .optional(),
+    verification: MediaVerification.optional(),
+    instances: z.array(MediaInstance).max(30).optional(),
   })
   .strict();
 export type MediaObservation = z.infer<typeof MediaObservation>;

@@ -1,6 +1,6 @@
 # Privacy and data use
 
-Chud Finder 3.0 performs investigations only after an explicit user action. Content scripts add selection controls on X and Twitter. A selected post's public text, author handle, URL, timestamp and visible links may be read when the user chooses Investigate. No scrolling-based collection occurs. No private messages, browsing-history inventory, cookies, browser authorization tokens or intercepted traffic are collected.
+Chud Finder 3.1 performs investigations only after an explicit user action. Content scripts add selection controls on X and Twitter. A selected post's public text, author handle, URL, timestamp and visible links may be read when the user chooses Investigate. No scrolling-based collection occurs. No private messages, browsing-history inventory, cookies, browser authorization tokens or intercepted traffic are collected.
 
 ## Storage and deletion
 
@@ -16,7 +16,11 @@ The local adapter binds to loopback, accepts only allowlisted extension origins,
 
 Opt-in Grok enrichment sends up to 100 evidence IDs and short summaries to xAI. Its output is labeled unverified questions, excluded from findings and receipts. There is no automatic model call. API token counts are recorded when returned; currency charges are not invented.
 
-Selected media files are decoded and fingerprinted locally. The extension stores hashes, user-provided public URLs/dates, dimensions and limited metadata observations, not the original files. No media upload, facial identification, precise-location extraction or AI-image authenticity verdict is performed.
+Selected media files are decoded and fingerprinted locally. Only selected EXIF date/software fields are retained; artist, camera and GPS identifiers are excluded. The extension stores hashes, URLs, dates and verification results, not original files. The explicit Content Credentials control sends a file of up to 16 MB to a loopback-only adapter, which validates it in memory with the C2PA SDK. Remote manifests and online OCSP fetching are disabled. No original file is written by the adapter.
+
+Commons exact-file search sends only a SHA-1 fingerprint to commons.wikimedia.org. Optional Google Vision web detection sends the selected public image URL to Google in one explicit, potentially paid request when configured. Provider retention policies apply. Results preserve retrieval time and distinguish repository upload dates from unknown dates. No facial identification, precise-location extraction or appearance-based AI-image verdict is performed.
+
+Source independence reviews store a user-entered organization/group, rationale and review time. They remain labeled user judgments; they do not turn source-domain counts into proof of independent corroboration.
 
 Optional settings sync retains the existing HTTPS settings-file feature. A user-granted origin is fetched at startup and every ten minutes; data is validated and never executed. The request omits cookies. The configured server can observe a normal network request and associated IP address.
 

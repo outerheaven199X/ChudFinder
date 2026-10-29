@@ -8,7 +8,12 @@
  */
 import * as S from '../shared/settings-schema.ts';
 import { DEFAULT_SETTINGS as DEFAULTS } from './lib.ts';
-import { AccountObservation, Coverage, SourceDocument } from '../shared/schemas.ts';
+import {
+  AccountObservation,
+  Coverage,
+  SourceDocument,
+  MediaVerification,
+} from '../shared/schemas.ts';
 import { investigationId, upsertInvestigation, currentSnapshot } from '../shared/engine.ts';
 import { loadInvestigation, saveInvestigation, ACTIVE_KEY } from './store.ts';
 
@@ -238,8 +243,17 @@ async function save(raw: AccountObservation) {
 async function investigate(raw: unknown) {
   const obs = new UserEvidenceProvider(raw).observation,
     controller = new AbortController();
+  const prior = await loadInvestigation(chrome.storage.local, investigationId(obs.handle));
+  const retained = prior ? previousObservation(prior) : null;
+  if (retained) {
+    obs.about ||= retained.about;
+    obs.profileLocation ||= retained.profileLocation;
+    obs.sources = retained.sources;
+    obs.media = retained.media;
+  }
   active.set(obs.handle.toLowerCase(), controller);
   const coverageList: Coverage[] = [
+    ...(retained?.coverage || []),
     coverage('UserEvidenceProvider', 'Explicit account/post selection', obs.posts.length, [
       'No feed crawling. No external search performed for this selection.',
     ]),
@@ -297,7 +311,7 @@ async function investigate(raw: unknown) {
   } finally {
     active.delete(obs.handle.toLowerCase());
   }
-  obs.coverage = coverageList;
+  obs.coverage = coverageList.slice(-30);
   return save(obs);
 }
 async function modify(msg: any) {
@@ -340,8 +354,33 @@ async function modify(msg: any) {
       SourceDocument.parse(source);
       if (!source.text.includes(msg.passage))
         throw new Error('Passage is not present in the retrieved source');
+    } else if (msg.type === 'review-source') {
+      const source = obs.sources?.find((s) => s.url === msg.url);
+      if (!source) throw new Error('Retrieve the source before reviewing it');
+      source.independenceReview = {
+        group: msg.group,
+        rationale: msg.rationale,
+        reviewedAt: new Date().toISOString(),
+        provenance: 'user_captured',
+      };
+      SourceDocument.parse(source);
     } else if (msg.type === 'add-media') {
       obs.media = [...(obs.media || []), msg.media];
+    } else if (msg.type === 'verify-media') {
+      const settings = (await chrome.storage.local.get('providerSettings')).providerSettings;
+      if (!settings?.url || new URL(settings.url).hostname !== '127.0.0.1')
+        throw new Error('File verification requires the local loopback adapter. No file was sent.');
+      const a = await adapter(controller.signal);
+      const verification = MediaVerification.parse(
+        await a.send('verify-media', { data: msg.data, mimeType: msg.mimeType }),
+      );
+      if (verification.sha256 !== msg.samples?.[0]?.sha256)
+        throw new Error('Verified file hash does not match selected media');
+      obs.media = [
+        ...(obs.media || []),
+        ...msg.samples.map((m: any) => ({ ...m, verification })),
+      ].slice(-50);
+      obs.telemetry = a.telemetry;
     } else {
       const a = await adapter(controller.signal);
       if (msg.type === 'search-propagation') {
@@ -367,13 +406,32 @@ async function modify(msg: any) {
         for (const source of r.sources) docs.set(source.url, source);
         obs.sources = [...docs.values()].slice(-20);
         obs.coverage = [...(obs.coverage || []), r.coverage].slice(-30);
+      } else if (msg.type === 'media-search') {
+        const r = await new PublicEvidenceProvider(a.send).searchMedia({
+          sha1: msg.sha1,
+          imageUrl: msg.imageUrl,
+          provider: msg.provider,
+        });
+        const matches = obs.media?.filter((m) => m.sha1 === msg.sha1) || [];
+        if (!matches.length) throw new Error('Fingerprint the selected file before searching');
+        for (const m of matches) m.instances = r.instances;
+        obs.coverage = [...(obs.coverage || []), r.coverage].slice(-30);
       } else if (msg.type === 'enrich') {
         const result = await new OptionalGrokProvider(a.send).enrich(
           prev.evidence
             .filter((e) => currentSnapshot(prev).evidenceIds.includes(e.id))
             .map((e) => ({ id: e.id, summary: e.summary })),
         );
-        return { ok: true, ...result };
+        a.telemetry.tokens = result.tokens;
+        obs.telemetry = a.telemetry;
+        obs.coverage = [
+          ...(obs.coverage || []),
+          coverage('OptionalGrokProvider', 'Explicit enrichment; questions excluded from findings', 0, [
+            'No model-generated factual evidence was added.',
+          ]),
+        ].slice(-30);
+        const saved = await save(obs);
+        return { ...saved, ...result };
       } else throw new Error('Unsupported action');
       obs.telemetry = a.telemetry;
     }
@@ -382,7 +440,9 @@ async function modify(msg: any) {
       msg.type === 'enrich' ||
       msg.type === 'compare-source' ||
       msg.type === 'capture-about' ||
-      msg.type === 'add-media'
+      msg.type === 'add-media' ||
+      msg.type === 'verify-media' ||
+      msg.type === 'review-source'
     )
       throw e;
     obs.coverage = [
@@ -447,6 +507,9 @@ chrome.runtime.onMessage.addListener((msg: any, sender: any, reply: (r: any) => 
     'retrieve-sources',
     'compare-source',
     'add-media',
+    'verify-media',
+    'media-search',
+    'review-source',
     'enrich',
   ];
   if (!mutations.includes(msg?.type)) return false;

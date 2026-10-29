@@ -1,42 +1,39 @@
-# Chud Finder 3.0 completion report
+# Chud Finder 3.1 completion report
 
-The installable candidate replaces authenticated X interception with explicit source providers and runs the seven-stage evidence story without Grok. Build, typecheck, automated tests and an installed Brave investigation passed. **This is a qualified candidate, not a claim that the full mandate is production-complete.** Live X collection and several advanced verification features remain limited below.
+This update adds working offline C2PA validation, live Commons exact-file lookup, source-passage discovery and reviewed corroboration strength. It fixes timestamp ordering across UTC offsets and preserves collected sources/media when refreshing. The existing extension design, five tabs and deterministic core remain intact.
 
-Branch: `feat/authorized-evidence-story`. Baseline: `7e2676689c5a7b71778500ee5a7b6dcef8735575`. The delivered handoff records the implementation SHA. Existing five-tab layout, typography, design tokens, settings and versioned store were retained.
+Branch: `feat/authorized-evidence-story`. Previous implementation: `0bb4a8f`. The delivered report records the new commit after publication. This remains a candidate with the live-access limits below.
 
-## Implemented
+## What now works
 
-| Area | Result |
-|---|---|
-| Acquisition | Typed official X, public-source, user-evidence and optional Grok providers; credentials isolated in an origin-restricted loopback service. No cookie reads, interception, query discovery or automated feed investigation in the release bundle. |
-| Seven stages | Separate platform-display fields; conservative self-location comparison; qualified UTC activity and within-account writing; deterministic clusters, topics and phrases; chronological observed propagation; cited summary. Missing data stays unavailable. |
-| Integrity | Stable evidence IDs and display roles; reconstructed statistics and relationships; validated imports, dates and citations; retained corrections and prior snapshots. |
-| Verification | Dated source-passage comparisons, scoped quote and organizational comparisons, ClaimReview extraction, citation dependency graph, local image/video fingerprints and supplied-date conflicts. |
-| Interface and exports | Evidence/source inspection, pointer and keyboard graph interaction, UTC histogram, import/refresh/version controls, complete JSON, PNG source appendix and local thread drafts. |
-| Operations | Explicit request budgets, capped caching and retries, cancellation, request/token telemetry and truthful unavailable currency costs. |
+- **Content Credentials:** the installed extension sends a selected file only to the loopback adapter. The native SDK separately reports signature validity, asset binding and signer trust. Actual tests cover signed, altered and unsigned files. The signed SDK fixture validates cryptographically while its test certificate remains untrusted.
+- **Media instances:** Commons lookup sends a SHA-1 fingerprint and verifies returned hashes. A live lookup found Example.jpg and its recorded upload timestamp, `2010-03-14T17:20:20Z`. That is a repository upload date, not the event date or proof of first publication. Google Vision web matching is implemented behind a separate explicit paid control and server key; returned pages have unknown dates.
+- **Metadata:** local EXIF extraction retains date/software fields and excludes camera, artist and GPS identifiers. Editable metadata never becomes a verified event date. File hashes and the existing perceptual image/keyframe comparisons remain inspectable.
+- **Quotes and corroboration:** passage discovery searches retrieved source text and shows context. Three bars require matching dated direct passages, distinct user-reviewed origin groups and no recorded shared citations/hosts or conflicting scoped comparisons. Reviews are labeled user judgments; this is conditional strength for a narrow comparison, not a truth probability. Imports cannot claim verified C2PA or independently retrieved source provenance.
+- **Continuity:** refresh retains sources, comparisons and media with their original observation times. UTC offsets are compared as instants rather than strings.
 
-## Verification
+## Evidence and reproduction
 
-`npm run build`, `npm run typecheck`, `npm test` and `npm run test:browser` succeeded. The measured suite counts are **48 Node tests, 16 legacy settings tests, 17 legacy pure-function tests and one Python test**. See [test log](verification/tests-final.log), [typecheck](verification/typecheck-final.log), [build](verification/build-final.log) and [package validation](verification/release-validation.json). The latter records environment versions, archive integrity, permissions and SHA-256. Two sequential builds produced the same archive hash.
+Measured result: **89 automated tests passed**: 55 Node, 16 legacy settings, 17 legacy pure-function and one Python test. Build and typecheck passed. Two sequential builds produced identical archive hashes. [Test log](verification-v3.1/tests-v3.1-final.log), [typecheck](verification-v3.1/typecheck-v3.1-final.log), [build](verification-v3.1/build-v3.1-final.log), [package/environment record](verification-v3.1/release-validation.json).
 
-The installed extension and actual adapter retrieved [NASA's Apollo 11 article](https://www.nasa.gov/history/july-20-1969-one-giant-leap-for-mankind/), preserved its publication date and text, compared the passage “The crew splashes down off Hawaii on July 24.”, generated all story sections, retained prior versions, and exported JSON, PNG and a thread draft. This establishes dated source agreement only. **No actual NASA X posts were retrieved or invented.** X search returned unavailable; live narrative counts and propagation remain unavailable. [Browser checks](acceptance/browser-acceptance.json), [stored investigation](acceptance/live-investigation.json), [receipt](acceptance/live-receipt.json), [PNG receipt](acceptance/live-receipt.png).
+**Twelve Brave acceptance checks passed** against the installed extension and actual adapter: live NASA retrieval, passage discovery/comparison, seven stages, version history, receipt exports, pointer/keyboard graph inspection, native C2PA validation, live Commons retrieval and refresh retention. [Browser results](acceptance-v3.1/browser-acceptance.json), [browser log](verification-v3.1/browser-v3.1-final.log), [media investigation](acceptance-v3.1/media-investigation.json), [NASA investigation](acceptance-v3.1/live-investigation.json), [receipt](acceptance-v3.1/live-receipt.json).
 
-Separately, an explicitly synthetic dataset computes 24 account posts, a 14-post largest cluster, 20 US/EU keyword matches, nine phrase repetitions and 38 matching accounts across five hours. These are calculated fixture results, not real-account findings. [Seed records](acceptance/synthetic-input.json), [derived evidence](acceptance/synthetic-investigation.json).
+The media review uses a separate test workspace, not an attribution to NASA or any X account. The signed/unsigned CAI fixtures and tampering check are documented in `test/fixtures/media/README.md`. The separate synthetic propagation dataset still computes the mandate's example counts and is never presented as live account evidence. [Synthetic records](acceptance-v3.1/synthetic-input.json).
 
-Screenshots: [live overview](acceptance/live-overview.png), [live source comparison](acceptance/live-claim-verification.png), [live evidence](acceptance/live-evidence.png), [synthetic narrative](acceptance/synthetic-narrative.png), [synthetic graph](acceptance/synthetic-graph.png).
+Screenshots: [Content Credentials and live Commons result](acceptance-v3.1/media-verification.png), [NASA overview](acceptance-v3.1/live-overview.png), [dated comparison](acceptance-v3.1/live-claim-verification.png), [synthetic graph](acceptance-v3.1/synthetic-graph.png).
 
-Earlier failures are retained in [history](verification/history/): the baseline Windows `python3` alias failed, initial integration assertions exposed schema/counting/import issues, and a browser graph activation check failed. The final suite uses working Python, fixes the integration failures, and verifies actual pointer plus keyboard activation. These runs are not counted as passing replicates.
+The first expanded browser run passed the new media checks but timed out after importing the synthetic fixture while still on the Claims tab. The harness now selects Overview before asserting narrative counts. [Retained failed run](verification-v3.1/history/browser-v3.1-first.log). Native-worker argument and offset-ordering failures found during development were fixed and are covered by the final tests.
 
-## Remaining limits
+Reproduce with `npm ci`, `npm run typecheck`, `npm test`, `npm run build` and `npm run test:browser`. The browser test clears paid-provider keys in its own process, uses a temporary Brave profile and requires public access to NASA and Commons. Set `BRAVE_PATH` when necessary. The source README documents the loopback adapter setup and exact supported Node versions.
 
-- Approved live X API credentials were unavailable. Official response mapping, expired authentication, outage and rate behavior are tested with controlled responses; real timelines, recent-search entitlements and live propagation were not verified. About fields and general Community Notes are unavailable through this adapter.
-- Optional Grok enrichment was not live-tested. No model call or paid X request ran. The core needs no credits; Grok funding does not supply approved X API access.
-- Factual comparison is deliberately narrow. General semantic verification, automatic discovery of every original quote, and independent source adjudication are not implemented. Three-bar strength is withheld until independence can be established; source count alone cannot activate it.
-- Media matching covers supplied files/keyframes and supplied dates. Internet reverse-image retrieval, EXIF event verification and C2PA signature validation are not implemented. No hosted permalink is provided.
-- Brave acceptance used an isolated headless profile, not an authenticated X session. Store approval, legacy icon licensing and replacement store graphics were not established. Existing version 2 screenshots are historical.
+## Remaining access and interpretation limits
 
-## Install and reproduce
+Approved live X API access remains unavailable; no real X timeline or propagation dataset was collected. The local Grokbot installation was located, but no documented inference service suitable for reuse was established. No credentials were extracted. Live Grok and Google Vision calls were not made and no paid-provider credits were used.
 
-Unzip the delivered extension ZIP; open `brave://extensions`, enable Developer mode, and choose **Load unpacked** on the extracted folder. Use the toolbar's Investigations workspace or an explicit CF selection. User observations work without a provider.
+General Community Notes retrieval and hosted permalinks remain unavailable. Broad semantic claims stay unverified when the deterministic comparison cannot establish them. Commons search is limited to exact bytes in that repository. C2PA checks are offline, with remote manifests and online revocation checks disabled; valid signatures do not authenticate depicted events. Source independence remains an explicit user review, not an automated determination. Store approval and the legacy icon's licensing were not established.
 
-For public sources, use the feature-branch source checkout: `npm ci`, set `CF_EXTENSION_ORIGINS` to the extension's `chrome-extension://` origin, and run `npm run adapter`. Set the panel's adapter URL to `http://127.0.0.1:8787`. Credentials are optional service environment variables; never put them in the extension. The source README documents setup and limitations. `npm run test:browser` supports `BRAVE_PATH` and `CF_EVIDENCE_DIR` overrides. Reproduction requires supported Node, Python, Brave and network access to NASA.
+Temporary browser profiles remain because the earlier cleanup command was blocked by automatic approval review. No task-owned dev server or browser process was active at the final process check.
+
+## Install
+
+Unzip the extension package, open `brave://extensions`, enable Developer mode and choose **Load unpacked**. Public retrieval and C2PA checks require the source adapter: run `npm ci`, set `CF_EXTENSION_ORIGINS` to the extension origin and run `npm run adapter`. Connect the panel to `http://127.0.0.1:8787`. API keys stay in the service; free NASA/Commons/C2PA checks do not need one.

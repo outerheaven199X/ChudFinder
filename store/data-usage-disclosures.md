@@ -1,4 +1,4 @@
-# Chrome Web Store data-use disclosures for 3.0
+# Chrome Web Store data-use disclosures for 3.1
 
 These are submission materials, not evidence of a submitted or approved store release.
 
@@ -15,3 +15,5 @@ No sale, advertising use, automatic publication, automated X interaction, privat
 Permissions: storage, alarms and sidePanel. Content scripts run only on X/Twitter matches. HTTPS host grants are optional and requested for user-configured origins. No default host grants, cookies, webRequest or debugger permissions. Any final store-form selections must describe these actual flows, including website content and user-provided data processed by optional providers.
 
 Release qualification still requires approved X access, any configured provider's data-use review, and store review. Browser/session-safety guarantees are not claimed.
+
+Media transfers: explicit C2PA verification sends selected file bytes only to the loopback adapter for transient in-memory processing. Commons receives a SHA-1 fingerprint. Configured Google Vision receives a public image URL only after its paid search control is clicked. These transfers are distinct from local fingerprinting.
