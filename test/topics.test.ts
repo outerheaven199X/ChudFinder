@@ -19,14 +19,14 @@ test('topic tags: deterministic keyword regions, acronyms case-sensitive', () =>
 test('topic signal: exact neutral wording, inferred basis, mismatch only', () => {
   const s = topicSignal('The White House and Brussels are hiding the truth about the southern border and the EU migration pact', 'IN', 'India')!;
   assert.equal(s.basis, 'inferred'); assert.ok(s.mismatch);
-  assert.equal(s.text, 'Post discusses US/EU topics \u00b7 X reports account based in India \u00b7 topic/location mismatch \u2014 a signal, not proof.');
+  assert.equal(s.text, 'Post discusses US/EU topics \u00b7 X reports account based in India \u00b7 topic concentration only; no inference of misconduct.');
   assert.ok(!BANNED.test(s.text));
   assert.equal(topicSignal('FEMA response was slow', 'US', 'United States'), null);   // matches home
   assert.equal(topicSignal('EU budget talks', 'FR', 'France'), null);                // EU member
   assert.equal(topicSignal('nice sunset', 'IN', 'India'), null);                     // no topic
   assert.equal(topicSignal('FEMA', null, null), null);
   const d = topicSignal('Lok Sabha passes the bill', 'US', 'United States')!;
-  assert.equal(d.text, 'Post discusses India topics \u00b7 X reports account based in United States \u00b7 topic/location mismatch \u2014 a signal, not proof.');
+  assert.equal(d.text, 'Post discusses India topics \u00b7 X reports account based in United States \u00b7 topic concentration only; no inference of misconduct.');
 });
 
 test('topic note + popover row render with textContent only and stay neutral', () => {
@@ -39,5 +39,5 @@ test('topic note + popover row render with textContent only and stay neutral', (
   const pop = openPopover(doc, doc.getElementById('a')!, { handle: 'demo_x', info: { basedIn: 'India', accurate: true, source: 'India Android App' }, statedLocation: '',
     evaluation: { known: true, name: 'India', isRegion: false, warnings: [], flag: '' }, askGrok: false, topic: sig, onInvestigate() {}, onAskGrok() {} });
   const row = pop.querySelector('.cf-pop-topic')!;
-  assert.ok(row && /topic\/location mismatch/.test(row.textContent!) && /\[INFERRED\]/.test(row.textContent!));
+  assert.ok(row && /topic concentration/.test(row.textContent!) && /\[INFERRED\]/.test(row.textContent!));
 });

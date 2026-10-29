@@ -39,11 +39,21 @@ function hazard(c: CanvasRenderingContext2D, x: number, y: number, w: number, h:
 
 export function drawReceipt(canvas: HTMLCanvasElement, inv: Investigation, version?: number): void {
   const s = currentSnapshot(inv, version);
-  const W = 1200, H = 675; canvas.width = W; canvas.height = H;
+  const W = 1200, H = 675;
+  const evidence=inv.evidence.filter(e=>s.evidenceIds.includes(e.id));
+  const lines:string[]=[];
+  const append=(text:string)=>{for(let i=0;i<text.length;i+=105)lines.push(text.slice(i,i+105));};
+  append('CORRECTION: previous v'+(s.correction?.previousVersion??'none')+'; '+(s.correction?.reason||'No correction note'));
+  for(const f of s.findings){append(f.title+' | EVIDENCE STRENGTH '+(f.strength?.bars||1)+'/3');append(f.statement);for(const c of f.caveats)append(c);append('Evidence: '+f.evidenceIds.join(', '));}
+  for(const e of evidence){append(e.id+' / '+(e.provenance||'legacy')+' / '+(e.provider||e.source));append('Observed '+e.observedAt+'; published '+(e.publishedAt||'unavailable'));if(e.url)append(e.url);}
+  for(const c of s.coverage||[])append('COVERAGE '+c.provider+' '+c.status+' '+c.recordsExamined+' records. '+c.query+' '+c.limitations.join(' '));
+  append('LIMITS: observed coverage only; user displays are not independently API-verified; patterns do not establish common control.');
+  const height=H+70+lines.length*21;if(height>32000)throw new Error('This receipt exceeds PNG dimensions; export complete JSON.');
+  canvas.width = W; canvas.height = height;
   const c = canvas.getContext('2d')!;
   const flags = '"Twemoji Country Flags", ';
   const mono = flags + FONT.mono, sans = flags + FONT.sans;
-  c.fillStyle = ROLE.ground; c.fillRect(0, 0, W, H);
+  c.fillStyle = ROLE.ground; c.fillRect(0, 0, W, canvas.height);
   hazard(c, 0, 0, W, 14, ROLE.field);
   c.fillStyle = ROLE.surface; c.fillRect(40, 50, W - 80, H - 90);
   c.strokeStyle = ROLE.rule; c.lineWidth = 1; c.strokeRect(40.5, 50.5, W - 81, H - 91);
@@ -73,6 +83,7 @@ export function drawReceipt(canvas: HTMLCanvasElement, inv: Investigation, versi
   c.fillStyle = ROLE.rule; c.fillRect(72, H - 124, W - 144, 1);
   c.fillStyle = ROLE.inkDim; c.font = '13px ' + mono;
   c.fillText('V' + s.version + ' \u00b7 ' + s.createdAt.replace('T', ' ').slice(0, 16) + ' UTC \u00b7 ' + s.evidenceIds.length + ' evidence items \u00b7 ' + inv.id, 72, H - 100);
-  c.fillText('Source: X About this account as seen in the viewer\u2019s session + on-page observations. Country level only.', 72, H - 78);
+  c.fillText('Source register, observation dates, strength and coverage follow below. Complete data is in the JSON receipt.', 72, H - 78);
   c.fillText('A location is context, not proof a post is true or false.', 72, H - 58);
+  c.font='14px '+mono;c.fillStyle=ROLE.ink;let appendixY=H+30;for(const line of lines){c.fillText(line,72,appendixY);appendixY+=21;}
 }

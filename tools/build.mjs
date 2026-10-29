@@ -14,7 +14,7 @@ rmSync(dist, { recursive: true, force: true });
 mkdirSync(join(dist, 'src'), { recursive: true });
 
 const entries = {
-  content: 'src/ext/content.ts', page: 'src/ext/page.ts', background: 'src/ext/background.ts',
+  content: 'src/ext/content.ts', background: 'src/ext/background.ts',
   options: 'src/ext/options.ts', popup: 'src/ext/popup.ts', sidepanel: 'src/ext/sidepanel.ts',
   // classic-script globals (CFCountries / CFLib / CFSettings) for tests and bot tooling
   countries: 'tools/globals/countries.ts', lib: 'tools/globals/lib.ts', 'settings-schema': 'tools/globals/settings-schema.ts'

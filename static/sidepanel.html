@@ -55,6 +55,12 @@ table.edges{width:100%;border-collapse:collapse;font:11px/16px var(--cf-font-mon
 #threadWrap{padding:10px;border-top:var(--cf-section-rule) solid var(--cf-mark)}
 #thread{width:100%;height:220px;padding:8px;font:12px/18px var(--cf-font-mono)}
 pre{font:12px/18px var(--cf-font-mono);white-space:pre-wrap}
+input{width:100%;padding:7px;background:var(--panel);color:var(--fg);border:1px solid var(--line);font:12px var(--cf-font-mono)}
+label{display:block;margin:7px 0;color:var(--dim)}details{margin:8px 0}summary{cursor:pointer;padding:5px 0}.story-section>.card{margin-top:8px}
+.histogram{display:flex;gap:2px;height:92px;align-items:flex-end;margin:15px 0 25px}.hour{flex:1;background:var(--accent);position:relative;min-width:4px}.hour span{position:absolute;top:100%;font-size:8px;color:var(--dim)}
+.graph{width:100%;min-height:220px}#controls{margin:10px}#controls textarea{width:100%;min-height:60px;padding:6px}.graph-detail{border-left:2px solid var(--accent);padding-left:8px}line:focus{stroke:#ffe500;stroke-width:6}
+#sourceText{max-height:240px;overflow:auto;white-space:pre-wrap;font:11px var(--cf-font-mono)}
+.strength{display:inline-flex;gap:3px;align-items:flex-end;vertical-align:middle;margin-left:8px}.strength i{display:block;width:7px;border:1px solid var(--dim);background:transparent}.strength i.lit{background:var(--accent);border-color:var(--accent)}
 </style></head>
 <body>
 <header>
@@ -65,7 +71,30 @@ pre{font:12px/18px var(--cf-font-mono);white-space:pre-wrap}
   <nav id="tabs" role="tablist"></nav>
   <div id="status" class="status mono"></div>
 </header>
-<main id="main"></main>
+<details id="controls" class="card"><summary class="mono">INVESTIGATION &amp; SOURCE CONTROLS</summary>
+<label>Account handle <input id="accountHandle" placeholder="NASA" maxlength="15"></label><button id="startInvestigation" class="btn">Investigate account</button><button id="cancelInvestigation" class="btn">Cancel collection</button>
+<details><summary>Provider connection</summary><p class="caveat">Optional local adapter. API credentials stay in its environment. User evidence works without it.</p>
+<label>Adapter origin <input id="adapterUrl" placeholder="http://127.0.0.1:8787"></label><label>Request budget per action <input id="requestBudget" type="number" min="1" max="20" value="8"></label>
+<button id="saveProvider" class="btn">Connect provider</button><p id="providerState" class="meta"></p></details>
+<details><summary>Capture X display</summary><p class="caveat">USER-CAPTURED X DISPLAY. Enter only fields you actually observed. These are not independently API-verified.</p>
+<label>Source URL <input id="aboutUrl" type="url" placeholder="https://x.com/NASA/about"></label><label>Observed at (ISO timestamp) <input id="aboutAt"></label>
+<label>Based in <input id="basedIn" maxlength="80"></label><label>Connected via <input id="connectedVia" maxlength="80"></label>
+<label>Accuracy warning <select id="accuracy"><option value="">Unavailable / not observed</option><option value="false">Warning present</option><option value="true">Observed no warning</option></select></label>
+<label>Original warning text <input id="accuracyText" maxlength="600"></label><button id="captureAbout" class="btn">Save my observation</button></details>
+<details><summary>Search matching posts</summary><label>Wording or official X search expression <textarea id="propagationQuery" maxlength="512"></textarea></label>
+<label>Search start (optional ISO timestamp) <input id="searchStart"></label><label>Search end (optional ISO timestamp) <input id="searchEnd"></label>
+<button id="searchPropagation" class="btn">Search observed copies</button><p class="meta">Requires approved X API access. Results are capped at 100 combined posts; recent-search coverage only.</p></details>
+<details><summary>External sources and Claim Autopsy</summary><label>Source discovery query <input id="sourceQuery" maxlength="1000"></label><label>Primary source URL (optional) <input id="sourceUrl" type="url"></label>
+<button id="retrieveSources" class="btn">Retrieve sources</button><label>Retrieved source <select id="sourceSelect"></select></label><pre id="sourceText"></pre>
+<label>Specific claim / quoted excerpt <textarea id="claimText" maxlength="1000"></textarea></label><label>Exact original passage from the retrieved source <textarea id="sourcePassage" maxlength="4000"></textarea></label>
+<label>Comparison <select id="comparisonKind"><option value="factual">Factual assertion</option><option value="quote">Quote reconstruction</option><option value="organizational">Organizational affiliation / role</option></select></label>
+<button id="compareSource" class="btn">Compare cited passage</button><p class="caveat">Numerical and qualifier comparisons require identical scope. Broader meaning and attribution remain unverified. Do not infer private identities.</p></details>
+<details><summary>Media Time Machine</summary><label>Image or video to fingerprint <input id="mediaFile" type="file" accept="image/*,video/*"></label>
+<label>Public source URL <input id="mediaUrl" type="url"></label><label>Published at (optional ISO timestamp) <input id="mediaPublished"></label><label>Claimed event date (optional ISO timestamp) <input id="mediaClaimed"></label>
+<button id="addMedia" class="btn">Compare supplied media</button><p class="caveat">Compare supplied images or sampled video keyframes locally. Earlier-instance internet search is unavailable. Metadata presence is not signature verification or proof of authenticity.</p></details>
+<details><summary>Import user evidence / corrections</summary><label>AccountObservation JSON <input id="evidenceFile" type="file" accept="application/json"></label><label>Correction note <input id="correctionReason" maxlength="600"></label><button id="importEvidence" class="btn">Import as user evidence</button></details>
+<button id="enrichGrok" class="btn" hidden>ENRICH WITH GROK</button><p id="grokSuggestions" class="caveat"></p>
+</details><main id="main"></main>
 <div id="threadWrap" hidden>
   <div class="bar"><span class="mono meta" style="margin-right:auto">X THREAD DRAFT (not posted)</span>
     <button id="copyThread" class="btn small" type="button">Copy</button><button id="closeThread" class="btn small" type="button">Close</button></div>

@@ -30,6 +30,8 @@ body{font:14px var(--cf-font-sans)!important;color:var(--cf-void-black)!importan
 <body>
 <div class="hz" aria-hidden="true"></div>
 <h1 style="display:flex;align-items:center;gap:10px"><img src="../icons/icon48.png" alt="" width="40" height="40">Chud Finder settings</h1>
+<p class="hint">Provider connections, evidence capture and request budgets are in the investigation workspace. All data collection is user-initiated. No browser-session API access.</p>
+<details><summary>Legacy display settings (retained for settings-file compatibility)</summary><p class="hint">These older switches do not enable automatic acquisition. Topic and location warnings are superseded by the evidence story.</p><div hidden>
 <p class="hint">Chud Finder shows the "Account based in" country X itself reports for every account. It treats every country the same; anything highlighted below is your own choice.</p>
 
 <label class="opt"><input type="checkbox" id="showName"><span>Show the country name next to the flag</span></label>
@@ -53,6 +55,7 @@ body{font:14px var(--cf-font-sans)!important;color:var(--cf-void-black)!importan
 <div id="list"></div>
 <div id="chosen"></div>
 
+</div></details>
 <h2>Sync with Grok Bot</h2>
 <p class="hint">Optional. Point this at a settings file your bot keeps for you, such as a raw GitHub Gist URL (https only). Chud Finder checks it on startup and every 10 minutes, and applies it when it changes. It only ever reads data, never code. See SETTINGS_SCHEMA.md.</p>
 <div class="line"><input id="syncUrl" type="url" placeholder="https://gist.githubusercontent.com/you/…/raw/chud-finder-settings.json">

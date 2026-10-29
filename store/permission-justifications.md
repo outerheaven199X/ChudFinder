@@ -1,15 +1,13 @@
-# Permission justifications (paste into the CWS "Privacy practices" tab)
+# Permission justifications
 
-**Single purpose:** Show the country that X reports each account is based in, plus related provenance signals, next to posts on x.com, with a local workspace for reviewing that evidence.
+**Single purpose:** Investigate explicitly selected public claims using cited evidence, authorized providers and a local reporting workspace.
 
-| Permission | Justification |
+| Permission | Purpose |
 |---|---|
-| `storage` | Saves the user's settings, a 24-hour lookup cache, and investigations locally (`chrome.storage.local`). Nothing is synced or sent anywhere. |
-| `storage` (pacing) | Also stores the daily lookup counter and any rate-limit pause, so all tabs share one human-scale budget. |
-| `alarms` | Re-checks the optional settings URL the user configured every 10 minutes (only if one is set). |
-| `sidePanel` | Opens the local investigation workspace in Chrome's side panel when the user clicks "Investigate". |
-| Host `https://x.com/*`, `https://twitter.com/*` | Content scripts render badges on X pages and request X's public "About this account" data in the user's own session. This is the extension's single purpose. |
-| Host `https://abs.twimg.com/*` | Fetches X's public web-client script files **as text** (not executed) to find the current lookup query id when X rotates it. |
-| Optional host `https://*/*` | Requested at runtime, **per origin, only when the user enters a settings sync URL** (e.g. a GitHub Gist) on the options page. Used for a plain GET of JSON data, never code. |
+| `storage` | Stores settings, provider connection preferences and versioned investigation evidence locally. API credentials are never stored in the extension. |
+| `alarms` | Checks an optional user-configured HTTPS settings file every ten minutes. It does not schedule account investigations. |
+| `sidePanel` | Opens the existing investigation workspace after a user action. |
+| X/Twitter content-script matches | Renders account/post selection controls and reads one explicitly selected public post or profile observation. No automatic feed collection or authenticated API access. |
+| Optional `https://*/*` | Requests a specific origin when the user configures a remote provider adapter or settings URL. The extension never requests a wildcard grant. Local loopback requests use the adapter's restricted CORS policy. |
 
-**Remote code:** No. All JavaScript is bundled in the package. No `eval`, no `new Function`, no remote scripts. Fetched settings are validated JSON data.
+No default host permissions, cookie access, webRequest, debugger, browsing-history or clipboard-read permissions. No remote executable code; fetched settings and source material are treated as data. See [actual data flows](data-usage-disclosures.md) and [privacy policy](privacy-policy.md).

@@ -7,9 +7,9 @@ import { obs, post, T0 } from './helpers.ts';
 const inv = upsertInvestigation(null, obs('someone', { basedIn: 'Nigeria', accurate: false, source: 'United States App Store' },
   { profileLocation: { text: 'Lagos', observedAt: T0 }, posts: [post('5', 'someone', 'hello world this is a post')] }), T0);
 
-test('JSON export contains only cited evidence and the limitations', () => {
+test('JSON export contains the complete snapshot evidence and the limitations', () => {
   const ex = buildExport(inv, undefined, T0);
-  const cited = new Set(ex.findings.flatMap(f => f.evidenceIds));
+  const cited = new Set(ex.snapshot!.evidenceIds);
   assert.ok(ex.evidence.length > 0);
   for (const e of ex.evidence) assert.ok(cited.has(e.id));
   for (const id of cited) assert.ok(ex.evidence.some(e => e.id === id), 'every citation resolves inside the export');
@@ -23,5 +23,5 @@ test('X thread draft: numbered, <= 280 chars each, labeled, sourced', () => {
   t.forEach((p, i) => { assert.ok(p.length <= 280, p); assert.ok(p.startsWith((i + 1) + '/' + t.length + ' ')); });
   assert.ok(t.some(p => p.includes('[reported]')));
   assert.ok(t.some(p => p.includes('Source: https://x.com/someone/about')));
-  assert.ok(t[t.length - 1].includes('Country level only'));
+  assert.ok(t[t.length - 1].includes('Bounded coverage'));
 });

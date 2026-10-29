@@ -1,0 +1,75 @@
+
+> chud-finder@3.0.0 test
+> npm run build && node --test test/*.test.ts && node test/legacy/settings.test.cjs && node test/legacy/test.cjs && python bot/test_lookup.py
+
+
+> chud-finder@3.0.0 build
+> node tools/build.mjs
+
+built dist/ (23 files) and chud-finder-3.0.0.zip
+✔ three X fields remain independent with user provenance, original values, dates and sources (22.204ms)
+✔ partial, unavailable, regional, traveler and organizational cases never infer intent or location (8.7889ms)
+✔ activity describes UTC, preserves simultaneous posts, compares windows and never returns a location estimate (4.9424ms)
+✔ writing compares own chronological sample; multilingual data does not predict identity (1.5729ms)
+✔ synthetic mandate statistics are computed from 62 source records, never hard-coded (177.6949ms)
+✔ same event/shared URL does not prove duplication or common ownership; missing dates stay unknown (2.6897ms)
+✔ dated exact, numerical, qualifier and negation comparisons; semantic ambiguity and missing sources remain unverified (0.5797ms)
+✔ quote reconstruction, organizational ledger, fact-check disagreements and source dependencies share evidence (3.0346ms)
+✔ media pairs report distance and observed date conflicts without synthetic/AI claims (0.3446ms)
+✔ stable IDs, changed values and corrections retain old snapshots without orphan evidence (3.642ms)
+✔ adversarial references, statistics, graph edges, future dates, controls and spoofed origins are rejected (104.7923ms)
+✔ release excludes page bridge and all authenticated acquisition primitives (7.9039ms)
+✔ built content only captures the selected post after explicit Investigate; no requests on scroll or hover (294.454ms)
+✔ jitter: passive gaps stay within 4-9 s and vary (1.5943ms)
+✔ pacing: intent >= 2 s apart; passive capped at 10 per rolling minute (1.119ms)
+✔ daily cap: counts, enforces, resets at local midnight (1.5453ms)
+✔ settings schema: lookupMode/dailyCap optional, bounded; old documents still valid (0.8026ms)
+✔ JSON export contains the complete snapshot evidence and the limitations (4.7336ms)
+✔ X thread draft: numbered, <= 280 chars each, labeled, sourced (0.4752ms)
+✔ all five tabs render; untrusted text never becomes markup (XSS) (127.8823ms)
+✔ panel shows labels, conflicts in amber, unknown states and no emoji (23.297ms)
+✔ Narrative graph exposes supporting observations without a model call (15.0905ms)
+✔ evidence chips jump to stored evidence; every chip id exists (8.5087ms)
+✔ observation schema accepts a valid observation (4.0907ms)
+✔ observation schema rejects bad handles, http URLs, unknown keys and wrong types (1.554ms)
+✔ finding / evidence schemas enforce id prefixes and closed enums (2.0793ms)
+✔ investigation and export round-trip through their schemas (24.044ms)
+✔ settings schemaVersion 1: 1.2.0 documents stay valid; new popover / grokBotTemplateUrl keys validated (0.8962ms)
+✔ side panel: loads the active investigation, five tabs, Grok Bot link from settings, receipts (293.0936ms)
+✔ PNG receipt draws handle, headline and labeled findings onto a 1200x675 canvas (0.7481ms)
+✔ topic tags: deterministic keyword regions, acronyms case-sensitive (1.97ms)
+✔ topic signal: exact neutral wording, inferred basis, mismatch only (0.3708ms)
+✔ topic note + popover row render with textContent only and stay neutral (113.386ms)
+✔ DOM adapter: main post, quoted author, time, text (quoted text excluded) (65.8699ms)
+✔ DOM adapter: links are https only, lang tag, reply target (12.8831ms)
+✔ SPA routes (0.4925ms)
+ℹ tests 36
+ℹ suites 0
+ℹ pass 36
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1167.5595
+ok   valid full document; names resolve to ISO codes; dupes removed
+ok   schemaVersion required and must be 1
+ok   wrong types reject the whole document
+ok   unknown countries rejected; too many rejected
+ok   unknown keys ignored with a warning, never copied
+ok   prototype pollution attempt has no effect
+ok   parseAndValidate: bad JSON and oversize
+ok   merge keeps keys not in the document and copies arrays
+ok   export/import code round trip (incl. URL-safe base64 and raw JSON)
+ok   source URL must be plain https
+FAIL background: applies remote settings, records "synced" state, creates 10-min alarm
+     TypeError: Cannot read properties of undefined (reading 'periodInMinutes')
+    at <REPO>\test\legacy\settings.test.cjs:130:53
+    at async t (<REPO>\test\legacy\settings.test.cjs:16:9)
+    at async <REPO>\test\legacy\settings.test.cjs:120:3
+ok   background: same remote doc does not overwrite local edits; changed doc does
+ok   background: invalid doc rejected, settings untouched, error shown
+ok   background: no permission / http URL / HTTP error -> error, no fetch
+ok   askGrok: validated as strict boolean, round-trips through codes
+ok   background: ignores messages from other extensions
+
+15 passed, some FAILED

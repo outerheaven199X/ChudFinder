@@ -36,7 +36,7 @@ export function openPopover(doc: Document, anchor: HTMLElement, o: PopoverOpts):
 
   const i = o.info;
   const when = i && i.t ? new Date(i.t).toLocaleString() : null;
-  const srcNote = when ? 'X \u201cAbout this account\u201d, seen in your session ' + when : 'X \u201cAbout this account\u201d';
+  const srcNote = when ? 'USER-CAPTURED X DISPLAY, observed ' + when : 'Authorized provider or user-captured display required';
   if (i && i.pending) pop.appendChild(row(doc, 'Based in', null, 'Still looking up\u2026'));
   else if (i && i.error) pop.appendChild(row(doc, 'Based in', null, 'Lookup failed: ' + i.error));
   else {

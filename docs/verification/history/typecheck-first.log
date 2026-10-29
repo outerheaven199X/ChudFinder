@@ -1,0 +1,10 @@
+
+> chud-finder@3.0.0 typecheck
+> tsc --noEmit -p tsconfig.json
+
+src/ext/content.ts(18,41): error TS2304: Cannot find name 'chrome'.
+src/ext/content.ts(34,1): error TS2304: Cannot find name 'chrome'.
+src/ext/content.ts(35,1): error TS2304: Cannot find name 'chrome'.
+src/ext/content.ts(36,1): error TS2304: Cannot find name 'chrome'.
+src/ext/content.ts(39,23): error TS2339: Property 'postId' does not exist on type 'Route'.
+src/ext/content.ts(39,109): error TS2339: Property 'postId' does not exist on type 'Route'.

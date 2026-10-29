@@ -1,32 +1,13 @@
-# Chrome Web Store listing: Chud Finder
+# Chud Finder
 
-- **Name:** Chud Finder
-- **Short description (≤132):** See which country X reports each account is based in, with VPN/proxy hints and a local evidence workspace. A signal, not proof.
-- **Category:** Tools (alternative: Social & Communication)
-- **Language:** English (United States)
+Investigate public claims with traceable sources.
 
-## Detailed description
+Chud Finder builds a seven-stage evidence story from explicitly selected observations and configured authorized providers. Inspect provenance, account self-description, UTC posting patterns, writing changes, narrative concentration, observed propagation and a deterministic assessment. Every finding links to its evidence.
 
-KNOW WHERE YOUR INFORMATION IS COMING FROM.
-CONFIRM THE SOURCE.
-SOME ACCOUNTS AREN'T WHERE THEY SAY THEY ARE.
+Includes a five-tab workspace, source passage and quote comparison, local media fingerprints, source-dependency relationships, version history and JSON/PNG/thread-draft receipts. The core works without a language model. Grok is optional and its questions remain unverified suggestions.
 
-Chud Finder adds a small badge next to every author on X showing the country that X itself reports in "About this account". Click the badge for the full picture: Based in, Connected via, X's location-accuracy note, the profile's self-reported location, with the source and the time each was seen.
+Approved X API access is required for programmatic posts and recent search. X operating-region displays can be supplied by the user with a source and date; they are not independently API-verified. No cookies, intercepted X traffic or undocumented endpoint calls are used. No automatic X posting or feed investigation occurs.
 
-WHAT YOU GET
-• Country badges with flags (work on Windows too)
-• VPN/proxy and mismatch hints when X's own data disagrees with itself
-• Topic mode: an optional, neutral note when a post's topic doesn't match the reported country, labeled "inferred"
-• A side-panel workspace with evidence labels: reported, self-described, corroborated, inferred, unknown
-• Receipts: export a PNG card, JSON, or a thread draft you post yourself
-• Ask Grok: opens grok.com with a neutral prompt you can read first
+Known limits: no general Community Notes retrieval, reverse-image internet search, C2PA signature verification or hosted report permalink. Source passage agreement does not establish universal truth. Location and wording patterns do not establish deception or common control.
 
-LOCATION IS A SIGNAL, NOT PROOF.
-Where an account operates is context. It never tells you whether a post is true or false, and an account's country never makes it a bad actor. Findings stay at country level and never infer nationality.
-
-PRIVATE BY DESIGN
-No server. No AI API. No analytics. Lookups use your own logged-in X session. Everything is stored locally in your browser.
-
-Requires being logged in to X. Not affiliated with X Corp. X's data is X's estimate, not ground truth.
-
-Open source (MIT): https://github.com/outerheaven199X/ChudFinder
+This listing is a draft for the implemented release candidate, not a store approval claim.

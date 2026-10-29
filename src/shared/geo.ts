@@ -2,7 +2,11 @@
 import * as C from './countries.ts';
 import { COUNTRY_UTC_OFFSETS } from './tz-offsets.ts';
 
-export interface SourceInfo { platform: 'iOS' | 'Android' | 'Web' | null; country: string | null; raw: string | null }
+export interface SourceInfo {
+  platform: 'iOS' | 'Android' | 'Web' | null;
+  country: string | null;
+  raw: string | null;
+}
 
 /** Classify X's about_profile.source, e.g. "Japan App Store", "Russian Federation Android App", "Web". */
 export function classifySource(source: unknown): SourceInfo {
@@ -18,62 +22,136 @@ export function classifySource(source: unknown): SourceInfo {
 
 /** Best-effort: which country does a free-text profile location point at? Returns ISO2 or null. */
 export function countryFromStatedLocation(text: unknown): string | null {
-  if (!text) return null;
   const t = C.norm(text);
-  if (!t) return null;
-  const direct = C.findCountry(t);
-  if (direct) return direct.code;
-  // Split on commas / separators and test each piece, last piece first ("Lagos, Nigeria").
-  const parts = t.split(/[,|/·•\-–—]+/).map(s => s.trim()).filter(Boolean).reverse();
+  if (!t || t === 'georgia') return null;
+  const parts = t
+    .split(/[,|/·•]+/)
+    .map((s) => s.trim())
+    .filter(Boolean);
+  const candidates = new Set<string>();
   for (const part of parts) {
-    const c = C.findCountry(part);
-    if (c) return c.code;
-    for (const [name, abbr] of C.US_STATES) {
-      if (part === name.toLowerCase()) return 'US';
-      if (parts.length > 1 && part === abbr.toLowerCase()) return 'US';
-    }
+    const country = C.findCountry(part);
+    const state = C.US_STATES.find(
+      ([name, abbr]) =>
+        part === name.toLowerCase() || (parts.length > 1 && part === abbr.toLowerCase()),
+    );
+    if (country && state && country.code !== 'US') return null;
+    if (country) candidates.add(country.code);
+    else if (state) candidates.add('US');
   }
-  return null;
+  return candidates.size === 1 ? [...candidates][0] : null;
 }
 
 export function countryName(code: string | null): string | null {
   if (!code) return null;
-  const c = C.COUNTRIES.find(x => x.code === code);
+  const c = C.COUNTRIES.find((x) => x.code === code);
   return c ? c.name : code;
 }
 
 export interface ActivityPattern {
-  usable: boolean; posts: number; histogramUtc: number[];
-  quietStartUtc: number | null; estOffsetHours: number | null; reason: string;
+  usable: boolean;
+  posts: number;
+  histogramUtc: number[];
+  quietStartUtc: number | null;
+  estOffsetHours: number | null;
+  reason: string;
+  dates: string[];
+  start: string | null;
+  end: string | null;
+  missing: number;
+  sensitivity: { label: string; posts: number; quietStarts: number[] }[];
+  compatibleOffsets: number[];
 }
 
-/** Hour-of-day activity from post timestamps. Estimates a UTC offset band (+/-3h) by assuming the
- * quietest 6-hour window is local night (centred ~04:00). Weak signal; never used alone. */
-export function activityPattern(timestamps: string[]): ActivityPattern {
-  const hist = new Array(24).fill(0);
-  const ts = [...new Set(timestamps)].map(t => Date.parse(t)).filter(n => !Number.isNaN(n));
-  for (const t of ts) hist[new Date(t).getUTCHours()]++;
-  const n = ts.length;
-  const base = { posts: n, histogramUtc: hist };
-  if (n < 12) return { ...base, usable: false, quietStartUtc: null, estOffsetHours: null, reason: 'Needs at least 12 timestamped posts; ' + n + ' observed.' };
-  let best = 0, bestSum = Infinity;
-  for (let s = 0; s < 24; s++) {
-    let sum = 0;
-    for (let k = 0; k < 6; k++) sum += hist[(s + k) % 24];
-    if (sum < bestSum) { bestSum = sum; best = s; }
-  }
-  if (bestSum > n * 0.1) return { ...base, usable: false, quietStartUtc: best, estOffsetHours: null, reason: 'No clear quiet period (posts are spread across the day).' };
-  let off = 4 - (best + 3);            // local 04:00 at the middle of the quiet window
-  while (off < -12) off += 24;
-  while (off > 14) off -= 24;
-  return { ...base, usable: true, quietStartUtc: best, estOffsetHours: off, reason: 'Quietest 6 hours start at ' + String(best).padStart(2, '0') + ':00 UTC.' };
+/** Descriptive UTC histogram. Night-time compatibility is conditional, never geolocation. */
+export function activityPattern(
+  timestamps: string[],
+  minimum = 24,
+  minimumDays = 7,
+): ActivityPattern {
+  const ts = timestamps
+    .map(Date.parse)
+    .filter(Number.isFinite)
+    .sort((a, b) => a - b);
+  const hist = (xs: number[]) => {
+    const h = Array(24).fill(0);
+    for (const t of xs) h[new Date(t).getUTCHours()]++;
+    return h;
+  };
+  const quiet = (xs: number[]) => {
+    const h = hist(xs),
+      sums = h.map((_, i) =>
+        Array.from({ length: 6 }, (_, j) => h[(i + j) % 24]).reduce((a, b) => a + b, 0),
+      );
+    const min = Math.min(...sums);
+    return xs.length && min <= xs.length * 0.1
+      ? sums.flatMap((n, i) => (n === min ? [i] : []))
+      : [];
+  };
+  const dates = [...new Set(ts.map((t) => new Date(t).toISOString().slice(0, 10)))];
+  const middle = ts.length ? (ts[0] + ts[ts.length - 1]) / 2 : 0;
+  const dailyCounts = new Map(
+    dates.map((d) => [d, ts.filter((t) => new Date(t).toISOString().startsWith(d)).length]),
+  );
+  const median = [...dailyCounts.values()].sort((a, b) => a - b)[Math.floor(dates.length / 2)] || 0;
+  const samples = [
+    ['full window', ts],
+    ['earlier half', ts.filter((t) => t <= middle)],
+    ['later half', ts.filter((t) => t > middle)],
+    [
+      'lower activity days',
+      ts.filter((t) => (dailyCounts.get(new Date(t).toISOString().slice(0, 10)) || 0) <= median),
+    ],
+  ] as [string, number[]][];
+  const sensitivity = samples.map(([label, xs]) => ({
+    label,
+    posts: xs.length,
+    quietStarts: quiet(xs),
+  }));
+  const candidates = quiet(ts),
+    sufficient = ts.length >= minimum && dates.length >= minimumDays;
+  const stable = sensitivity
+    .slice(1)
+    .every(
+      (x) => x.posts >= Math.ceil(minimum / 3) && x.quietStarts.some((s) => candidates.includes(s)),
+    );
+  const usable = sufficient && candidates.length > 0 && stable;
+  const offsets = [
+    ...new Set(
+      candidates.map((s) => {
+        let v = 1 - s;
+        while (v < -12) v += 24;
+        while (v > 14) v -= 24;
+        return v;
+      }),
+    ),
+  ];
+  return {
+    usable,
+    posts: ts.length,
+    histogramUtc: hist(ts),
+    quietStartUtc: candidates[0] ?? null,
+    estOffsetHours: null,
+    compatibleOffsets: usable ? offsets : [],
+    dates,
+    start: ts.length ? new Date(ts[0]).toISOString() : null,
+    end: ts.length ? new Date(ts.at(-1)!).toISOString() : null,
+    missing: timestamps.length - ts.length,
+    sensitivity,
+    reason: !sufficient
+      ? `INSUFFICIENT SAMPLE: ${ts.length} posts on ${dates.length} dates; need ${minimum} posts on ${minimumDays} dates.`
+      : !usable
+        ? 'No stable quiet window across observation windows and activity levels.'
+        : `Quiet six-hour windows start at UTC hours ${candidates.join(', ')}. Conditional night-time compatibility only; not a location estimate.`,
+  };
 }
 
 /** Is a country's UTC offset range within +/-3h of an estimated offset? null when unknown. */
 export function offsetConsistent(code: string, estOffsetHours: number): boolean | null {
   const r = COUNTRY_UTC_OFFSETS[code];
   if (!r) return null;
-  const lo = estOffsetHours * 60 - 180, hi = estOffsetHours * 60 + 180;
+  const lo = estOffsetHours * 60 - 180,
+    hi = estOffsetHours * 60 + 180;
   for (const shift of [-1440, 0, 1440]) if (r[0] + shift <= hi && r[1] + shift >= lo) return true;
   return false;
 }

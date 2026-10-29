@@ -1,0 +1,95 @@
+
+> chud-finder@3.0.0 test
+> npm run build && node --test test/*.test.ts && node test/legacy/settings.test.cjs && node test/legacy/test.cjs && python bot/test_lookup.py
+
+
+> chud-finder@3.0.0 build
+> node tools/build.mjs
+
+built dist/ (23 files) and chud-finder-3.0.0.zip
+✔ three X fields remain independent with user provenance, original values, dates and sources (16.2695ms)
+✔ partial, unavailable, regional, traveler and organizational cases never infer intent or location (8.0763ms)
+✔ activity describes UTC, preserves simultaneous posts, compares windows and never returns a location estimate (4.7003ms)
+✔ writing compares own chronological sample; multilingual data does not predict identity (1.685ms)
+✔ synthetic mandate statistics are computed from 62 source records, never hard-coded (168.8262ms)
+✔ same event/shared URL does not prove duplication or common ownership; missing dates stay unknown (2.725ms)
+✔ dated exact, numerical, qualifier and negation comparisons; semantic ambiguity and missing sources remain unverified (0.5927ms)
+✔ quote reconstruction, organizational ledger, fact-check disagreements and source dependencies share evidence (3.0504ms)
+✔ media pairs report distance and observed date conflicts without synthetic/AI claims (0.5734ms)
+✔ stable IDs, changed values and corrections retain old snapshots without orphan evidence (3.4721ms)
+✔ adversarial references, statistics, graph edges, future dates, controls and spoofed origins are rejected (123.5823ms)
+✔ release excludes page bridge and all authenticated acquisition primitives (8.1154ms)
+✔ built content only captures the selected post after explicit Investigate; no requests on scroll or hover (314.7364ms)
+✔ jitter: passive gaps stay within 4-9 s and vary (2.4662ms)
+✔ pacing: intent >= 2 s apart; passive capped at 10 per rolling minute (1.0824ms)
+✔ daily cap: counts, enforces, resets at local midnight (1.4497ms)
+✔ settings schema: lookupMode/dailyCap optional, bounded; old documents still valid (1.1877ms)
+✔ JSON export contains the complete snapshot evidence and the limitations (4.222ms)
+✔ X thread draft: numbered, <= 280 chars each, labeled, sourced (0.4039ms)
+✔ all five tabs render; untrusted text never becomes markup (XSS) (101.354ms)
+✔ panel shows labels, conflicts in amber, unknown states and no emoji (21.7626ms)
+✔ Narrative graph exposes supporting observations without a model call (11.0657ms)
+✔ evidence chips jump to stored evidence; every chip id exists (8.336ms)
+✔ observation schema accepts a valid observation (4.029ms)
+✔ observation schema rejects bad handles, http URLs, unknown keys and wrong types (1.6456ms)
+✔ finding / evidence schemas enforce id prefixes and closed enums (1.9511ms)
+✔ investigation and export round-trip through their schemas (27.0752ms)
+✔ settings schemaVersion 1: 1.2.0 documents stay valid; new popover / grokBotTemplateUrl keys validated (1.0771ms)
+✔ side panel: loads the active investigation, five tabs, Grok Bot link from settings, receipts (266.5449ms)
+✔ PNG receipt draws handle, headline and labeled findings onto a 1200x675 canvas (0.74ms)
+✔ topic tags: deterministic keyword regions, acronyms case-sensitive (2.3808ms)
+✔ topic signal: exact neutral wording, inferred basis, mismatch only (0.4817ms)
+✔ topic note + popover row render with textContent only and stay neutral (100.4387ms)
+✔ DOM adapter: main post, quoted author, time, text (quoted text excluded) (62.9327ms)
+✔ DOM adapter: links are https only, lang tag, reply target (12.7795ms)
+✔ SPA routes (0.343ms)
+ℹ tests 36
+ℹ suites 0
+ℹ pass 36
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1091.7506
+ok   valid full document; names resolve to ISO codes; dupes removed
+ok   schemaVersion required and must be 1
+ok   wrong types reject the whole document
+ok   unknown countries rejected; too many rejected
+ok   unknown keys ignored with a warning, never copied
+ok   prototype pollution attempt has no effect
+ok   parseAndValidate: bad JSON and oversize
+ok   merge keeps keys not in the document and copies arrays
+ok   export/import code round trip (incl. URL-safe base64 and raw JSON)
+ok   source URL must be plain https
+ok   background: applies remote settings, records "synced" state, creates 10-min alarm
+ok   background: same remote doc does not overwrite local edits; changed doc does
+ok   background: invalid doc rejected, settings untouched, error shown
+ok   background: no permission / http URL / HTTP error -> error, no fetch
+ok   askGrok: validated as strict boolean, round-trips through codes
+ok   background: ignores messages from other extensions
+
+16 passed
+ok   extracts main author from profile link and quoted author from @text
+ok   rejects reserved paths and bad handles
+ok   parseAbout reads based-in, VPN flag and source
+ok   classifySource handles iOS / Android / Web
+ok   stated location parsing
+ok   renders a neutral country badge
+ok   unknown -> grey ? badge
+ok   VPN warning when location_accurate is false, suppressible
+ok   mismatch warning: stated location and app-store region
+ok   highlight is purely user-chosen; topic mode outlines outside home country
+ok   regions get a globe, not a flag
+ok   every country has a valid flag
+ok   Ask Grok prompt: VPN + source + stated location
+ok   Ask Grok prompt: no VPN, unknown parts omitted
+ok   Ask Grok URL is grok.com/?q= with encoding
+ok   badge click asks Grok and prevents X navigation
+ok   askGrok=false leaves badges as before
+
+17 passed
+.
+----------------------------------------------------------------------
+Ran 1 test in 0.044s
+
+OK

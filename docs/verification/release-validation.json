@@ -1,0 +1,31 @@
+{
+  "package": "chud-finder-3.0.0.zip",
+  "version": "3.0.0",
+  "files": 23,
+  "bytes": 679907,
+  "sha256": "763d74480e55188883f1b2eabaf72e57bb60e14d1f275783a359e253f4d57ace",
+  "zipCrcCheck": "passed",
+  "rootManifest": "passed",
+  "forbiddenAcquisitionScan": "passed",
+  "sequentialRebuildHashMatch": true,
+  "permissions": [
+    "storage",
+    "alarms",
+    "sidePanel"
+  ],
+  "node": "v24.22.1",
+  "python": "Python 3.11.9",
+  "platform": "Windows x64",
+  "baseline": "7e2676689c5a7b71778500ee5a7b6dcef8735575",
+  "branch": "feat/authorized-evidence-story",
+  "checkedAt": "2026-10-29T23:05:36.247673+00:00",
+  "testCounts": {
+    "node": 48,
+    "legacySettings": 16,
+    "legacyPure": 17,
+    "python": 1
+  },
+  "browserAcceptance": "../acceptance/browser-acceptance.json",
+  "modelCalls": 0,
+  "paidXRequests": 0
+}

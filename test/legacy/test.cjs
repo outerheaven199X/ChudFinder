@@ -99,93 +99,17 @@ async function t(name, fn) {
   });
 
 
-  await t('page.js: captures bearer, query id and self-reported locations', async () => {
-    const d = new JSDOM('', { url: 'https://x.com/home', runScripts: 'outside-only' });
-    const w = d.window; const msgs = [];
-    w.addEventListener('message', e => { if (e.data && e.data.__chudFinder) msgs.push(e.data); });
-    const timeline = { data: { home: { instructions: [{ entries: [{ content: { itemContent: { tweet_results: { result: {
-      core: { user_results: { result: { __typename: 'User', core: { screen_name: 'Jack' }, location: { location: 'San Francisco, CA' } } } } } } } } }] }] } } };
-    w.fetch = async () => ({ headers: new w.Headers({ 'content-type': 'application/json' }), clone() { return { json: async () => timeline }; } });
-    w.eval(fs.readFileSync(path.join(DIST, 'page.js'), 'utf8'));
-    await w.fetch('https://x.com/i/api/graphql/abcdefghijklmnop12/HomeTimeline?x=1', { headers: { authorization: 'Bearer TESTTOKEN' } });
-    await w.fetch('https://x.com/i/api/graphql/NEWQUERYID12345678/AboutAccountQuery?variables=%7B%7D', { headers: {} });
-    await new Promise(r => setTimeout(r, 50));
-    assert.ok(msgs.some(m => m.type === 'auth' && m.payload === 'Bearer TESTTOKEN'));
-    assert.ok(msgs.some(m => m.type === 'queryId' && m.payload === 'NEWQUERYID12345678'));
-    assert.ok(msgs.some(m => m.type === 'locations' && m.payload.jack === 'San Francisco, CA'));
-    w.close();
-  });
-
-  // ---- integration: real content.js in jsdom with mocked chrome + fetch ----
-  await t('content.js: badges appear, cache + dedupe work, 429 backs off', async () => {
-    const d = new JSDOM(F.TWEET_HTML + F.TWEET_HTML.replace('/jack/status/20', '/jack/status/21'),
-      { url: 'https://x.com/home', runScripts: 'outside-only', pretendToBeVisual: true });
-    const w = d.window;
-    w.document.cookie = 'ct0=testcsrf';
-    const store = { settings: { lookupMode: 'auto' } };
-    const calls = [];
-    let rateLimitOnce = true;
-    w.__CF_PACING__ = { passiveMinMs: 20, passiveMaxMs: 40, passivePerMinute: 1000, intentGapMs: 10 };
-    w.chrome = {
-      storage: { local: {
-        get: async keys => { if (keys === null) return { ...store }; const o = {}; for (const k of [].concat(keys)) if (k in store) o[k] = store[k]; return o; },
-        set: async o => { Object.assign(store, o); },
-        remove: async k => { for (const x of [].concat(k)) delete store[x]; }
-      }, onChanged: { addListener() {} } },
-      runtime: { sendMessage: async () => ({ queryId: null }) }
-    };
-    w.IntersectionObserver = class { constructor(cb) { this.cb = cb; } observe(el) { setTimeout(() => this.cb([{ isIntersecting: true, target: el }]), 0); } unobserve() {} };
-    w.CSS = { escape: s => s };
-    w.fetch = async (url, opts) => {
-      calls.push({ url, opts });
-      const sn = JSON.parse(decodeURIComponent(url.split('variables=')[1])).screenName;
-      if (sn === 'quoted_person' && rateLimitOnce) {
-        rateLimitOnce = false;
-        return { ok: false, status: 429, headers: { get: h => h === 'x-rate-limit-reset' ? String(Math.floor(Date.now() / 1000) + 1) : null } };
-      }
-      const body = sn === 'jack'
-        ? F.about('jack', { account_based_in: 'United States', location_accurate: true, source: 'United States App Store' })
-        : F.about(sn, { account_based_in: 'India', location_accurate: false, source: 'India Android App' });
-      return { ok: true, status: 200, headers: { get: () => null }, json: async () => body };
-    };
-    for (const f of ['countries.js', 'lib.js', 'content.js']) w.eval(fs.readFileSync(path.join(DIST, f), 'utf8'));
-
-    const waitFor = async (pred, ms = 15000) => { const end = Date.now() + ms; while (Date.now() < end) { if (pred()) return; await new Promise(r => setTimeout(r, 50)); } throw new Error('timeout'); };
-    await waitFor(() => w.document.querySelectorAll('.cf-badge:not(.cf-pending)').length === 4);
-
-    const badges = [...w.document.querySelectorAll('.cf-badge')];
-    const jack = badges.filter(b => b.getAttribute('data-cf-for') === 'jack');
-    assert.strictEqual(jack.length, 2);
-    assert.ok(jack[0].textContent.includes('United States'));
-    const q = badges.find(b => b.getAttribute('data-cf-for') === 'quoted_person');
-    assert.ok(q.classList.contains('cf-warn'), 'VPN-flagged account gets warning style');
-    // badge sits inside the User-Name name row
-    assert.ok(jack[0].parentElement.classList.contains('name-row'));
-    // jack looked up once despite appearing twice (dedupe); quoted_person twice (429 then retry)
-    const n = h => calls.filter(c => c.url.includes(encodeURIComponent('"' + h + '"'))).length;
-    assert.strictEqual(n('jack'), 1);
-    assert.strictEqual(n('quoted_person'), 2);
-    // auth headers
-    const h = calls[0].opts.headers;
-    assert.strictEqual(h['x-csrf-token'], 'testcsrf');
-    assert.ok(/^Bearer /.test(h.authorization));
-    assert.strictEqual(calls[0].opts.credentials, 'include');
-    assert.ok(calls[0].url.startsWith('https://x.com/i/api/graphql/XRqGa7EeokUU5kppkh13EA/AboutAccountQuery?variables='));
-    assert.ok(store['cf:h:jack'] && store['cf:h:jack'].basedIn === 'United States', 'cached in storage');
-    assert.ok(store['cf:pauseUntil'] > 0, 'pause recorded after 429');
-    w.close();
-  });
-
+  // Authenticated network integration was replaced by the release-boundary tests in extension.test.ts.
   await t('Ask Grok prompt: VPN + source + stated location', () => {
     const p = L.buildGrokPrompt('@Someone', { basedIn: 'Nigeria', accurate: false, source: 'United States App Store' }, 'Lagos');
-    assert.strictEqual(p, 'Tell me about the X account @Someone. X\u2019s About this account says it\u2019s based in Nigeria and connects via the United States App Store; X notes the location may not be accurate (possible VPN/proxy). Its self-reported profile location is \u201cLagos\u201d. Based on its public posts and replies, what country or region does it most likely operate from? Give your confidence and the clues, keep it at country level, and remember location alone doesn\u2019t say whether its posts are accurate.');
+    assert.ok(p.includes('User-captured X display') && p.includes('Do not infer physical location'));
   });
   await t('Ask Grok prompt: no VPN, unknown parts omitted', () => {
     const p = L.buildGrokPrompt('jack', { basedIn: 'United States', accurate: true, source: null }, '');
     assert.ok(p.includes('says it\u2019s based in United States.'));
     assert.ok(!/VPN|connects via|self-reported/.test(p));
     const q = L.buildGrokPrompt('jack', null, '');
-    assert.ok(q.startsWith('Tell me about the X account @jack. Based on its public posts'));
+    assert.ok(q.startsWith('Tell me about the X account @jack. Explain these user-supplied'));
     const r = L.buildGrokPrompt('jack', { basedIn: null, accurate: false, source: 'Web' }, '');
     assert.ok(r.includes('says it connects via the web; X notes the location may not be accurate'));
     assert.ok(!/misinformation|disinformation/i.test(p + q + r));

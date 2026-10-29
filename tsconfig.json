@@ -7,11 +7,22 @@
     "noEmit": true,
     "strict": true,
     "noImplicitAny": false,
-    "lib": ["ES2023", "DOM", "DOM.Iterable"],
-    "types": ["node"],
+    "lib": [
+      "ES2023",
+      "DOM",
+      "DOM.Iterable"
+    ],
+    "types": [
+      "node"
+    ],
     "skipLibCheck": true,
     "isolatedModules": true,
     "verbatimModuleSyntax": false
   },
-  "include": ["src/**/*.ts", "tools/**/*.ts", "test/**/*.ts"]
+  "include": [
+    "src/**/*.ts",
+    "tools/**/*.ts",
+    "test/**/*.ts",
+    "server/**/*.ts"
+  ]
 }

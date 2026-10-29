@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "Chud Finder",
-  "version": "2.3.0",
-  "description": "See which country X reports each account is based in, with VPN/proxy hints and a local evidence workspace. A signal, not proof.",
+  "version": "3.0.0",
+  "description": "Investigate public claims with cited evidence, source timelines and local receipts. User-selected data and authorized providers.",
   "icons": {
     "16": "icons/icon16.png",
     "32": "icons/icon32.png",
@@ -27,23 +27,8 @@
     "alarms",
     "sidePanel"
   ],
-  "host_permissions": [
-    "https://x.com/*",
-    "https://twitter.com/*",
-    "https://abs.twimg.com/*"
-  ],
+  "host_permissions": [],
   "content_scripts": [
-    {
-      "matches": [
-        "https://x.com/*",
-        "https://twitter.com/*"
-      ],
-      "js": [
-        "src/page.js"
-      ],
-      "run_at": "document_start",
-      "world": "MAIN"
-    },
     {
       "matches": [
         "https://x.com/*",

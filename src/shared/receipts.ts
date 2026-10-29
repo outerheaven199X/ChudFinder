@@ -5,23 +5,24 @@ import { Export } from './schemas.ts';
 import type { Evidence, Finding, Investigation } from './schemas.ts';
 
 export const LIMITATIONS = [
-  'Built from what this browser observed in the user\u2019s own X session; nothing was fetched by a server.',
-  'X\u2019s About this account values are reported by X and can be wrong.',
-  'Inferred findings are estimates at country level only. A location says nothing about whether posts are true.',
+  'Built from user-selected or supplied observations and explicitly configured authorized providers. Coverage is bounded.',
+  'About this account displays are USER-CAPTURED unless an authorized platform source is explicitly recorded.',
+  'Posting hours, wording similarity and location do not establish physical whereabouts, common control or factual truth.',
   'No public permalink: receipts are local files (JSON / PNG) or a text draft.'
 ];
 
 export function buildExport(inv: Investigation, version?: number, now = new Date().toISOString()): Export {
   const s = currentSnapshot(inv, version);
-  const cited = new Set(s.findings.flatMap(f => f.evidenceIds));
+  const cited = new Set(s.evidenceIds);
   return Export.parse({
     exportVersion: 1, generatedAt: now, generator: 'Chud Finder ' + s.engine, investigationId: inv.id, version: s.version,
     subject: inv.subject, account: s.account, headline: s.headline, findings: s.findings,
-    evidence: inv.evidence.filter(e => cited.has(e.id)), limitations: LIMITATIONS
+    evidence: inv.evidence.filter(e => cited.has(e.id)), limitations: [...LIMITATIONS,...(s.coverage||[]).flatMap(c=>c.limitations)],
+    snapshot:s, correction:s.correction, previousVersions:inv.snapshots.filter(v=>v.version<s.version).map(v=>v.version)
   });
 }
 
-const PRIORITY = ['Likely operating region', 'Account based in', 'X location-accuracy note', 'Conflict: connection region',
+const PRIORITY = ['Location comparison', 'Account based in', 'X location-accuracy note', 'Conflict: connection region',
   'Conflict: self-described location', 'Corroborated country', 'Posting-hour pattern', 'Connected via', 'Profile location', 'Post languages'];
 /** Most important findings first (for receipts, which have limited room). */
 export function rankFindings(fs: Finding[]): Finding[] {
@@ -43,6 +44,7 @@ export function threadDraft(inv: Investigation, version?: number): string[] {
     const src = refs.length ? ' Source: ' + [...new Set(refs)][0] : '';
     parts.push(cleanText('[' + f.basis + '] ' + f.title + ': ' + f.statement, 270 - src.length) + src);
   }
-  parts.push('Method: X\u2019s own About this account data seen in my session plus on-page observations. Country level only; location is context, not proof a post is true or false.');
+  parts.push('Receipt '+inv.id+' / v'+s.version+' / '+s.createdAt+'. Previous: '+(s.correction?.previousVersion??'none')+'. '+cleanText(s.correction?.reason||'No correction note.',90));
+  parts.push('Method: authorized providers and labeled user observations. Bounded coverage; location and shared wording do not prove truth or common control. Full sources, dates and strength criteria are in the matching JSON receipt.');
   return parts.map((p, i) => (i + 1) + '/' + parts.length + ' ' + p).map(p => p.slice(0, 280));
 }

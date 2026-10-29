@@ -6,16 +6,8 @@ async function refresh() {
   const all = await chrome.storage.local.get(null);
   const s = all.settings || {};
   $('enabled').checked = s.enabled !== false;
-  const n = Object.keys(all).filter(k => k.startsWith('cf:h:')).length;
-  const pause = all['cf:pauseUntil'] || 0;
-  let msg = n + ' account' + (n === 1 ? '' : 's') + ' cached.';
-  const d = new Date(); const today = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
-  const daily = all['cf:daily'] && all['cf:daily'].day === today ? all['cf:daily'].count : 0;
-  const cap = Number.isInteger(s.dailyCap) ? s.dailyCap : 300;
-  msg += ' ' + (s.lookupMode === 'auto' ? 'Auto' : 'Careful') + ' mode \u00b7 ' + daily + '/' + cap + ' lookups today.';
-  if (pause > Date.now()) msg += all['cf:pauseReason'] === 'daily'
-    ? ' Paused: daily limit reached; resumes after midnight.'
-    : ' Paused: rate-limited by X; resuming in ~' + Math.ceil((pause - Date.now()) / 60e3) + ' min.';
+  const n = (all['cf:invIndex'] || []).length;
+  const msg = n + ' local investigations. User-selected evidence; no background X lookups.';
   $('status').textContent = msg;
   const sync = $('sync');
   if (!all.syncUrl) { sync.textContent = ''; }
@@ -35,7 +27,7 @@ $('clear').addEventListener('click', async () => {
   const keys = Object.keys(all).filter(k => k.startsWith('cf:h:'));
   await chrome.storage.local.remove(keys);
   await chrome.storage.local.set({ 'cf:cacheCleared': Date.now() });
-  $('status').textContent = 'Cleared ' + keys.length + ' cached accounts. Reload X to re-check.';
+  $('status').textContent = 'Cleared ' + keys.length + ' legacy cached accounts. Investigation history remains available.';
 });
 
 $('options').addEventListener('click', () => chrome.runtime.openOptionsPage());

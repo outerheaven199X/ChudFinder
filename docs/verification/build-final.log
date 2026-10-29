@@ -1,0 +1,5 @@
+
+> chud-finder@3.0.0 build
+> node tools/build.mjs
+
+built dist/ (23 files) and chud-finder-3.0.0.zip

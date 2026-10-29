@@ -37,32 +37,20 @@ test('panel shows labels, conflicts in amber, unknown states and no emoji', () =
   const { ctx } = setup();
   const origin = renderTab(ctx, 'Origin');
   assert.ok(origin.querySelector('.tag.amber'), 'uncertainty is amber');
-  assert.ok(origin.textContent!.includes('CONFLICTS'));
-  assert.ok(origin.textContent!.includes('Location undetermined'));
+  assert.ok(origin.textContent!.includes('Location comparison'));
+  assert.ok(origin.textContent!.includes('Ambiguous'));
   const all = TABS.map(t => renderTab(ctx, t).textContent).join('\n');
   assert.ok(!/\p{Extended_Pictographic}/u.test(all), 'no emoji in the panel');
   assert.ok(/reported/.test(all) && /self-described/.test(all) && /unknown/.test(all));
 });
 
-test('Narrative and Claims: observable data + Ask Grok per post; Grok Bot link only when configured', () => {
-  const a = setup();
-  const n = renderTab(a.ctx, 'Narrative');
-  assert.ok(n.textContent!.includes('quotes')); assert.ok(n.textContent!.includes('example.org'));
-  assert.ok(n.textContent!.includes('does not score coordination'));
-  assert.equal(n.querySelectorAll('a.btn-link').length, 0, 'hidden when grokBotTemplateUrl is empty');
-  const btn = n.querySelector('button[data-action="ask-grok"]') as HTMLButtonElement;
-  btn.click();
-  assert.match(a.actions[0].url, /^https:\/\/grok\.com\/\?q=/);
-  assert.ok(decodeURIComponent(a.actions[0].url).includes('How is this narrative spreading'));
-  const c = renderTab(a.ctx, 'Claims');
-  assert.ok(c.textContent!.includes('unverified'));
-  (c.querySelector('button[data-action="ask-grok"]') as HTMLButtonElement).click();
-  assert.ok(decodeURIComponent(a.actions[1].url).includes('Identify the specific factual claims'));
-  const b = setup('https://grok.example/templates/chud-finder');
-  const links = renderTab(b.ctx, 'Claims').querySelectorAll('a.btn-link');
-  assert.ok(links.length >= 1); assert.equal(links[0].getAttribute('href'), 'https://grok.example/templates/chud-finder');
-  const bad = setup('javascript:alert(1)');
-  assert.equal(renderTab(bad.ctx, 'Overview').querySelectorAll('a.btn-link').length, 0, 'non-https template URL is ignored');
+test('Narrative graph exposes supporting observations without a model call', () => {
+  const a=setup(),n=renderTab(a.ctx,'Narrative');
+  assert.ok(n.textContent!.includes('quotes'));assert.ok(n.textContent!.includes('example.org'));
+  const edge=n.querySelector('line')!;edge.dispatchEvent(new a.dom.window.Event('click'));
+  assert.ok(n.querySelector('.graph-detail .chip'));assert.ok(n.querySelector('.graph-detail a'));
+  assert.equal(n.querySelectorAll('button[data-action="ask-grok"]').length,0);
+  assert.ok(renderTab(a.ctx,'Claims').textContent!.includes('unverified'));
 });
 
 test('evidence chips jump to stored evidence; every chip id exists', () => {

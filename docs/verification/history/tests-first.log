@@ -1,0 +1,468 @@
+
+> chud-finder@3.0.0 test
+> npm run build && node --test test/*.test.ts && node test/legacy/settings.test.cjs && node test/legacy/test.cjs && python bot/test_lookup.py
+
+
+> chud-finder@3.0.0 build
+> node tools/build.mjs
+
+built dist/ (23 files) and chud-finder-3.0.0.zip
+✔ three X fields remain independent with user provenance, original values, dates and sources (19.2284ms)
+✔ partial, unavailable, regional, traveler and organizational cases never infer intent or location (9.4339ms)
+✔ activity describes UTC, preserves simultaneous posts, compares windows and never returns a location estimate (4.8603ms)
+✔ writing compares own chronological sample; multilingual data does not predict identity (1.8565ms)
+✖ synthetic mandate statistics are computed from 62 source records, never hard-coded (79.7852ms)
+✔ same event/shared URL does not prove duplication or common ownership; missing dates stay unknown (3.0509ms)
+✔ dated exact, numerical, qualifier and negation comparisons; semantic ambiguity and missing sources remain unverified (0.6709ms)
+✔ quote reconstruction, organizational ledger, fact-check disagreements and source dependencies share evidence (2.6086ms)
+✔ media pairs report distance and observed date conflicts without synthetic/AI claims (0.2758ms)
+✔ stable IDs, changed values and corrections retain old snapshots without orphan evidence (3.4888ms)
+✔ adversarial references, statistics, graph edges, future dates, controls and spoofed origins are rejected (109.2388ms)
+✖ release excludes page bridge and all authenticated acquisition primitives (5.0302ms)
+✔ built content only captures the selected post after explicit Investigate; no requests on scroll or hover (308.1184ms)
+✔ jitter: passive gaps stay within 4-9 s and vary (1.6929ms)
+✔ pacing: intent >= 2 s apart; passive capped at 10 per rolling minute (1.7094ms)
+✔ daily cap: counts, enforces, resets at local midnight (2.9776ms)
+✔ settings schema: lookupMode/dailyCap optional, bounded; old documents still valid (1.4279ms)
+✔ JSON export contains the complete snapshot evidence and the limitations (4.5782ms)
+✔ X thread draft: numbered, <= 280 chars each, labeled, sourced (0.4445ms)
+✔ all five tabs render; untrusted text never becomes markup (XSS) (122.4224ms)
+✔ panel shows labels, conflicts in amber, unknown states and no emoji (23.3409ms)
+✔ Narrative graph exposes supporting observations without a model call (11.0521ms)
+✔ evidence chips jump to stored evidence; every chip id exists (9.575ms)
+✔ observation schema accepts a valid observation (4.0437ms)
+✔ observation schema rejects bad handles, http URLs, unknown keys and wrong types (1.5766ms)
+✔ finding / evidence schemas enforce id prefixes and closed enums (3.1521ms)
+✖ investigation and export round-trip through their schemas (21.0381ms)
+✔ settings schemaVersion 1: 1.2.0 documents stay valid; new popover / grokBotTemplateUrl keys validated (1.2368ms)
+✔ side panel: loads the active investigation, five tabs, Grok Bot link from settings, receipts (285.1799ms)
+✔ PNG receipt draws handle, headline and labeled findings onto a 1200x675 canvas (0.9669ms)
+✔ topic tags: deterministic keyword regions, acronyms case-sensitive (2.1274ms)
+✔ topic signal: exact neutral wording, inferred basis, mismatch only (0.3934ms)
+✔ topic note + popover row render with textContent only and stay neutral (118.5417ms)
+✔ DOM adapter: main post, quoted author, time, text (quoted text excluded) (73.5045ms)
+✔ DOM adapter: links are https only, lang tag, reply target (13.663ms)
+✔ SPA routes (0.2876ms)
+ℹ tests 36
+ℹ suites 0
+ℹ pass 33
+ℹ fail 3
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1155.6102
+
+✖ failing tests:
+
+test at test\engine.test.ts:37:1
+✖ synthetic mandate statistics are computed from 62 source records, never hard-coded (79.7852ms)
+  TypeError [Error]: Cannot read properties of undefined (reading 'postIds')
+      at TestContext.<anonymous> (file:///<REPO>/test/engine.test.ts:40:76)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+
+test at test\extension.test.ts:8:1
+✖ release excludes page bridge and all authenticated acquisition primitives (5.0302ms)
+  AssertionError [ERR_ASSERTION]: The input was expected to not match the regular expression /document\.cookie|AboutAccountQuery|discoverQueryId|x-csrf-token|OAuth2Session|XMLHttpRequest\.prototype|\/i\/api\/graphql/. Input:
+
+  '/* Chud Finder 3.0.0 - built from src/ext/content.ts */\n' +
+    '"use strict";\n' +
+    '(() => {\n' +
+    '  var __defProp = Object.defineProperty;\n' +
+    '  var __export = (target, all) => {\n' +
+    '    for (var name in all)\n' +
+    '      __defProp(target, name, { get: all[name], enumerable: true });\n' +
+    '  };\n' +
+    '\n' +
+    '  // src/shared/sanitize.ts\n' +
+    '  var STRIP_RE = /[\\u0000-\\u0008\\u000B\\u000C\\u000E-\\u001F\\u007F-\\u009F\\u200B-\\u200F\\u202A-\\u202E\\u2060-\\u2069\\uFEFF]/g;\n' +
+    '  function cleanText(input2, max = 1e3) {\n' +
+    '    let s = typeof input2 === "string" ? input2 : input2 == null ? "" : String(input2);\n' +
+    '    s = s.normalize("NFKC").replace(STRIP_RE, "").replace(/\\r\\n?/g, "\\n").replace(/[ \\t]+/g, " ").replace(/\\n{3,}/g, "\\n\\n").trim();\n' +
+    '    if (s.length > max) s = s.slice(0, max - 1).trimEnd() + "…";\n' +
+    '    return s;\n' +
+    '  }\n' +
+    '  function safeHttpsUrl(input2) {\n' +
+    '    try {\n' +
+    '      const u = new URL(String(input2 || ""));\n' +
+    '      if (u.protocol !== "https:" || u.username || u.password) return null;\n' +
+    '      return u.href.length <= 2048 ? u.href : null;\n' +
+    '    } catch {\n' +
+    '      return null;\n' +
+    '    }\n' +
+    '  }\n' +
+    '\n' +
+    '  // src/ext/xdom.ts\n' +
+    '  var ADAPTER_VERSION = "x-dom@2026-10.1";\n' +
+    '  var SEL = {\n' +
+    `    article: 'article[data-testid="tweet"]',\n` +
+    `    userName: '[data-testid="User-Name"]',\n` +
+    `    tweetText: '[data-testid="tweetText"]',\n` +
+    `    quoted: 'div[role="link"]',\n` +
+    '    time: "time[datetime]"\n' +
+    '  };\n' +
+    '  var HANDLE_RE = /^[A-Za-z0-9_]{1,15}$/;\n' +
+    '  var RESERVED = /* @__PURE__ */ new Set([\n' +
+    '    "home",\n' +
+    '    "explore",\n' +
+    '    "notifications",\n' +
+    '    "messages",\n' +
+    '    "i",\n' +
+    '    "search",\n' +
+    '    "settings",\n' +
+    '    "compose",\n' +
+    '    "login",\n' +
+    '    "logout",\n' +
+    '    "signup",\n' +
+    '    "tos",\n' +
+    '    "privacy",\n' +
+    '    "jobs",\n' +
+    '    "premium",\n' +
+    '    "communities",\n' +
+    '    "lists"\n' +
+    '  ]);\n' +
+    '  function cleanHandle(h) {\n' +
+    '    if (!h) return null;\n' +
+    '    const s = String(h).trim().replace(/^@/, "");\n' +
+    '    if (!HANDLE_RE.test(s) || RESERVED.has(s.toLowerCase())) return null;\n' +
+    '    return s;\n' +
+    '  }\n' +
+    '  function handleFromUserName(block) {\n' +
+    '    if (!block) return null;\n' +
+    '    for (const a of block.querySelectorAll("a[href]")) {\n' +
+    '      const m = /^\\/([A-Za-z0-9_]{1,15})\\/?$/.exec(a.getAttribute("href") || "");\n' +
+    '      if (m && cleanHandle(m[1])) return m[1];\n' +
+    '    }\n' +
+    '    for (const s of block.querySelectorAll("span")) {\n' +
+    '      if (s.children.length) continue;\n' +
+    '      const t = (s.textContent || "").trim();\n' +
+    '      if (t.startsWith("@")) {\n' +
+    '        const h = cleanHandle(t);\n' +
+    '        if (h) return h;\n' +
+    '      }\n' +
+    '    }\n' +
+    '    return null;\n' +
+    '  }\n' +
+    '  function quotedBlock(article) {\n' +
+    '    for (const q of article.querySelectorAll(SEL.quoted)) if (q.querySelector(SEL.userName)) return q;\n' +
+    '    return null;\n' +
+    '  }\n' +
+    '  var STATUS_RE = /^\\/([A-Za-z0-9_]{1,15})\\/status\\/(\\d{1,25})(?:[/?#]|$)/;\n' +
+    '  function extractPost(article, origin = "https://x.com") {\n' +
+    '    const quoted = quotedBlock(article);\n' +
+    '    const inQuoted = (el) => !!(quoted && quoted.contains(el));\n' +
+    '    let handle2 = null, id = null, createdAt = null;\n' +
+    '    for (const t of article.querySelectorAll(SEL.time)) {\n' +
+    '      if (inQuoted(t)) continue;\n' +
+    '      const a = t.closest("a[href]");\n' +
+    '      const m = a ? STATUS_RE.exec(a.getAttribute("href") || "") : null;\n' +
+    '      if (m && cleanHandle(m[1])) {\n' +
+    '        handle2 = m[1];\n' +
+    '        id = m[2];\n' +
+    '        const d = Date.parse(t.getAttribute("datetime") || "");\n' +
+    '        createdAt = Number.isNaN(d) ? null : new Date(d).toISOString();\n' +
+    '        break;\n' +
+    '      }\n' +
+    '    }\n' +
+    '    if (!handle2 || !id) return null;\n' +
+    '    const textEl = [...article.querySelectorAll(SEL.tweetText)].find((el) => !inQuoted(el)) || null;\n' +
+    '    const text = textEl ? cleanText(textEl.textContent || "", 4e3) : "";\n' +
+    '    const lang = textEl ? textEl.getAttribute("lang") || null : null;\n' +
+    '    const links = [];\n' +
+    '    if (textEl) {\n' +
+    '      for (const a of textEl.querySelectorAll("a[href]")) {\n' +
+    '        const raw = a.getAttribute("href") || "";\n' +
+    '        if (raw.startsWith("/")) continue;\n' +
+    '        const shown = (a.textContent || "").replace(/\\u2026$/, "").trim();\n' +
+    '        const u = safeHttpsUrl(/^https?:\\/\\//.test(shown) ? shown.replace(/^http:/, "https:") : raw);\n' +
+    '        if (u && !links.includes(u) && links.length < 20) links.push(u);\n' +
+    '      }\n' +
+    '    }\n' +
+    '    let quotedHandle = null, quotedPostId = null;\n' +
+    '    if (quoted) {\n' +
+    '      quotedHandle = handleFromUserName(quoted.querySelector(SEL.userName));\n' +
+    '      for (const a of quoted.querySelectorAll("a[href]")) {\n' +
+    '        const m = STATUS_RE.exec(a.getAttribute("href") || "");\n' +
+    '        if (m) {\n' +
+    '          quotedPostId = m[2];\n' +
+    '          quotedHandle = quotedHandle || m[1];\n' +
+    '          break;\n' +
+    '        }\n' +
+    '      }\n' +
+    '    }\n' +
+    '    let replyToHandle = null;\n' +
+    '    for (const el of article.querySelectorAll("div")) {\n' +
+    '      if (inQuoted(el) || el.children.length > 4) continue;\n' +
+    '      const t = (el.textContent || "").trim();\n' +
+    '      if (t.length < 80 && /^Replying to\\b/.test(t)) {\n' +
+    `        const a = el.querySelector('a[href^="/"]');\n` +
+    '        replyToHandle = a ? cleanHandle((a.getAttribute("href") || "").slice(1)) : cleanHandle((/@(\\w{1,15})/.exec(t) || [])[1]);\n' +
+    '        break;\n' +
+    '      }\n' +
+    '    }\n' +
+    '    return {\n' +
+    '      id,\n' +
+    '      handle: handle2,\n' +
+    '      url: origin.replace(/\\/$/, "") + "/" + handle2 + "/status/" + id,\n' +
+    '      text,\n' +
+    '      createdAt,\n' +
+    '      lang: lang && /^[a-z]{2,3}(-[A-Za-z]{2,4})?$/.test(lang) ? lang : null,\n' +
+    '      links,\n' +
+    '      quotedPostId,\n' +
+    '      quotedHandle,\n' +
+    '      replyToHandle,\n' +
+    '      capturedFrom: "x_page_dom"\n' +
+    '    };\n' +
+    '  }\n' +
+    '  function parseRoute(href) {\n' +
+    '    let u;\n' +
+    '    try {\n' +
+    '      u = new URL(href);\n' +
+    '    } catch {\n' +
+    '      return { kind: "other", handle: null, statusId: null };\n' +
+    '    }\n' +
+    '    const p = u.pathname;\n' +
+    '    if (p === "/home" || p === "/") return { kind: "home", handle: null, statusId: null };\n' +
+    '    if (p.startsWith("/search")) return { kind: "search", handle: null, statusId: null };\n' +
+    '    const s = STATUS_RE.exec(p);\n' +
+    '    if (s) return { kind: "status", handle: cleanHandle(s[1]), statusId: s[2] };\n' +
+    '    const m = /^\\/([A-Za-z0-9_]{1,15})(?:\\/(?:with_replies|media|likes|highlights|articles|about))?\\/?$/.exec(p);\n' +
+    '    if (m && cleanHandle(m[1])) return { kind: "profile", handle: m[1], statusId: null };\n' +
+    '    return { kind: "other", handle: null, statusId: null };\n' +
+    '  }\n' +
+    '\n' +
+    '  // src/ext/popover.ts\n' +
+    '  var cleanup = null;\n' +
+    '  function closePopover(doc) {\n' +
+    '    if (cleanup) {\n' +
+    '      const c = cleanup;\n' +
+    '      cleanup = null;\n' +
+    '      c();\n' +
+    '    }\n' +
+    '    for (const el of doc.querySelectorAll(".cf-pop")) el.remove();\n' +
+    '  }\n' +
+    '  function row(doc, label, value, note) {\n' +
+    '    const r = doc.createElement("div");\n' +
+    '    r.className = "cf-pop-row";\n' +
+    '    const l = doc.createElement("span");\n' +
+    '    l.className = "cf-pop-label";\n' +
+    '    l.textContent = label;\n' +
+    '    const v = doc.createElement("span");\n' +
+    '    v.className = "cf-pop-value" + (value ? "" : " cf-pop-na");\n' +
+    '    v.textContent = value || "Unavailable";\n' +
+    '    r.append(l, v);\n' +
+    '    if (note) {\n' +
+    '      const n = doc.createElement("div");\n' +
+    '      n.className = "cf-pop-note";\n' +
+    '      n.textContent = note;\n' +
+    '      r.appendChild(n);\n' +
+    '    }\n' +
+    '    return r;\n' +
+    '  }\n' +
+    '  function openPopover(doc, anchor2, o) {\n' +
+    '    closePopover(doc);\n' +
+    '    const pop = doc.createElement("div");\n' +
+    '    pop.className = "cf-pop";\n' +
+    '    pop.setAttribute("role", "dialog");\n' +
+    '    pop.setAttribute("aria-label", "Chud Finder: @" + o.handle);\n' +
+    '    const head = doc.createElement("div");\n' +
+    '    head.className = "cf-pop-head";\n' +
+    '    const title = doc.createElement("span");\n' +
+    '    title.className = "cf-pop-title";\n' +
+    '    title.textContent = "@" + o.handle;\n' +
+    '    const x = doc.createElement("button");\n' +
+    '    x.className = "cf-pop-x";\n' +
+    '    x.type = "button";\n' +
+    '    x.setAttribute("aria-label", "Close");\n' +
+    '    x.textContent = "×";\n' +
+    '    head.append(title, x);\n' +
+    '    pop.appendChild(head);\n' +
+    '    const i = o.info;\n' +
+    '    const when = i && i.t ? new Date(i.t).toLocaleString() : null;\n' +
+    '    const srcNote = when ? "X “About this account”, seen in your session " + when : "Authorized provider or user-captured display required";\n' +
+    '    if (i && i.pending) pop.appendChild(row(doc, "Based in", null, "Still looking up…"));\n' +
+    '    else if (i && i.error) pop.appendChild(row(doc, "Based in", null, "Lookup failed: " + i.error));\n' +
+    '    else {\n' +
+    '      pop.appendChild(row(doc, "Based in", o.evaluation.known ? o.evaluation.flag + " " + o.evaluation.name + (o.evaluation.isRegion ? " (region)" : "") : null, srcNote));\n' +
+    '      pop.appendChild(row(doc, "Connected via", i && i.source ? i.source : null));\n' +
+    '      pop.appendChild(row(doc, "Location note", i && i.accurate === false ? "X says it may not be accurate (possible VPN/proxy)" : i && i.accurate === true ? "None" : null));\n' +
+    '    }\n' +
+    '    pop.appendChild(row(doc, "Profile location", o.statedLocation || null, o.statedLocation ? "Self-reported by the account" : void 0));\n' +
+    '    if (o.topic) {\n' +
+    '      const r2 = row(doc, "Topic signal", o.topic.text, "[INFERRED] from keywords in this post (" + o.topic.topics.join(", ") + ")");\n' +
+    '      r2.classList.add("cf-pop-topic");\n' +
+    '      pop.appendChild(r2);\n' +
+    '    }\n' +
+    '    if (o.evaluation.warnings.length) {\n' +
+    '      const w = doc.createElement("ul");\n' +
+    '      w.className = "cf-pop-warn";\n' +
+    '      for (const t of o.evaluation.warnings) {\n' +
+    '        const li = doc.createElement("li");\n' +
+    '        li.textContent = t;\n' +
+    '        w.appendChild(li);\n' +
+    '      }\n' +
+    '      pop.appendChild(w);\n' +
+    '    }\n' +
+    '    const foot = doc.createElement("div");\n' +
+    '    foot.className = "cf-pop-actions";\n' +
+    '    const inv = doc.createElement("button");\n' +
+    '    inv.type = "button";\n' +
+    '    inv.className = "cf-pop-btn cf-pop-primary";\n' +
+    '    inv.textContent = "Investigate";\n' +
+    '    inv.addEventListener("click", (e) => {\n' +
+    '      e.preventDefault();\n' +
+    '      e.stopPropagation();\n' +
+    '      o.onInvestigate();\n' +
+    '    });\n' +
+    '    foot.appendChild(inv);\n' +
+    '    if (o.askGrok) {\n' +
+    '      const g = doc.createElement("button");\n' +
+    '      g.type = "button";\n' +
+    '      g.className = "cf-pop-btn";\n' +
+    '      g.textContent = "Ask Grok";\n' +
+    '      g.addEventListener("click", (e) => {\n' +
+    '        e.preventDefault();\n' +
+    '        e.stopPropagation();\n' +
+    '        o.onAskGrok();\n' +
+    '      });\n' +
+    '      foot.appendChild(g);\n' +
+    '    }\n' +
+    '    pop.appendChild(foot);\n' +
+    '    const fine = doc.createElement("div");\n' +
+    '    fine.className = "cf-pop-fine";\n' +
+    '    fine.textContent = "A location is context, not proof a post is true or false.";\n' +
+    '    pop.appendChild(fine);\n' +
+    '    for (const t of ["click", "mousedown", "pointerdown", "auxclick"]) pop.addEventListener(t, (e) => e.stopPropagation());\n' +
+    '    x.addEventListener("cli'... 721056 more characters
+
+      at TestContext.<anonymous> (file:///<REPO>/test/extension.test.ts:12:109)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.start (node:internal/test_runner/test:1262:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: `/* Chud Finder 3.0.0 - built from src/ext/content.ts */\n"use strict";\n(() => {\n  var __defProp = Object.defineProperty;\n  var __export = (target, all) => {\n    for (var name in all)\n      __defProp(target, name, { get: all[name], enumerable: true });\n  };\n\n  // src/shared/sanitize.ts\n  var STRIP_RE = /[\\u0000-\\u0008\\u000B\\u000C\\u000E-\\u001F\\u007F-\\u009F\\u200B-\\u200F\\u202A-\\u202E\\u2060-\\u2069\\uFEFF]/g;\n  function cleanText(input2, max = 1e3) {\n    let s = typeof input2 === "string" ? input2 : input2 == null ? "" : String(input2);\n    s = s.normalize("NFKC").replace(STRIP_RE, "").replace(/\\r\\n?/g, "\\n").replace(/[ \\t]+/g, " ").replace(/\\n{3,}/g, "\\n\\n").trim();\n    if (s.length > max) s = s.slice(0, max - 1).trimEnd() + "…";\n    return s;\n  }\n  function safeHttpsUrl(input2) {\n    try {\n      const u = new URL(String(input2 || ""));\n      if (u.protocol !== "https:" || u.username || u.password) return null;\n      return u.href.length <= 2048 ? u.href : null;\n    } catch {\n      return null;\n    }\n  }\n\n  // src/ext/xdom.ts\n  var ADAPTER_VERSION = "x-dom@2026-10.1";\n  var SEL = {\n    article: 'article[data-testid="tweet"]',\n    userName: '[data-testid="User-Name"]',\n    tweetText: '[data-testid="tweetText"]',\n    quoted: 'div[role="link"]',\n    time: "time[datetime]"\n  };\n  var HANDLE_RE = /^[A-Za-z0-9_]{1,15}$/;\n  var RESERVED = /* @__PURE__ */ new Set([\n    "home",\n    "explore",\n    "notifications",\n    "messages",\n    "i",\n    "search",\n    "settings",\n    "compose",\n    "login",\n    "logout",\n    "signup",\n    "tos",\n    "privacy",\n    "jobs",\n    "premium",\n    "communities",\n    "lists"\n  ]);\n  function cleanHandle(h) {\n    if (!h) return null;\n    const s = String(h).trim().replace(/^@/, "");\n    if (!HANDLE_RE.test(s) || RESERVED.has(s.toLowerCase())) return null;\n    return s;\n  }\n  function handleFromUserName(block) {\n    if (!block) return null;\n    for (const a of block.querySelectorAll("a[href]")) {\n      const m = /^\\/([A-Za-z0-9_]{1,15})\\/?$/.exec(a.getAttribute("href") || "");\n      if (m && cleanHandle(m[1])) return m[1];\n    }\n    for (const s of block.querySelectorAll("span")) {\n      if (s.children.length) continue;\n      const t = (s.textContent || "").trim();\n      if (t.startsWith("@")) {\n        const h = cleanHandle(t);\n        if (h) return h;\n      }\n    }\n    return null;\n  }\n  function quotedBlock(article) {\n    for (const q of article.querySelectorAll(SEL.quoted)) if (q.querySelector(SEL.userName)) return q;\n    return null;\n  }\n  var STATUS_RE = /^\\/([A-Za-z0-9_]{1,15})\\/status\\/(\\d{1,25})(?:[/?#]|$)/;\n  function extractPost(article, origin = "https://x.com") {\n    const quoted = quotedBlock(article);\n    const inQuoted = (el) => !!(quoted && quoted.contains(el));\n    let handle2 = null, id = null, createdAt = null;\n    for (const t of article.querySelectorAll(SEL.time)) {\n      if (inQuoted(t)) continue;\n      const a = t.closest("a[href]");\n      const m = a ? STATUS_RE.exec(a.getAttribute("href") || "") : null;\n      if (m && cleanHandle(m[1])) {\n        handle2 = m[1];\n        id = m[2];\n        const d = Date.parse(t.getAttribute("datetime") || "");\n        createdAt = Number.isNaN(d) ? null : new Date(d).toISOString();\n        break;\n      }\n    }\n    if (!handle2 || !id) return null;\n    const textEl = [...article.querySelectorAll(SEL.tweetText)].find((el) => !inQuoted(el)) || null;\n    const text = textEl ? cleanText(textEl.textContent || "", 4e3) : "";\n    const lang = textEl ? textEl.getAttribute("lang") || null : null;\n    const links = [];\n    if (textEl) {\n      for (const a of textEl.querySelectorAll("a[href]")) {\n        const raw = a.getAttribute("href") || "";\n        if (raw.startsWith("/")) continue;\n        const shown = (a.textContent || "").replace(/\\u2026$/, "").trim();\n        const u = safeHttpsUrl(/^https?:\\/\\//.test(shown) ? shown.replace(/^http:/, "https:") : raw);\n        if (u && !links.includes(u) && links.length < 20) links.push(u);\n      }\n    }\n    let quotedHandle = null, quotedPostId = null;\n    if (quoted) {\n      quotedHandle = handleFromUserName(quoted.querySelector(SEL.userName));\n      for (const a of quoted.querySelectorAll("a[href]")) {\n        const m = STATUS_RE.exec(a.getAttribute("href") || "");\n        if (m) {\n          quotedPostId = m[2];\n          quotedHandle = quotedHandle || m[1];\n          break;\n        }\n      }\n    }\n    let replyToHandle = null;\n    for (const el of article.querySelectorAll("div")) {\n      if (inQuoted(el) || el.children.length > 4) continue;\n      const t = (el.textContent || "").trim();\n      if (t.length < 80 && /^Replying to\\b/.test(t)) {\n        const a = el.querySelector('a[href^="/"]');\n        replyToHandle = a ? cleanHandle((a.getAttribute("href") || "").slice(1)) : cleanHandle((/@(\\w{1,15})/.exec(t) || [])[1]);\n        break;\n      }\n    }\n    return {\n      id,\n      handle: handle2,\n      url: origin.replace(/\\/$/, "") + "/" + handle2 + "/status/" + id,\n      text,\n      createdAt,\n      lang: lang && /^[a-z]{2,3}(-[A-Za-z]{2,4})?$/.test(lang) ? lang : null,\n      links,\n      quotedPostId,\n      quotedHandle,\n      replyToHandle,\n      capturedFrom: "x_page_dom"\n    };\n  }\n  function parseRoute(href) {\n    let u;\n    try {\n      u = new URL(href);\n    } catch {\n      return { kind: "other", handle: null, statusId: null };\n    }\n    const p = u.pathname;\n    if (p === "/home" || p === "/") return { kind: "home", handle: null, statusId: null };\n    if (p.startsWith("/search")) return { kind: "search", handle: null, statusId: null };\n    const s = STATUS_RE.exec(p);\n    if (s) return { kind: "status", handle: cleanHandle(s[1]), statusId: s[2] };\n    const m = /^\\/([A-Za-z0-9_]{1,15})(?:\\/(?:with_replies|media|likes|highlights|articles|about))?\\/?$/.exec(p);\n    if (m && cleanHandle(m[1])) return { kind: "profile", handle: m[1], statusId: null };\n    return { kind: "other", handle: null, statusId: null };\n  }\n\n  // src/ext/popover.ts\n  var cleanup = null;\n  function closePopover(doc) {\n    if (cleanup) {\n      const c = cleanup;\n      cleanup = null;\n      c();\n    }\n    for (const el of doc.querySelectorAll(".cf-pop")) el.remove();\n  }\n  function row(doc, label, value, note) {\n    const r = doc.createElement("div");\n    r.className = "cf-pop-row";\n    const l = doc.createElement("span");\n    l.className = "cf-pop-label";\n    l.textContent = label;\n    const v = doc.createElement("span");\n    v.className = "cf-pop-value" + (value ? "" : " cf-pop-na");\n    v.textContent = value || "Unavailable";\n    r.append(l, v);\n    if (note) {\n      const n = doc.createElement("div");\n      n.className = "cf-pop-note";\n      n.textContent = note;\n      r.appendChild(n);\n    }\n    return r;\n  }\n  function openPopover(doc, anchor2, o) {\n    closePopover(doc);\n    const pop = doc.createElement("div");\n    pop.className = "cf-pop";\n    pop.setAttribute("role", "dialog");\n    pop.setAttribute("aria-label", "Chud Finder: @" + o.handle);\n    const head = doc.createElement("div");\n    head.className = "cf-pop-head";\n    const title = doc.createElement("span");\n    title.className = "cf-pop-title";\n    title.textContent = "@" + o.handle;\n    const x = doc.createElement("button");\n    x.className = "cf-pop-x";\n    x.type = "button";\n    x.setAttribute("aria-label", "Close");\n    x.textContent = "×";\n    head.append(title, x);\n    pop.appendChild(head);\n    const i = o.info;\n    const when = i && i.t ? new Date(i.t).toLocaleString() : null;\n    const srcNote = when ? "X “About this account”, seen in your session " + when : "Authorized provider or user-captured display required";\n    if (i && i.pending) pop.appendChild(row(doc, "Based in", null, "Still looking up…"));\n    else if (i && i.error) pop.appendChild(row(doc, "Based in", null, "Lookup failed: " + i.error));\n    else {\n      pop.appendChild(row(doc, "Based in", o.evaluation.known ? o.evaluation.flag + " " + o.evaluation.name + (o.evaluation.isRegion ? " (region)" : "") : null, srcNote));\n      pop.appendChild(row(doc, "Connected via", i && i.source ? i.source : null));\n      pop.appendChild(row(doc, "Location note", i && i.accurate === false ? "X says it may not be accurate (possible VPN/proxy)" : i && i.accurate === true ? "None" : null));\n    }\n    pop.appendChild(row(doc, "Profile location", o.statedLocation || null, o.statedLocation ? "Self-reported by the account" : void 0));\n    if (o.topic) {\n      const r2 = row(doc, "Topic signal", o.topic.text, "[INFERRED] from keywords in this post (" + o.topic.topics.join(", ") + ")");\n      r2.classList.add("cf-pop-topic");\n      pop.appendChild(r2);\n    }\n    if (o.evaluation.warnings.length) {\n      const w = doc.createElement("ul");\n      w.className = "cf-pop-warn";\n      for (const t of o.evaluation.warnings) {\n        const li = doc.createElement("li");\n        li.textContent = t;\n        w.appendChild(li);\n      }\n      pop.appendChild(w);\n    }\n    const foot = doc.createElement("div");\n    foot.className = "cf-pop-actions";\n    const inv = doc.createElement("button");\n    inv.type = "button";\n    inv.className = "cf-pop-btn cf-pop-primary";\n    inv.textContent = "Investigate";\n    inv.addEventListener("click", (e) => {\n      e.preventDefault();\n      e.stopPropagation();\n      o.onInvestigate();\n    });\n    foot.appendChild(inv);\n    if (o.askGrok) {\n      const g = doc.createElement("button");\n      g.type = "button";\n      g.className = "cf-pop-btn";\n      g.textContent = "Ask Grok";\n      g.addEventListener("click", (e) => {\n        e.preventDefault();\n        e.stopPropagation();\n        o.onAskGrok();\n      });\n      foot.appendChild(g);\n    }\n    pop.appendChild(foot);\n    const fine = doc.createElement("div");\n    fine.className = "cf-pop-fine";\n    fine.textContent = "A location is context, not proof a post is true or false.";\n    pop.appendChild(fine);\n    for (const t of ["click", "mousedown", "pointerdown", "auxclick"]) pop.addEventListener(t, (e) => e.stopPropagation());\n    x.addEventListener("cli`... 721056 more characters,
+    expected: /document\.cookie|AboutAccountQuery|discoverQueryId|x-csrf-token|OAuth2Session|XMLHttpRequest\.prototype|\/i\/api\/graphql/,
+    operator: 'doesNotMatch',
+    diff: 'simple'
+  }
+
+test at test\schemas.test.ts:28:1
+✖ investigation and export round-trip through their schemas (21.0381ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  ... Skipped lines
+
+    {
+      createdAt: '2026-10-29T22:38:27.675Z',
+      currentVersion: 1,
+      events: [
+        {
+  ...
+          provider: 'UserEvidenceProvider',
+  -       publishedAt: undefined,
+          source: 'x_page_dom',
+          subject: 'jack',
+          summary: 'just setting up my twttr',
+          url: 'https://x.com/jack/status/20',
+          value: {
+  ...
+        {
+  -       coverage: undefined,
+          derivedFrom: [
+            'ev_2ebjyuo4yw7'
+          ],
+          displayRole: 'E-05',
+          firstSeenAt: '2026-10-29T15:00:00.000Z',
+  ...
+        {
+  -       coverage: undefined,
+          derivedFrom: [
+            'ev_2ebjyuo4yw7'
+          ],
+          firstSeenAt: '2026-10-29T15:00:00.000Z',
+          id: 'ev_oqlquri0wr',
+  ...
+        {
+  -       coverage: undefined,
+          derivedFrom: [
+            'ev_2ebjyuo4yw7'
+          ],
+          displayRole: 'E-06',
+          firstSeenAt: '2026-10-29T15:00:00.000Z',
+  ...
+        {
+  -       coverage: undefined,
+          derivedFrom: [
+            'ev_2ebjyuo4yw7'
+          ],
+          firstSeenAt: '2026-10-29T15:00:00.000Z',
+          id: 'ev_1otykk10ox',
+  ...
+        {
+  -       coverage: undefined,
+          derivedFrom: [
+            'ev_2ebjyuo4yw7'
+          ],
+          displayRole: 'E-07',
+          firstSeenAt: '2026-10-29T15:00:00.000Z',
+  ...
+          ],
+  -       telemetry: undefined,
+          version: 1
+        }
+      ],
+      subject: {
+        handle: 'jack',
+
+      at TestContext.<anonymous> (file:///<REPO>/test/schemas.test.ts:31:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: {
+      schemaVersion: 1,
+      id: 'inv_130f9a7xwa0',
+      subject: { type: 'account', handle: 'jack' },
+      createdAt: '2026-10-29T22:38:27.675Z',
+      updatedAt: '2026-10-29T22:38:27.675Z',
+      currentVersion: 1,
+      evidence: [
+        [Object], [Object],
+        [Object], [Object],
+        [Object], [Object],
+        [Object], [Object],
+        [Object]
+      ],
+      snapshots: [ [Object] ],
+      events: [ [Object], [Object] ]
+    },
+    expected: {
+      schemaVersion: 1,
+      id: 'inv_130f9a7xwa0',
+      subject: { type: 'account', handle: 'jack' },
+      createdAt: '2026-10-29T22:38:27.675Z',
+      updatedAt: '2026-10-29T22:38:27.675Z',
+      currentVersion: 1,
+      evidence: [
+        [Object], [Object],
+        [Object], [Object],
+        [Object], [Object],
+        [Object], [Object],
+        [Object]
+      ],
+      snapshots: [ [Object] ],
+      events: [ [Object], [Object] ]
+    },
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }

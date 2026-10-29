@@ -1,366 +1,953 @@
-/* Chud Finder - deterministic investigation engine (no model, no network).
- * Observations from the user's own X session -> stored evidence -> Origin X-Ray + VPN Detective
- * findings, claim candidates and relationship edges. Every finding cites stored evidence ids.
- * Hard boundaries: country level only; no nationality inference; location is never treated as a
- * signal of whether posts are true.
- */
+/* One deterministic engine: authorized observations -> versioned evidence -> seven-stage story. */
 import * as C from './countries.ts';
 import { hashId } from './hash.ts';
-import { activityPattern, classifySource, countryFromStatedLocation, countryName, fmtOffset, offsetConsistent } from './geo.ts';
+import { activityPattern, classifySource, countryFromStatedLocation, countryName } from './geo.ts';
+import {
+  normalized,
+  normalizedUrl,
+  similarity,
+  narrativeAnalysis,
+  writingAnalysis,
+  claimAutopsy,
+  mediaComparison,
+} from './analysis.ts';
 import { cleanText, violatesBoundaries } from './sanitize.ts';
 import {
-  Account, AccountObservation, Claim, ENGINE_VERSION, Evidence, Finding, Investigation, InvestigationEvent,
-  Post, RelationshipEdge, SCHEMA_VERSION, Snapshot
+  Account,
+  AccountObservation,
+  Claim,
+  ENGINE_VERSION,
+  Evidence,
+  Finding,
+  Investigation,
+  InvestigationEvent,
+  Post,
+  RelationshipEdge,
+  SCHEMA_VERSION,
+  Snapshot,
+  SourceDocument,
+  MediaObservation,
 } from './schemas.ts';
-import type { Basis, Capability } from './schemas.ts';
 
-export const MAX_EVENTS = 200;
-export const MAX_SNAPSHOTS = 20;
-export const MAX_EVIDENCE = 600;
-
-export function investigationId(handle: string): string {
+export const MAX_EVENTS = 200,
+  MAX_SNAPSHOTS = 20,
+  MAX_EVIDENCE = 600;
+export function investigationId(handle: string) {
   return hashId('inv', 'account', handle.toLowerCase());
 }
-
-// ---------------------------------------------------------------- evidence
 type NewEvidence = Omit<Evidence, 'id' | 'firstSeenAt' | 'lastSeenAt'>;
-
 function mkEvidence(e: NewEvidence): Evidence {
-  // Stable id: same source + kind + subject + value => same evidence (re-observations just bump lastSeenAt).
-  const id = hashId('ev', e.source, e.kind, e.subject.toLowerCase(), e.value);
-  return Evidence.parse({ ...e, id, firstSeenAt: e.observedAt, lastSeenAt: e.observedAt });
+  // Retrieval time is not identity. Content, source, provenance and subject are.
+  const value = { ...e.value };
+  if (value.document) {
+    const d = { ...(value.document as any) };
+    delete d.retrievedAt;
+    value.document = d;
+  }
+  if (value.media) {
+    const m = { ...(value.media as any) };
+    delete m.observedAt;
+    value.media = m;
+  }
+  return Evidence.parse({
+    ...e,
+    id: hashId(
+      'ev',
+      e.source,
+      e.provider,
+      e.provenance,
+      e.kind,
+      e.subject.toLowerCase(),
+      e.url,
+      value,
+    ),
+    firstSeenAt: e.observedAt,
+    lastSeenAt: e.observedAt,
+  });
 }
-
-/** Turn one validated observation into evidence records (not yet merged). */
-export function evidenceFromObservation(obsIn: AccountObservation): Evidence[] {
-  const obs = AccountObservation.parse(obsIn);
-  const h = obs.handle;
-  const out: Evidence[] = [];
-  const profileUrl = 'https://x.com/' + h + '/about';
+export function evidenceFromObservation(input: AccountObservation): Evidence[] {
+  const obs = AccountObservation.parse(input),
+    h = obs.handle,
+    out: Evidence[] = [];
+  const add = (e: NewEvidence) => out.push(mkEvidence(e));
+  const provider = obs.provider || 'UserEvidenceProvider';
   if (obs.about) {
     const a = obs.about;
-    if (a.notFound || (!a.basedIn && a.accurate === null && !a.source)) {
-      out.push(mkEvidence({ kind: 'about_unavailable', source: 'x_about_account', subject: h, url: profileUrl,
-        summary: 'X\u2019s About this account showed no based-in, accuracy or connection data.', value: { notFound: a.notFound }, observedAt: a.observedAt }));
-    }
+    const provenance = a.provenance || 'user_captured';
+    if (provenance === 'platform_reported' && provider !== 'XOfficialProvider')
+      throw new Error('Untrusted platform provenance');
+    const common = {
+      subject: h,
+      source: 'user_evidence' as const,
+      provider,
+      provenance,
+      url: a.sourceUrl || 'https://x.com/' + h + '/about',
+      observedAt: a.observedAt,
+    };
+    if (a.notFound || (!a.basedIn && a.accurate === null && !a.source))
+      add({
+        ...common,
+        kind: 'about_unavailable',
+        summary: 'User observation: About fields unavailable.',
+        value: { notFound: a.notFound },
+      });
     if (a.basedIn) {
-      const c = C.findCountry(a.basedIn);
-      out.push(mkEvidence({ kind: 'about_based_in', source: 'x_about_account', subject: h, url: profileUrl,
-        summary: 'Account based in: ' + cleanText(a.basedIn, 80) + (c ? '' : ' (region)'),
-        value: { basedIn: cleanText(a.basedIn, 80), country: c ? c.code : null, isRegion: !c }, observedAt: a.observedAt }));
-    }
-    if (a.accurate !== null) {
-      out.push(mkEvidence({ kind: 'about_location_accuracy', source: 'x_about_account', subject: h, url: profileUrl,
-        summary: a.accurate ? 'X shows no location-accuracy note.' : 'X notes the location may not be accurate (possible VPN or proxy).',
-        value: { accurate: a.accurate }, observedAt: a.observedAt }));
+      const country = C.findCountry(a.basedIn)?.code || null;
+      add({
+        ...common,
+        kind: 'about_based_in',
+        displayRole: 'E-01',
+        summary: 'USER-CAPTURED X DISPLAY: ' + cleanText(a.basedIn, 80),
+        value: {
+          basedIn: cleanText(a.basedIn, 80),
+          country,
+          isRegion: !country,
+          original: a.basedIn,
+        },
+      });
     }
     if (a.source) {
-      const s = classifySource(a.source);
-      const c = s.country ? C.findCountry(s.country) : null;
-      out.push(mkEvidence({ kind: 'about_connected_via', source: 'x_about_account', subject: h, url: profileUrl,
-        summary: 'Connected via: ' + cleanText(a.source, 80),
-        value: { raw: cleanText(a.source, 80), platform: s.platform, country: c ? c.code : null }, observedAt: a.observedAt }));
+      const c = classifySource(a.source);
+      add({
+        ...common,
+        kind: 'about_connected_via',
+        displayRole: 'E-02',
+        summary: 'USER-CAPTURED X DISPLAY: ' + cleanText(a.source, 80),
+        value: {
+          raw: cleanText(a.source, 80),
+          country: c.country ? C.findCountry(c.country)?.code || null : null,
+        },
+      });
     }
+    if (a.accurate !== null)
+      add({
+        ...common,
+        kind: 'about_location_accuracy',
+        displayRole: 'E-03',
+        summary: a.accurate
+          ? 'User observed no accuracy warning; this does not prove absence of VPN.'
+          : 'User observed an accuracy warning.',
+        value: { accurate: a.accurate, original: a.displayText || null },
+      });
   }
-  if (obs.profileLocation && cleanText(obs.profileLocation.text, 120)) {
+  if (obs.profileLocation) {
     const text = cleanText(obs.profileLocation.text, 120);
-    out.push(mkEvidence({ kind: 'profile_location', source: 'x_profile', subject: h, url: 'https://x.com/' + h,
-      summary: 'Self-described profile location: \u201c' + text + '\u201d', value: { text, country: countryFromStatedLocation(text) },
-      observedAt: obs.profileLocation.observedAt }));
+    if (text)
+      add({
+        kind: 'profile_location',
+        source: provider === 'XOfficialProvider' ? 'x_official' : 'user_evidence',
+        provider,
+        provenance: 'self_described',
+        subject: h,
+        url: 'https://x.com/' + h,
+        observedAt: obs.profileLocation.observedAt,
+        summary: 'Self-described: ' + text,
+        value: { text, country: countryFromStatedLocation(text) },
+        displayRole: 'E-04',
+      });
   }
-  const seenPosts = new Set<string>();
-  for (const p of obs.posts) {
-    if (seenPosts.has(p.id)) continue;
-    seenPosts.add(p.id);
-    const post = Post.parse({ ...p, text: cleanText(p.text, 4000) });
-    out.push(mkEvidence({ kind: 'post', source: post.capturedFrom, subject: post.handle, url: post.url,
-      summary: (post.handle.toLowerCase() === h.toLowerCase() ? '' : '@' + post.handle + ': ') + (cleanText(post.text, 160) || '(no text)'),
-      value: { post }, observedAt: obs.observedAt }));
+  const seen = new Map<string, string>();
+  for (const raw of obs.posts) {
+    const p = Post.parse({ ...raw, text: cleanText(raw.text, 4000) });
+    const fingerprint = JSON.stringify(p),
+      existing = seen.get(p.id);
+    if (existing && existing !== fingerprint)
+      throw new Error('Conflicting repeated post id ' + p.id);
+    if (existing) continue;
+    seen.set(p.id, fingerprint);
+    if (p.createdAt && Date.parse(p.createdAt) > Date.parse(obs.observedAt) + 60000)
+      throw new Error('Post creation time is after retrieval');
+    add({
+      kind: 'post',
+      source: p.capturedFrom,
+      provider: p.capturedFrom === 'x_official' ? 'XOfficialProvider' : provider,
+      provenance:
+        p.capturedFrom === 'x_official'
+          ? 'platform_reported'
+          : p.capturedFrom === 'public_evidence'
+            ? 'external_source'
+            : 'user_captured',
+      subject: p.handle,
+      url: p.url,
+      observedAt: obs.observedAt,
+      publishedAt: p.createdAt || undefined,
+      summary: cleanText(p.text, 160) || '(no text)',
+      value: { post: p },
+    });
   }
-  const own = obs.posts.filter(p => p.handle.toLowerCase() === h.toLowerCase());
-  const times = own.map(p => p.createdAt).filter((t): t is string => !!t);
-  if (times.length) {
-    const ap = activityPattern(times);
-    const ids = out.filter(e => e.kind === 'post' && e.subject.toLowerCase() === h.toLowerCase()).map(e => e.id);
-    out.push(mkEvidence({ kind: 'activity_pattern', source: 'derived', subject: h,
-      summary: ap.usable ? 'Posting hours suggest roughly ' + fmtOffset(ap.estOffsetHours!) + ' (\u00b13h), from ' + ap.posts + ' posts.' : 'Posting-hour pattern not usable: ' + ap.reason,
-      value: { ...ap }, observedAt: obs.observedAt, derivedFrom: ids }));
-    const langs: Record<string, number> = {};
-    for (const p of own) if (p.lang && p.lang !== 'und' && p.lang !== 'zxx') langs[p.lang] = (langs[p.lang] || 0) + 1;
-    if (Object.keys(langs).length) {
-      out.push(mkEvidence({ kind: 'post_languages', source: 'derived', subject: h,
-        summary: 'Post languages tagged by X: ' + Object.entries(langs).sort((a, b) => b[1] - a[1]).map(([l, n]) => l + ' \u00d7' + n).join(', '),
-        value: { languages: langs }, observedAt: obs.observedAt, derivedFrom: ids }));
+  for (const document of obs.sources || [])
+    add({
+      kind: 'source_document',
+      source: document.provenance === 'user_captured' ? 'user_evidence' : 'public_evidence',
+      provider: document.provider,
+      provenance: document.provenance,
+      subject: h,
+      url: document.url,
+      observedAt: document.retrievedAt,
+      publishedAt: document.publishedAt || undefined,
+      summary: document.title,
+      value: { document },
+    });
+  for (const m of obs.media || [])
+    add({
+      kind: 'media',
+      source: 'user_evidence',
+      provider: 'UserEvidenceProvider',
+      provenance: 'user_captured',
+      subject: h,
+      url: m.url,
+      observedAt: m.observedAt,
+      publishedAt: m.publishedAt || undefined,
+      summary: 'User-supplied media fingerprint',
+      value: { media: m },
+    });
+  const own = out.filter((e) => e.kind === 'post' && e.subject.toLowerCase() === h.toLowerCase());
+  const posts = own.map((e) => e.value.post as Post);
+  if (posts.length) {
+    const derived = {
+      source: 'derived' as const,
+      provider: 'deterministic',
+      provenance: 'derived' as const,
+      subject: h,
+      observedAt: obs.observedAt,
+      derivedFrom: own.map((e) => e.id),
+      coverage: obs.coverage,
+    };
+    const activity = activityPattern(posts.map((p) => p.createdAt || ''));
+    add({
+      ...derived,
+      kind: 'activity_pattern',
+      displayRole: 'E-05',
+      summary: 'POSTING HOURS ARE A WEAK CONTEXTUAL SIGNAL',
+      value: { ...activity },
+    });
+    add({
+      ...derived,
+      kind: 'writing_pattern',
+      summary: 'Within-account writing comparison',
+      value: { ...writingAnalysis(posts) },
+    });
+    add({
+      ...derived,
+      kind: 'narrative_distribution',
+      displayRole: 'E-06',
+      summary: 'Observed topic and narrative distribution',
+      value: { ...narrativeAnalysis(posts) },
+    });
+    const languages: Record<string, number> = {};
+    for (const p of posts) if (p.lang) languages[p.lang] = (languages[p.lang] || 0) + 1;
+    if (Object.keys(languages).length)
+      add({
+        ...derived,
+        kind: 'post_languages',
+        summary: 'Provider language tags; no identity inference.',
+        value: { languages },
+      });
+  }
+  const all = out.filter((e) => e.kind === 'post');
+  const seed =
+    obs.searchText || posts.find((p) => p.id === obs.focusPostId)?.text || posts[0]?.text;
+  if (seed && all.length) {
+    const matches = all.filter((e) => similarity((e.value.post as Post).text, seed) >= 0.8);
+    const dated = matches
+      .filter((e) => (e.value.post as Post).createdAt)
+      .sort((a, b) =>
+        (a.value.post as Post).createdAt!.localeCompare((b.value.post as Post).createdAt!),
+      );
+    const start = (dated[0]?.value.post as Post | undefined)?.createdAt || null,
+      end = (dated.at(-1)?.value.post as Post | undefined)?.createdAt || null;
+    const windows: Record<string, string[]> = {};
+    for (const e of dated) {
+      const p = e.value.post as Post;
+      const key = new Date(Math.floor(Date.parse(p.createdAt!) / 3600000) * 3600000).toISOString();
+      (windows[key] ||= []).push(p.id);
     }
+    const amplifiers = dated.filter((e) => {
+      const p = e.value.post as Post;
+      return !!p.quotedPostId && (p.followers || 0) >= 10000;
+    });
+    add({
+      kind: 'propagation',
+      source: 'derived',
+      provider: 'deterministic',
+      provenance: 'derived',
+      subject: h,
+      observedAt: obs.observedAt,
+      displayRole: 'E-07',
+      summary: 'Matching wording within observed coverage',
+      derivedFrom: all.map((e) => e.id),
+      coverage: obs.coverage,
+      value: {
+        query: seed,
+        examinedPostIds: all.map((e) => (e.value.post as Post).id),
+        postIds: matches.map((e) => (e.value.post as Post).id),
+        accounts: [...new Set(matches.map((e) => e.subject.toLowerCase()))],
+        start,
+        end,
+        windows,
+        earliestPostId: (dated[0]?.value.post as Post | undefined)?.id || null,
+        earliestEvidenceId: dated[0]?.id || null,
+        amplifierPostId: (amplifiers[0]?.value.post as Post | undefined)?.id || null,
+        amplifierCriteria:
+          'Earliest observed quote with >= 10,000 followers. Followers are not measured reach; causation remains undetermined.',
+        missingDates: matches.length - dated.length,
+      },
+    });
   }
-  return out;
+  return [...new Map(out.map((e) => [e.id, e])).values()];
 }
-
-/** Merge new evidence into the stored history: append new ids, bump lastSeenAt on re-observation. */
 export function mergeEvidence(existing: Evidence[], incoming: Evidence[]): Evidence[] {
-  const byId = new Map(existing.map(e => [e.id, { ...e }]));
+  const map = new Map(existing.map((e) => [e.id, { ...e }]));
   for (const e of incoming) {
-    const prev = byId.get(e.id);
-    if (prev) {
-      if (e.lastSeenAt > prev.lastSeenAt) prev.lastSeenAt = e.lastSeenAt;
-      if (e.observedAt > prev.observedAt) prev.observedAt = e.observedAt;
-    } else byId.set(e.id, e);
+    const p = map.get(e.id);
+    if (p) {
+      if (e.lastSeenAt > p.lastSeenAt) p.lastSeenAt = e.lastSeenAt;
+    } else map.set(e.id, e);
   }
-  let all = [...byId.values()];
-  if (all.length > MAX_EVIDENCE) all = all.sort((a, b) => (a.lastSeenAt < b.lastSeenAt ? 1 : -1)).slice(0, MAX_EVIDENCE);
-  return all;
+  return [...map.values()];
 }
-
-// ---------------------------------------------------------------- analysis
-interface F { capability: Capability; title: string; statement: string; basis: Basis; status: Finding['status'];
-  confidence: Finding['confidence']; country: string | null; evidenceIds: string[]; caveats?: string[] }
-
-function finding(f: F): Finding {
-  const evidenceIds = [...new Set(f.evidenceIds)].sort();
-  return Finding.parse({ ...f, evidenceIds, caveats: f.caveats || [], id: hashId('fd', f.capability, f.title, f.statement, evidenceIds) });
-}
-
-const LOCATION_CAVEAT = 'A location is context about where an account operates, not evidence that its posts are true or false.';
-
-export interface Analysis { account: Account; findings: Finding[]; claims: Claim[]; edges: RelationshipEdge[]; posts: Post[]; headline: string }
-
-/** Analyze the evidence observed in the current snapshot. Pure and deterministic. */
-export function analyze(handle: string, current: Evidence[]): Analysis {
-  const h = handle.toLowerCase();
-  const mine = current.filter(e => e.subject.toLowerCase() === h);
-  const one = (k: Evidence['kind']) => mine.filter(e => e.kind === k).sort((a, b) => (a.observedAt < b.observedAt ? 1 : -1))[0];
-  const based = one('about_based_in'), acc = one('about_location_accuracy'), via = one('about_connected_via');
-  const unavailable = one('about_unavailable'), prof = one('profile_location'), act = one('activity_pattern'), langs = one('post_languages');
-
-  const basedCountry = (based?.value.country as string | null) ?? null;
-  const viaCountry = (via?.value.country as string | null) ?? null;
-  const profCountry = (prof?.value.country as string | null) ?? null;
-  const vpnNote = acc ? acc.value.accurate === false : false;
-  const ap = act?.value as unknown as ReturnType<typeof activityPattern> | undefined;
-
-  const findings: Finding[] = [];
-  const add = (f: F) => findings.push(finding(f));
-
-  // ---- Origin X-Ray
-  if (based) {
-    add({ capability: 'origin', title: 'Account based in', basis: 'reported', status: 'info', confidence: 'high', country: basedCountry,
-      statement: 'X\u2019s About this account reports this account is based in ' + based.value.basedIn + (based.value.isRegion ? ' (X shows a region, not a country).' : '.'),
-      evidenceIds: [based.id], caveats: ['Read from X in your own signed-in session; X\u2019s value can itself be wrong.', LOCATION_CAVEAT] });
-  } else {
-    add({ capability: 'origin', title: 'Account based in', basis: 'unknown', status: 'undetermined', confidence: 'none', country: null,
-      statement: unavailable ? 'X did not show an \u201cAccount based in\u201d value for this account.' : 'Not observed yet: X\u2019s About this account data was unavailable in this session.',
-      evidenceIds: unavailable ? [unavailable.id] : [] });
-  }
-  if (via) {
-    add({ capability: 'origin', title: 'Connected via', basis: 'reported', status: 'info', confidence: 'high', country: viaCountry,
-      statement: 'X reports the account connects via ' + via.value.raw + '.', evidenceIds: [via.id],
-      caveats: ['An app-store region reflects the store account\u2019s country, which can differ from where someone is.'] });
-  }
-  if (prof) {
-    add({ capability: 'origin', title: 'Profile location', basis: 'self-described', status: 'info', confidence: profCountry ? 'medium' : 'low', country: profCountry,
-      statement: 'The profile says \u201c' + prof.value.text + '\u201d' + (profCountry ? ', which maps to ' + countryName(profCountry) + '.' : '; it does not map to a country.'),
-      evidenceIds: [prof.id], caveats: ['Self-described by the account owner; anyone can type anything here.'] });
-  }
-
-  // Corroboration / conflicts against X's based-in country.
-  const conflicts: string[] = [];
-  if (basedCountry) {
-    const agree = [based!.id];
-    if (viaCountry === basedCountry) agree.push(via!.id);
-    if (profCountry === basedCountry) agree.push(prof!.id);
-    if (agree.length > 1) {
-      add({ capability: 'origin', title: 'Corroborated country', basis: 'corroborated', status: 'consistent', confidence: agree.length > 2 ? 'high' : 'medium', country: basedCountry,
-        statement: (agree.length) + ' independent signals agree on ' + countryName(basedCountry) + ' (' +
-          [viaCountry === basedCountry ? 'connection region' : null, profCountry === basedCountry ? 'self-described location' : null].filter(Boolean).join(', ') + ' match X\u2019s based-in value).',
-        evidenceIds: agree });
-    }
-    if (viaCountry && viaCountry !== basedCountry) {
-      conflicts.push('connection');
-      add({ capability: 'vpn', title: 'Conflict: connection region', basis: 'reported', status: 'conflict', confidence: 'medium', country: null,
-        statement: 'X says based in ' + countryName(basedCountry) + ' but connected via ' + via!.value.raw + '.', evidenceIds: [based!.id, via!.id],
-        caveats: ['Common for travellers, expats and people using another country\u2019s app store.'] });
-    }
-    if (profCountry && profCountry !== basedCountry) {
-      conflicts.push('profile');
-      add({ capability: 'vpn', title: 'Conflict: self-described location', basis: 'self-described', status: 'conflict', confidence: 'low', country: null,
-        statement: 'The profile names ' + countryName(profCountry) + ', but X says based in ' + countryName(basedCountry) + '.', evidenceIds: [based!.id, prof!.id] });
-    }
-  }
-
-  // ---- VPN Detective
-  if (acc) {
-    add({ capability: 'vpn', title: 'X location-accuracy note', basis: 'reported', status: vpnNote ? 'conflict' : 'consistent', confidence: 'high', country: null,
-      statement: vpnNote ? 'X notes this account\u2019s location may not be accurate (possible VPN or proxy).' : 'X shows no location-accuracy (VPN/proxy) note for this account.',
-      evidenceIds: [acc.id] });
-  } else {
-    add({ capability: 'vpn', title: 'X location-accuracy note', basis: 'unknown', status: 'undetermined', confidence: 'none', country: null,
-      statement: 'Unavailable: X did not provide a location-accuracy value in this session.', evidenceIds: unavailable ? [unavailable.id] : [] });
-  }
-  if (act) {
-    if (ap && ap.usable && ap.estOffsetHours !== null) {
-      const vs = basedCountry ? offsetConsistent(basedCountry, ap.estOffsetHours) : null;
-      if (vs === false) conflicts.push('activity');
-      add({ capability: 'vpn', title: 'Posting-hour pattern', basis: 'inferred', status: vs === false ? 'conflict' : vs === true ? 'consistent' : 'info', confidence: 'low', country: null,
-        statement: 'From ' + ap.posts + ' observed posts, activity is quietest from ' + String(ap.quietStartUtc).padStart(2, '0') + ':00 UTC, which fits roughly ' + fmtOffset(ap.estOffsetHours) + ' (\u00b13h)' +
-          (vs === true ? ', consistent with ' + countryName(basedCountry) + '.' : vs === false ? ', which does not fit ' + countryName(basedCountry) + '.' : '.'),
-        evidenceIds: [act.id, ...(based && vs !== null ? [based.id] : [])],
-        caveats: ['Weak signal: schedulers, shift work and shared accounts change posting hours.'] });
-    } else {
-      add({ capability: 'vpn', title: 'Posting-hour pattern', basis: 'unknown', status: 'undetermined', confidence: 'none', country: null,
-        statement: 'Not enough timing data: ' + (ap ? ap.reason : 'no timestamps observed.'), evidenceIds: [act.id] });
-    }
-  }
-  if (langs) {
-    add({ capability: 'vpn', title: 'Post languages', basis: 'reported', status: 'info', confidence: 'low', country: null,
-      statement: langs.summary + '. Language is shown for context only and is not used to infer a country.', evidenceIds: [langs.id, ...(langs.derivedFrom || [])] });
-  }
-
-  // Likely operating region (country level). Reported value stands unless X flags it or signals conflict.
-  const region = likelyRegion({ based, via, prof, act, basedCountry, viaCountry, profCountry, vpnNote, ap, conflicts });
-  add(region);
-
-  // ---- Claims + Narrative (observable only, never auto-verified)
-  const postEv = current.filter(e => e.kind === 'post');
-  const posts: Post[] = postEv.map(e => e.value.post as Post);
-  const claims: Claim[] = [];
-  const edges: RelationshipEdge[] = [];
-  for (const e of postEv) {
-    const p = e.value.post as Post;
-    if (p.handle.toLowerCase() === h && p.text.replace(/https?:\/\/\S+/g, '').trim().length >= 20 && claims.length < 10) {
-      claims.push(Claim.parse({ id: hashId('cl', p.id), postId: p.id, text: cleanText(p.text, 1000), status: 'unverified', evidenceIds: [e.id] }));
-    }
-    const from = 'post:' + p.id;
-    if (p.quotedPostId) edges.push(RelationshipEdge.parse({ id: hashId('ed', 'q', p.id, p.quotedPostId), type: 'quotes', from, to: 'post:' + p.quotedPostId + (p.quotedHandle ? '@' + p.quotedHandle : ''), evidenceIds: [e.id] }));
-    if (p.replyToHandle) edges.push(RelationshipEdge.parse({ id: hashId('ed', 'r', p.id, p.replyToHandle), type: 'replies_to', from, to: 'account:' + p.replyToHandle, evidenceIds: [e.id] }));
-    for (const l of p.links) edges.push(RelationshipEdge.parse({ id: hashId('ed', 'l', p.id, l), type: 'links_to', from, to: l, evidenceIds: [e.id] }));
-  }
-
-  const account = Account.parse({
-    handle, basedIn: (based?.value.basedIn as string) ?? null, basedInCountry: basedCountry, basedInIsRegion: !!based?.value.isRegion,
-    locationAccurate: acc ? (acc.value.accurate as boolean) : null, connectedVia: (via?.value.raw as string) ?? null,
-    profileLocation: (prof?.value.text as string) ?? null, aboutObservedAt: (based || acc || via || unavailable)?.observedAt ?? null
+type F = Omit<Finding, 'id' | 'caveats' | 'strength'> & { caveats?: string[] };
+function finding(f: F, current: Evidence[]): Finding {
+  const evidenceIds = [...new Set(f.evidenceIds)].sort(),
+    ev = current.filter((e) => evidenceIds.includes(e.id));
+  const direct = ev.filter(
+    (e) => e.provenance === 'external_source' || e.provenance === 'platform_reported',
+  );
+  const domains = new Set(direct.flatMap((e) => (e.url ? [new URL(e.url).hostname] : [])));
+  // Independent corroboration requires explicit dependency review; domain count alone never earns 3 bars.
+  const bars = ev.length >= 2 && direct.length > 0 && f.status !== 'conflict' ? 2 : 1;
+  return Finding.parse({
+    ...f,
+    caveats: f.caveats || [],
+    evidenceIds,
+    id: hashId('fd', f.title, f.statement, evidenceIds),
+    strength: {
+      bars,
+      reasons: [
+        `${ev.length} supporting observations; ${domains.size} direct source domains.`,
+        f.status === 'conflict'
+          ? 'Conflicting evidence reduces strength.'
+          : 'Source independence is not established by different domains.',
+        'Three bars require independently corroborated direct evidence; not inferred from count alone.',
+      ],
+    },
   });
-  const headline = cleanText([
-    based ? 'X reports based in ' + based.value.basedIn + '.' : 'Based-in country unavailable.',
-    vpnNote ? 'X notes a possible VPN/proxy.' : '',
-    conflicts.length ? conflicts.length + ' conflicting signal' + (conflicts.length > 1 ? 's' : '') + '.' : '',
-    'Likely operating region: ' + (region.country ? countryName(region.country) + ' (' + region.basis + ', ' + region.confidence + ')' : 'undetermined') + '.'
-  ].filter(Boolean).join(' '), 200);
-  return { account, findings, claims, edges: dedupeById(edges), posts, headline };
 }
-
-function dedupeById<T extends { id: string }>(xs: T[]): T[] { const m = new Map<string, T>(); for (const x of xs) m.set(x.id, x); return [...m.values()]; }
-
-function likelyRegion(s: { based?: Evidence; via?: Evidence; prof?: Evidence; act?: Evidence; basedCountry: string | null; viaCountry: string | null;
-  profCountry: string | null; vpnNote: boolean; ap?: ReturnType<typeof activityPattern>; conflicts: string[] }): Finding {
-  const title = 'Likely operating region';
-  if (s.basedCountry && !s.vpnNote && !s.conflicts.length) {
-    return finding({ capability: 'vpn', title, basis: 'reported', status: 'consistent', confidence: 'high', country: s.basedCountry,
-      statement: 'No conflicting signals: X\u2019s based-in value (' + countryName(s.basedCountry) + ') stands.', evidenceIds: [s.based!.id], caveats: [LOCATION_CAVEAT] });
-  }
-  const score = new Map<string, { n: number; ev: string[] }>();
-  const bump = (c: string | null, w: number, id?: string) => {
-    if (!c) return; const r = score.get(c) || { n: 0, ev: [] }; r.n += w; if (id) r.ev.push(id); score.set(c, r);
+export interface Analysis {
+  account: Account;
+  findings: Finding[];
+  claims: Claim[];
+  edges: RelationshipEdge[];
+  posts: Post[];
+  headline: string;
+  story: NonNullable<Snapshot['story']>;
+  displayRoles: Record<string, string[]>;
+}
+export function analyze(handle: string, current: Evidence[]): Analysis {
+  const h = handle.toLowerCase(),
+    mine = current.filter((e) => e.subject.toLowerCase() === h);
+  const one = (kind: Evidence['kind']) =>
+    mine.filter((e) => e.kind === kind).sort((a, b) => b.observedAt.localeCompare(a.observedAt))[0];
+  const based = one('about_based_in'),
+    via = one('about_connected_via'),
+    acc = one('about_location_accuracy'),
+    prof = one('profile_location'),
+    act = one('activity_pattern'),
+    writing = one('writing_pattern'),
+    topics = one('narrative_distribution'),
+    prop = one('propagation');
+  const fs: Finding[] = [],
+    claims: Claim[] = [],
+    edges: RelationshipEdge[] = [];
+  const add = (f: F) => {
+    const x = finding(f, current);
+    fs.push(x);
+    return x;
   };
-  bump(s.basedCountry, s.vpnNote ? 1 : 3, s.based?.id);
-  bump(s.viaCountry, 2, s.via?.id);
-  bump(s.profCountry, 1, s.prof?.id);
-  if (s.ap && s.ap.usable && s.ap.estOffsetHours !== null) {
-    for (const [c, r] of score) {
-      const ok = offsetConsistent(c, s.ap.estOffsetHours);
-      if (ok === true) { r.n += 1; r.ev.push(s.act!.id); } else if (ok === false) { r.n -= 1; r.ev.push(s.act!.id); }
+  const info = (
+    capability: Finding['capability'],
+    title: string,
+    statement: string,
+    ev: Evidence[],
+    status: Finding['status'] = 'info',
+    caveats: string[] = [],
+  ) =>
+    add({
+      capability,
+      title,
+      statement: cleanText(statement, 600),
+      basis: ev.length ? 'inferred' : 'unknown',
+      status,
+      confidence: ev.length ? 'low' : 'none',
+      country: null,
+      evidenceIds: ev.map((e) => e.id),
+      caveats,
+    });
+  const bc = (based?.value.country as string | null) || null,
+    pc = (prof?.value.country as string | null) || null;
+  add({
+    capability: 'origin',
+    title: 'Account based in',
+    statement: based
+      ? `${based.provenance === 'platform_reported' ? 'Platform report' : 'USER-CAPTURED X DISPLAY'}: ${based.value.basedIn}${based.value.isRegion ? ' (region, not a country)' : ''}.`
+      : 'UNAVAILABLE: no authorized source for X-reported operating region.',
+    basis: based ? 'reported' : 'unknown',
+    status: based ? 'info' : 'undetermined',
+    confidence: based ? 'low' : 'none',
+    country: bc,
+    evidenceIds: based ? [based.id] : [],
+    caveats: [
+      'An operating-region display does not establish physical location or factual accuracy.',
+    ],
+  });
+  info(
+    'origin',
+    'Connected via',
+    via
+      ? `USER-CAPTURED X DISPLAY: ${via.value.raw}. App-store region is not physical location.`
+      : 'UNAVAILABLE: connection/app-store region.',
+    via ? [via] : [],
+  );
+  info(
+    'vpn',
+    'X location-accuracy note',
+    acc
+      ? acc.value.accurate === false
+        ? 'USER-CAPTURED X DISPLAY: accuracy warning present; possible VPN/proxy uncertainty.'
+        : 'User observed no warning. This does not prove no VPN.'
+      : 'UNAVAILABLE: location-accuracy note.',
+    acc ? [acc] : [],
+  );
+  add({
+    capability: 'origin',
+    title: 'Profile location',
+    statement: prof
+      ? `Self-described: “${prof.value.text}”. ${pc ? 'Conservatively normalized to ' + countryName(pc) + '.' : 'Ambiguous or undetermined.'}`
+      : 'UNAVAILABLE: self-described location.',
+    basis: prof ? 'self-described' : 'unknown',
+    status: 'info',
+    confidence: prof ? 'low' : 'none',
+    country: pc,
+    evidenceIds: prof ? [prof.id] : [],
+    caveats: [],
+  });
+  const conflict = !!bc && !!pc && bc !== pc;
+  info(
+    'origin',
+    'Location comparison',
+    !based || !prof
+      ? 'Insufficient evidence to compare the fields.'
+      : !bc || !pc
+        ? 'Ambiguous: one or both fields cannot be normalized to a country.'
+        : conflict
+          ? 'Contradictory fields: the profile and platform display name different countries. The reason remains unknown.'
+          : 'Consistent fields: both name the same country.',
+    [based, prof].filter((e): e is Evidence => !!e),
+    conflict ? 'conflict' : bc && pc ? 'consistent' : 'undetermined',
+    [
+      'Travel, relocation, organizations, shared accounts, jokes and stale information can explain disagreements.',
+    ],
+  );
+  info(
+    'vpn',
+    'Posting-hour pattern',
+    act ? `${act.summary}. ${act.value.reason}` : 'INSUFFICIENT SAMPLE: no timestamped posts.',
+    act ? [act] : [],
+    'undetermined',
+    [
+      'Schedulers, shift work, travel and content teams can produce misleading patterns. No precise routine or location is inferred.',
+    ],
+  );
+  info(
+    'narrative',
+    'Writing pattern',
+    writing ? String(writing.value.label) : 'INSUFFICIENT SAMPLE',
+    writing ? [writing] : [],
+    'info',
+    ['Within-account textual differences do not establish authorship or identity.'],
+  );
+  if (topics) {
+    const v = topics.value as ReturnType<typeof narrativeAnalysis>,
+      top = v.clusters[0];
+    info(
+      'narrative',
+      'N-1 Narrative concentration',
+      top
+        ? `${top.postIds.length} of ${v.total} observed posts in the largest wording cluster. Method: normalized word-set similarity, not a semantic verdict.`
+        : 'No textual cluster detected.',
+      [topics],
+    );
+    info(
+      'narrative',
+      'N-2 Geographic topic focus',
+      `${v.geographicPostIds.length} of ${v.total} observed posts match US/EU topic keywords. ${v.overlaps.length} posts have overlapping region classifications.`,
+      [topics],
+      'info',
+      ['Discussion of another country’s politics is not misconduct.'],
+    );
+    info(
+      'narrative',
+      'N-3 Repeated phrases',
+      v.phrases.length
+        ? `${v.phrases.length} repeated 4–8-word phrases in ${v.total} posts; inspect each counted instance.`
+        : 'No repeated phrases detected in the observed sample.',
+      [topics],
+    );
+  } else
+    info(
+      'narrative',
+      'Narrative focus',
+      'UNAVAILABLE: no account post sample.',
+      [],
+      'undetermined',
+    );
+  const postEv = current.filter((e) => e.kind === 'post'),
+    posts = postEv.map((e) => e.value.post as Post),
+    docsEv = current.filter((e) => e.kind === 'source_document'),
+    sources = docsEv.map((e) => e.value.document as SourceDocument);
+  if (prop) {
+    const v = prop.value as any;
+    info(
+      'narrative',
+      'Copies and amplification',
+      `${v.postIds.length} matching posts from ${v.accounts.length} distinct observed accounts. ${v.start && v.end ? 'Observed interval: ' + v.start + ' to ' + v.end + '.' : 'Creation timestamps unavailable.'} Counts cover retrieved observations only.`,
+      [prop],
+    );
+    const earliest = postEv.find((e) => (e.value.post as Post).id === v.earliestPostId);
+    info(
+      'narrative',
+      'EARLIEST OBSERVED COPY',
+      earliest
+        ? `${earliest.url} at ${(earliest.value.post as Post).createdAt}. Earliest within the searched sample; origin is not established.`
+        : 'UNAVAILABLE: no dated matching post.',
+      earliest ? [earliest] : [],
+    );
+    const amplifier = postEv.find((e) => (e.value.post as Post).id === v.amplifierPostId);
+    info(
+      'narrative',
+      'Amplifier observation',
+      amplifier
+        ? `${amplifier.url}. ${v.amplifierCriteria}`
+        : 'AMPLIFICATION UNDETERMINED: no qualifying engagement-backed quote observation.',
+      amplifier ? [amplifier] : [],
+    );
+    info(
+      'narrative',
+      'Synchronization',
+      v.accounts.length === 0
+        ? 'Insufficient matching observations to assess synchronization.'
+        : v.accounts.length > 1
+          ? 'Repeated wording across accounts is observable; it does not establish common ownership, automation or sponsorship.'
+          : 'No meaningful coordination detected in the observed sample.',
+      [prop],
+    );
+  } else
+    info(
+      'narrative',
+      'EARLIEST OBSERVED COPY',
+      'UNAVAILABLE: no matching-post search results.',
+      [],
+      'undetermined',
+    );
+  const edge = (type: RelationshipEdge['type'], from: string, to: string, ids: string[]) => {
+    const id = hashId('ed', type, from, to),
+      existing = edges.find((e) => e.id === id);
+    if (existing) existing.evidenceIds = [...new Set([...existing.evidenceIds, ...ids])];
+    else edges.push(RelationshipEdge.parse({ id, type, from, to, evidenceIds: [...new Set(ids)] }));
+  };
+  for (const e of postEv) {
+    const p = e.value.post as Post,
+      from = 'post:' + p.id;
+    edge('authored', 'account:' + p.handle.toLowerCase(), from, [e.id]);
+    if (p.quotedPostId) edge('quotes', from, 'post:' + p.quotedPostId, [e.id]);
+    if (p.replyToHandle)
+      edge('replies_to', from, 'account:' + p.replyToHandle.toLowerCase(), [e.id]);
+    if (p.repostOfId) edge('reposts', from, 'post:' + p.repostOfId, [e.id]);
+    for (const l of p.links) {
+      const u = normalizedUrl(l);
+      if (u) {
+        edge('links_to', from, u, [e.id]);
+        edge('links_to', u, 'source-domain:' + new URL(u).hostname, [e.id]);
+      }
+    }
+    if (p.handle.toLowerCase() === h && p.text.length >= 10) {
+      const sentences = p.text
+        .split(/(?<=[.!?])\s+/)
+        .filter((t) => t.length >= 10)
+        .slice(0, 5);
+      for (const text of sentences) {
+        const result = claimAutopsy(text, sources),
+          ids = [
+            e.id,
+            ...result.matches.map(
+              (m) =>
+                docsEv.find((e) => (e.value.document as SourceDocument).url === m.source.url)!.id,
+            ),
+          ];
+        const c = Claim.parse({
+          id: hashId('cl', p.id, text),
+          postId: p.id,
+          text: cleanText(text, 1000),
+          status: result.status,
+          evidenceIds: [...new Set(ids)],
+          explanation: cleanText(result.explanation, 4000),
+        });
+        claims.push(c);
+        edge('references_claim', from, 'claim:' + c.id, [e.id]);
+      }
     }
   }
-  const ranked = [...score.entries()].sort((a, b) => b[1].n - a[1].n);
-  const allIds = [s.based, s.via, s.prof, s.act].filter((e): e is Evidence => !!e).map(e => e.id);
-  if (ranked.length && ranked[0][1].n >= 3 && (ranked.length === 1 || ranked[0][1].n - ranked[1][1].n >= 2)) {
-    const [c, r] = ranked[0];
-    return finding({ capability: 'vpn', title, basis: 'inferred', status: 'consistent', confidence: r.n >= 5 ? 'medium' : 'low', country: c,
-      statement: 'The available signals point most to ' + countryName(c) + ' (score ' + r.n + (ranked[1] ? ' vs ' + ranked[1][1].n + ' for ' + countryName(ranked[1][0]) : '') + '). This is an inference, not a fact.',
-      evidenceIds: r.ev, caveats: ['Country level only.', LOCATION_CAVEAT] });
+  for (let i = 0; i < postEv.length; i++)
+    for (let j = i + 1; j < postEv.length; j++) {
+      const a = postEv[i],
+        b = postEv[j],
+        p = a.value.post as Post,
+        q = b.value.post as Post;
+      if (normalized(p.text).length >= 20 && similarity(p.text, q.text) >= 0.8)
+        edge(
+          normalized(p.text) === normalized(q.text) ? 'exact_duplicate' : 'near_duplicate',
+          'post:' + p.id,
+          'post:' + q.id,
+          [a.id, b.id],
+        );
+      const common = p.links
+        .map(normalizedUrl)
+        .find((u) => u && q.links.map(normalizedUrl).includes(u));
+      if (common) edge('shares_url', 'post:' + p.id, 'post:' + q.id, [a.id, b.id]);
+    }
+  const dependencies = new Map<string, Evidence[]>();
+  for (const e of docsEv) {
+    const d = e.value.document as SourceDocument;
+    for (const raw of d.citations) {
+      const u = normalizedUrl(raw);
+      if (!u) continue;
+      edge('cites', normalizedUrl(d.url)!, u, [e.id]);
+      const list = dependencies.get(u) || [];
+      if (!list.includes(e)) list.push(e);
+      dependencies.set(u, list);
+    }
   }
-  return finding({ capability: 'vpn', title, basis: 'unknown', status: 'undetermined', confidence: 'none', country: null,
-    statement: 'Location undetermined: the observed signals do not support a single country' +
-      (ranked.length ? ' (candidates: ' + ranked.map(([c, r]) => countryName(c) + ' ' + r.n).join(', ') + ').' : '.'),
-    evidenceIds: allIds, caveats: ['Ask Grok or the Chud Finder Grok Bot can look at public posts for more clues; treat its answer as a guess.'] });
+  for (const [url, ev] of dependencies)
+    if (ev.length > 1)
+      info(
+        'claims',
+        'Shared source dependency',
+        `${ev.length} retrieved documents link to ${url}. Repeated attribution is not independent corroboration; the referenced source may remain unverified.`,
+        ev,
+      );
+  for (const e of docsEv) {
+    const d = e.value.document as SourceDocument;
+    for (const c of d.comparisons || []) {
+      const r = claimAutopsy(c.claim, [d]);
+      info(
+        'claims',
+        c.kind === 'quote'
+          ? 'Quote Reconstruction'
+          : c.kind === 'organizational'
+            ? 'Organizational contradiction ledger'
+            : 'Source passage comparison',
+        r.status + ': ' + r.explanation,
+        [e],
+        r.status === 'contradicted' ? 'conflict' : 'info',
+      );
+    }
+    for (const f of d.factChecks || [])
+      info(
+        'claims',
+        'Existing fact check',
+        `${f.publisher}: ${f.rating}; claim: ${f.claim}; date: ${f.date || 'unavailable'}; ${f.url}`,
+        [e],
+        'info',
+        ['Publisher rating is evidence to inspect, not absolute truth.'],
+      );
+  }
+  const mediaEv = current.filter((e) => e.kind === 'media');
+  if (mediaEv.length) {
+    const r = mediaComparison(mediaEv.map((e) => e.value.media as MediaObservation));
+    info(
+      'claims',
+      'Media Time Machine',
+      `${r.matches.length} perceptually similar pairs; ${r.matches.filter((m) => m.dateConflict).length} candidate date conflicts. ${r.method}`,
+      mediaEv,
+    );
+  }
+  info(
+    'claims',
+    'Community Notes',
+    'UNAVAILABLE: no authorized Community Notes records in this snapshot.',
+    [],
+    'undetermined',
+  );
+  const account = Account.parse({
+    handle,
+    basedIn: based?.value.basedIn || null,
+    basedInCountry: bc,
+    basedInIsRegion: !!based?.value.isRegion,
+    locationAccurate: acc?.value.accurate ?? null,
+    connectedVia: via?.value.raw || null,
+    profileLocation: prof?.value.text || null,
+    aboutObservedAt: based?.observedAt || acc?.observedAt || via?.observedAt || null,
+  });
+  const headline = conflict
+    ? 'Observed location fields disagree; cause unknown.'
+    : `Investigation of @${handle}: ${posts.filter((p) => p.handle.toLowerCase() === h).length} account posts observed; location ${based ? 'display captured' : 'unavailable'}.`;
+  const displayRoles: Record<string, string[]> = {};
+  for (let i = 1; i <= 8; i++)
+    displayRoles['E-0' + i] = current.filter((e) => e.displayRole === 'E-0' + i).map((e) => e.id);
+  if (prop?.value.earliestEvidenceId)
+    displayRoles['E-08'] = [String(prop.value.earliestEvidenceId)];
+  for (const label of ['N-1', 'N-2', 'N-3']) displayRoles[label] = topics ? [topics.id] : [];
+  const section = (title: string, selected: Finding[], fallback: string) => ({
+    title,
+    text: selected.map((f) => f.statement).join('\n') || fallback,
+    evidenceIds: [...new Set(selected.flatMap((f) => f.evidenceIds))],
+    findingIds: selected.map((f) => f.id),
+  });
+  const story = [
+    section(
+      '01 / REPORTED ORIGIN',
+      fs.filter((f) =>
+        ['Account based in', 'Connected via', 'X location-accuracy note'].includes(f.title),
+      ),
+      '',
+    ),
+    section(
+      '02 / SELF-DESCRIBED LOCATION',
+      fs.filter((f) => ['Profile location', 'Location comparison'].includes(f.title)),
+      '',
+    ),
+    section(
+      '03 / POSTING PATTERN',
+      fs.filter((f) => f.title === 'Posting-hour pattern'),
+      '',
+    ),
+    section(
+      '04 / WRITING PATTERN',
+      fs.filter((f) => f.title === 'Writing pattern'),
+      '',
+    ),
+    section(
+      '05 / NARRATIVE FOCUS',
+      fs.filter((f) => /^N-[123]|^Narrative focus/.test(f.title)),
+      '',
+    ),
+    section(
+      '06 / SOURCE & AMPLIFICATION',
+      fs.filter((f) =>
+        [
+          'Copies and amplification',
+          'EARLIEST OBSERVED COPY',
+          'Amplifier observation',
+          'Synchronization',
+        ].includes(f.title),
+      ),
+      '',
+    ),
+    {
+      title: '07 / THE READ',
+      text: [
+        conflict
+          ? 'The self-description conflicts with the captured platform display; the cause remains unknown.'
+          : 'No established location contradiction.',
+        ...fs
+          .filter((f) =>
+            [
+              'Account based in',
+              'Profile location',
+              'Posting-hour pattern',
+              'N-1 Narrative concentration',
+              'EARLIEST OBSERVED COPY',
+            ].includes(f.title),
+          )
+          .map((f) => f.statement),
+        `${claims.filter((c) => !['unverified', 'not_factual'].includes(c.status)).length} of ${claims.length} post-claim candidates have scoped source comparisons. ${sources.reduce((n, d) => n + (d.comparisons?.length || 0), 0)} additional source-passage comparisons are recorded in Claims.`,
+        'Unresolved: completeness of search, original source, source independence and causal amplification. Physical location and common control are not established.',
+      ].join('\n'),
+      evidenceIds: [...new Set(fs.flatMap((f) => f.evidenceIds))],
+      findingIds: fs.map((f) => f.id),
+    },
+  ];
+  return { account, findings: fs, claims, edges, posts, headline, story, displayRoles };
 }
-
-// ---------------------------------------------------------------- validation
-export interface ValidationIssue { findingId: string; problem: string }
-
-/** Citation + boundary validation. Every non-unknown finding must cite evidence that exists in the store. */
-export function validateFindings(findings: unknown[], evidence: Evidence[]): { ok: boolean; valid: Finding[]; issues: ValidationIssue[] } {
-  const ids = new Set(evidence.map(e => e.id));
-  const valid: Finding[] = []; const issues: ValidationIssue[] = [];
-  for (const raw of findings) {
-    const p = Finding.safeParse(raw);
-    const fid = (raw && typeof raw === 'object' && typeof (raw as any).id === 'string') ? (raw as any).id : '?';
-    if (!p.success) { issues.push({ findingId: fid, problem: 'schema: ' + p.error.issues.map(i => i.path.join('.') + ' ' + i.message).join('; ') }); continue; }
-    const f = p.data;
-    const missing = f.evidenceIds.filter(id => !ids.has(id));
-    if (missing.length) { issues.push({ findingId: f.id, problem: 'cites evidence that does not exist: ' + missing.join(', ') }); continue; }
-    if (f.basis !== 'unknown' && !f.evidenceIds.length) { issues.push({ findingId: f.id, problem: 'a ' + f.basis + ' finding must cite evidence' }); continue; }
-    if (f.basis === 'reported' && !f.evidenceIds.some(id => evidence.find(e => e.id === id)?.source !== 'derived')) {
-      issues.push({ findingId: f.id, problem: 'a reported finding must cite observed (non-derived) evidence' }); continue;
+export interface ValidationIssue {
+  findingId: string;
+  problem: string;
+}
+export function validateFindings(raw: unknown[], evidence: Evidence[]) {
+  const valid: Finding[] = [],
+    issues: ValidationIssue[] = [],
+    map = new Map(evidence.map((e) => [e.id, e]));
+  for (const value of raw) {
+    const result = Finding.safeParse(value),
+      id = (value as any)?.id || 'unknown';
+    let problem = '';
+    if (!result.success) {
+      issues.push({ findingId: id, problem: 'schema: ' + result.error.message });
+      continue;
     }
-    if (f.country && f.basis !== 'unknown') {
-      const supports = f.evidenceIds.some(id => { const e = evidence.find(x => x.id === id)!; return e.value.country === f.country; });
-      if (!supports) { issues.push({ findingId: f.id, problem: 'country ' + f.country + ' is not supported by any cited evidence' }); continue; }
-    }
-    const bad = violatesBoundaries(f.title + ' ' + f.statement + ' ' + f.caveats.join(' '));
-    if (bad) { issues.push({ findingId: f.id, problem: 'crosses a hard boundary (' + bad + ')' }); continue; }
-    valid.push(f);
+    const f = result.data;
+    if (f.evidenceIds.some((id) => !map.has(id)))
+      problem =
+        'cites evidence that does not exist: ' +
+        f.evidenceIds.filter((id) => !map.has(id)).join(', ');
+    else if (f.basis !== 'unknown' && !f.evidenceIds.length) problem = 'finding must cite evidence';
+    else if (
+      f.basis === 'reported' &&
+      f.evidenceIds.every((id) => map.get(id)!.source === 'derived')
+    )
+      problem = 'reported finding must cite observed evidence';
+    else if (
+      f.country &&
+      !f.evidenceIds.some(
+        (id) =>
+          map.get(id)!.value.country === f.country &&
+          ['user_captured', 'platform_reported', 'self_described'].includes(
+            map.get(id)!.provenance || '',
+          ),
+      )
+    )
+      problem = 'country ' + f.country + ' is not supported by appropriate provenance';
+    else if (violatesBoundaries(f.title + ' ' + f.statement + ' ' + f.caveats.join(' ')))
+      problem = 'crosses a hard boundary';
+    if (problem) issues.push({ findingId: id, problem });
+    else valid.push(f);
   }
   return { ok: issues.length === 0, valid, issues };
 }
-
-// ---------------------------------------------------------------- investigations
-function ev(at: string, type: InvestigationEvent['type'], version: number, detail: string): InvestigationEvent {
-  return InvestigationEvent.parse({ at, type, version, detail: cleanText(detail, 300) });
-}
-
-/** Create or refresh (new version) an account investigation from one observation. */
-export function upsertInvestigation(existing: Investigation | null, obsIn: AccountObservation, now = new Date().toISOString()): Investigation {
-  const obs = AccountObservation.parse(obsIn);
-  const id = investigationId(obs.handle);
-  const prev = existing ? Investigation.parse(existing) : null;
-  if (prev && prev.id !== id) throw new Error('investigation id mismatch');
-  const version = prev ? prev.currentVersion + 1 : 1;
-  const events: InvestigationEvent[] = prev ? [...prev.events] : [ev(now, 'created', 1, 'Investigation of @' + obs.handle + ' created')];
-  if (prev) events.push(ev(now, 'refreshed', version, 'Refreshed from the current page'));
-  events.push(ev(now, 'observed', version, 'Observed ' + (obs.about ? 'About this account data' : 'no About this account data') + ', ' + obs.posts.length + ' posts on ' + obs.pageUrl));
-
-  const fresh = evidenceFromObservation(obs);
-  const before = new Set((prev?.evidence || []).map(e => e.id));
-  const evidence = mergeEvidence(prev?.evidence || [], fresh);
-  const added = fresh.filter(e => !before.has(e.id)).length;
-  events.push(ev(now, 'evidence_added', version, added + ' new evidence item' + (added === 1 ? '' : 's') + ', ' + (fresh.length - added) + ' re-observed'));
-
-  // Analyze what is observed now, plus the latest About/profile evidence from history if this page lacked it.
-  const current = [...fresh];
-  for (const kind of ['about_based_in', 'about_location_accuracy', 'about_connected_via', 'profile_location'] as const) {
-    if (!current.some(e => e.kind === kind) && !current.some(e => e.kind === 'about_unavailable' && kind.startsWith('about'))) {
-      const latest = evidence.filter(e => e.kind === kind).sort((a, b) => (a.lastSeenAt < b.lastSeenAt ? 1 : -1))[0];
-      if (latest) current.push(latest);
+/** Reconstruct generated relationships and derived datasets. Never accept arbitrary model assertions. */
+export function validateSnapshot(s: Snapshot, evidence: Evidence[]) {
+  const current = evidence.filter((e) => s.evidenceIds.includes(e.id)),
+    map = new Map(evidence.map((e) => [e.id, e]));
+  if (s.evidenceIds.some((id) => !map.has(id)))
+    throw new Error('Snapshot references missing evidence');
+  for (const e of current)
+    if (e.derivedFrom?.some((id) => !map.has(id)))
+      throw new Error('Derived evidence references missing inputs');
+  const expected = analyze(s.account.handle, current),
+    expectedEdges = new Map(expected.edges.map((e) => [e.id, e]));
+  for (const edge of s.edges)
+    if (JSON.stringify(edge) !== JSON.stringify(expectedEdges.get(edge.id)))
+      throw new Error('Relationship cannot be reconstructed');
+  if (JSON.stringify(s.claims) !== JSON.stringify(expected.claims))
+    throw new Error('Claims cannot be reconstructed');
+  const expectedFindings = new Map(expected.findings.map((f) => [f.id, f]));
+  for (const f of s.findings)
+    if (JSON.stringify(f) !== JSON.stringify(expectedFindings.get(f.id)))
+      throw new Error('Finding cannot be reconstructed');
+  for (const e of current) {
+    if (!e.url && e.source !== 'derived') throw new Error('Observed evidence needs a source URL');
+    if (e.kind === 'activity_pattern') {
+      const posts = (e.derivedFrom || []).map((id) => map.get(id)!.value.post as Post);
+      if (
+        JSON.stringify(activityPattern(posts.map((p) => p.createdAt || ''))) !==
+        JSON.stringify(e.value)
+      )
+        throw new Error('Activity statistics do not match source dataset');
+    }
+    if (e.kind === 'writing_pattern') {
+      const posts = (e.derivedFrom || []).map((id) => map.get(id)!.value.post as Post);
+      if (JSON.stringify(writingAnalysis(posts)) !== JSON.stringify(e.value))
+        throw new Error('Writing statistics do not match source dataset');
+    }
+    if (e.kind === 'propagation') {
+      const v = e.value as any,
+        examined = (e.derivedFrom || []).map((id) => map.get(id)!.value.post as Post),
+        posts = examined.filter((p) => similarity(p.text, v.query) >= 0.8),
+        dated = posts
+          .filter((p) => p.createdAt)
+          .sort((a, b) => a.createdAt!.localeCompare(b.createdAt!));
+      if (
+        JSON.stringify(posts.map((p) => p.id)) !== JSON.stringify(v.postIds) ||
+        JSON.stringify([...new Set(posts.map((p) => p.handle.toLowerCase()))]) !==
+          JSON.stringify(v.accounts) ||
+        posts.some((p) => similarity(p.text, v.query) < 0.8) ||
+        v.start !== (dated[0]?.createdAt || null) ||
+        v.end !== (dated.at(-1)?.createdAt || null) ||
+        v.earliestPostId !== (dated[0]?.id || null)
+      )
+        throw new Error('Propagation statistics do not match source dataset');
+    }
+    if (e.kind === 'narrative_distribution') {
+      const posts = (e.derivedFrom || []).map((id) => map.get(id)!.value.post as Post);
+      if (JSON.stringify(narrativeAnalysis(posts)) !== JSON.stringify(e.value))
+        throw new Error('Narrative statistics do not match source dataset');
     }
   }
-  const a = analyze(obs.handle, current);
-  const check = validateFindings(a.findings, evidence);
-  if (!check.ok) events.push(ev(now, 'validation_failed', version, check.issues.map(i => i.problem).join('; ')));
-  events.push(ev(now, 'analyzed', version, check.valid.length + ' findings (' + ENGINE_VERSION + ')'));
-
-  const snap = Snapshot.parse({
-    version, createdAt: now, engine: ENGINE_VERSION, adapterVersion: obs.adapterVersion, account: a.account,
-    evidenceIds: current.map(e => e.id), findings: check.valid, claims: a.claims, edges: a.edges, posts: a.posts,
-    focusPostId: obs.focusPostId, headline: a.headline
-  });
-  const snapshots = [...(prev?.snapshots || []), snap].slice(-MAX_SNAPSHOTS);
-  return Investigation.parse({
-    schemaVersion: SCHEMA_VERSION, id, subject: { type: 'account', handle: obs.handle },
-    createdAt: prev?.createdAt || now, updatedAt: now, currentVersion: version, evidence, snapshots, events: events.slice(-MAX_EVENTS)
-  });
 }
-
+function event(at: string, type: InvestigationEvent['type'], version: number, detail: string) {
+  return InvestigationEvent.parse({ at, type, version, detail: cleanText(detail, 300) });
+}
+export function upsertInvestigation(
+  existing: Investigation | null,
+  raw: AccountObservation,
+  now = new Date().toISOString(),
+): Investigation {
+  const obs = AccountObservation.parse(raw),
+    id = investigationId(obs.handle),
+    prev = existing ? Investigation.parse(existing) : null;
+  if (prev && prev.id !== id) throw new Error('investigation id mismatch');
+  const version = (prev?.currentVersion || 0) + 1,
+    fresh = evidenceFromObservation(obs),
+    a = analyze(obs.handle, fresh);
+  const check = validateFindings(a.findings, fresh);
+  const snap = Snapshot.parse({
+    version,
+    createdAt: now,
+    engine: ENGINE_VERSION,
+    adapterVersion: obs.adapterVersion,
+    account: a.account,
+    evidenceIds: fresh.map((e) => e.id),
+    findings: check.valid,
+    claims: a.claims,
+    edges: a.edges,
+    posts: a.posts,
+    focusPostId: obs.focusPostId,
+    headline: a.headline,
+    story: a.story,
+    displayRoles: a.displayRoles,
+    coverage: obs.coverage || [],
+    telemetry: obs.telemetry,
+    correction: {
+      previousVersion: prev?.currentVersion || null,
+      reason: obs.correction || 'New observation snapshot; prior versions remain available.',
+    },
+  });
+  validateSnapshot(snap, fresh);
+  const snapshots = [...(prev?.snapshots || []), snap].slice(-MAX_SNAPSHOTS),
+    retained = new Set(snapshots.flatMap((s) => s.evidenceIds));
+  const evidence = mergeEvidence(prev?.evidence || [], fresh).filter((e) => retained.has(e.id));
+  const events = [
+    ...(prev?.events || []),
+    event(
+      now,
+      prev ? 'refreshed' : 'created',
+      version,
+      obs.posts.length + ' submitted posts; ' + fresh.length + ' evidence records.',
+    ),
+    event(now, 'analyzed', version, check.valid.length + ' deterministic findings.'),
+  ];
+  if (!check.ok)
+    events.push(
+      event(now, 'validation_failed', version, check.issues.map((i) => i.problem).join('; ')),
+    );
+  return Investigation.parse(
+    JSON.parse(
+      JSON.stringify({
+        schemaVersion: SCHEMA_VERSION,
+        id,
+        subject: { type: 'account', handle: obs.handle },
+        createdAt: prev?.createdAt || now,
+        updatedAt: now,
+        currentVersion: version,
+        evidence,
+        snapshots,
+        events: events.slice(-MAX_EVENTS),
+      }),
+    ),
+  );
+}
 export function currentSnapshot(inv: Investigation, version?: number): Snapshot {
-  return inv.snapshots.find(s => s.version === (version ?? inv.currentVersion)) || inv.snapshots[inv.snapshots.length - 1];
+  const s = inv.snapshots.find((s) => s.version === (version ?? inv.currentVersion));
+  if (!s) throw new Error('Snapshot version unavailable');
+  return s;
 }

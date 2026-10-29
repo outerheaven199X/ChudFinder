@@ -1,0 +1,69 @@
+
+> chud-finder@3.0.0 test
+> npm run build && node --test test/*.test.ts && node test/legacy/settings.test.cjs && node test/legacy/test.cjs && python bot/test_lookup.py
+
+
+> chud-finder@3.0.0 build
+> node tools/build.mjs
+
+built dist/ (23 files) and chud-finder-3.0.0.zip
+✔ three X fields remain independent with user provenance, original values, dates and sources (21.291ms)
+✔ partial, unavailable, regional, traveler and organizational cases never infer intent or location (7.9335ms)
+✔ activity describes UTC, preserves simultaneous posts, compares windows and never returns a location estimate (4.6999ms)
+✔ writing compares own chronological sample; multilingual data does not predict identity (1.7267ms)
+✔ synthetic mandate statistics are computed from 62 source records, never hard-coded (148.5674ms)
+✖ same event/shared URL does not prove duplication or common ownership; missing dates stay unknown (2.197ms)
+✔ dated exact, numerical, qualifier and negation comparisons; semantic ambiguity and missing sources remain unverified (0.5589ms)
+✔ quote reconstruction, organizational ledger, fact-check disagreements and source dependencies share evidence (2.8201ms)
+✔ media pairs report distance and observed date conflicts without synthetic/AI claims (0.3314ms)
+✔ stable IDs, changed values and corrections retain old snapshots without orphan evidence (3.4078ms)
+✔ adversarial references, statistics, graph edges, future dates, controls and spoofed origins are rejected (88.7589ms)
+✔ release excludes page bridge and all authenticated acquisition primitives (7.1181ms)
+✔ built content only captures the selected post after explicit Investigate; no requests on scroll or hover (305.0608ms)
+✔ jitter: passive gaps stay within 4-9 s and vary (1.5105ms)
+✔ pacing: intent >= 2 s apart; passive capped at 10 per rolling minute (1.3058ms)
+✔ daily cap: counts, enforces, resets at local midnight (1.5039ms)
+✔ settings schema: lookupMode/dailyCap optional, bounded; old documents still valid (0.7255ms)
+✔ JSON export contains the complete snapshot evidence and the limitations (4.5111ms)
+✔ X thread draft: numbered, <= 280 chars each, labeled, sourced (0.4272ms)
+✔ all five tabs render; untrusted text never becomes markup (XSS) (114.1458ms)
+✔ panel shows labels, conflicts in amber, unknown states and no emoji (23.1472ms)
+✔ Narrative graph exposes supporting observations without a model call (10.8873ms)
+✔ evidence chips jump to stored evidence; every chip id exists (8.4176ms)
+✔ observation schema accepts a valid observation (4.0266ms)
+✔ observation schema rejects bad handles, http URLs, unknown keys and wrong types (1.6406ms)
+✔ finding / evidence schemas enforce id prefixes and closed enums (2.1715ms)
+✔ investigation and export round-trip through their schemas (20.3863ms)
+✔ settings schemaVersion 1: 1.2.0 documents stay valid; new popover / grokBotTemplateUrl keys validated (0.9278ms)
+✔ side panel: loads the active investigation, five tabs, Grok Bot link from settings, receipts (273.4557ms)
+✔ PNG receipt draws handle, headline and labeled findings onto a 1200x675 canvas (0.7411ms)
+✔ topic tags: deterministic keyword regions, acronyms case-sensitive (1.6197ms)
+✔ topic signal: exact neutral wording, inferred basis, mismatch only (0.2875ms)
+✔ topic note + popover row render with textContent only and stay neutral (113.1231ms)
+✔ DOM adapter: main post, quoted author, time, text (quoted text excluded) (69.0844ms)
+✔ DOM adapter: links are https only, lang tag, reply target (12.145ms)
+✔ SPA routes (0.4629ms)
+ℹ tests 36
+ℹ suites 0
+ℹ pass 35
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1073.0551
+
+✖ failing tests:
+
+test at test\engine.test.ts:45:1
+✖ same event/shared URL does not prove duplication or common ownership; missing dates stay unknown (2.197ms)
+  Error: Relationship cannot be reconstructed
+      at validateSnapshot (file:///<REPO>/src/shared/engine.ts:177:104)
+      at upsertInvestigation (file:///<REPO>/src/shared/engine.ts:196:3)
+      at run (file:///<REPO>/test/engine.test.ts:9:39)
+      at TestContext.<anonymous> (file:///<REPO>/test/engine.test.ts:46:13)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7)

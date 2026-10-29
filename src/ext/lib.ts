@@ -30,7 +30,7 @@ export interface AboutInfo { basedIn?: string | null; accurate?: boolean | null;
   });
 
   /**
-   * Parse an AboutAccountQuery response. Returns a compact record suitable for caching:
+   * Parse an legacy display payload response. Returns a compact record suitable for caching:
    * { basedIn, accurate, source, notFound }
    */
   function parseAbout(json: any, requested?: string): AboutInfo {
@@ -95,7 +95,7 @@ export interface AboutInfo { basedIn?: string | null; accurate?: boolean | null;
     if (basedIn && src) about = 'it\u2019s based in ' + basedIn + ' and connects via ' + (/^web$/i.test(src) ? 'the web' : 'the ' + src);
     else if (basedIn) about = 'it\u2019s based in ' + basedIn;
     else if (src) about = 'it connects via ' + (/^web$/i.test(src) ? 'the web' : 'the ' + src);
-    let line = about ? 'X\u2019s About this account says ' + about : '';
+    let line = about ? 'User-captured X display says ' + about : '';
     if (info && info.accurate === false) {
       line += (line ? '; ' : '') + 'X notes the location may not be accurate (possible VPN/proxy)';
     }
@@ -103,8 +103,7 @@ export interface AboutInfo { basedIn?: string | null; accurate?: boolean | null;
     if (statedLocation && String(statedLocation).trim()) {
       parts.push('Its self-reported profile location is \u201c' + String(statedLocation).trim() + '\u201d.');
     }
-    parts.push('Based on its public posts and replies, what country or region does it most likely operate from? ' +
-      'Give your confidence and the clues, keep it at country level, and remember location alone doesn\u2019t say whether its posts are accurate.');
+    parts.push('Explain these user-supplied observations and unanswered questions. Do not infer physical location or treat a country as evidence of truth. Additional source suggestions remain unverified.');
     return parts.join(' ');
   }
 

@@ -37,13 +37,7 @@ export function narrativePrompt(p: Post, edges: { type: string; to: string }[] =
 
 /** Account-level origin prompt from a snapshot (only what the extension observed). */
 export function originPrompt(s: Snapshot): string {
-  const a = s.account;
-  const facts: string[] = [];
-  if (a.basedIn) facts.push('X\u2019s About this account says based in ' + a.basedIn);
-  if (a.connectedVia) facts.push('connected via ' + a.connectedVia);
-  if (a.locationAccurate === false) facts.push('X notes the location may not be accurate (possible VPN/proxy)');
-  if (a.profileLocation) facts.push('self-described profile location ' + quoteForPrompt(a.profileLocation, 120));
-  return fit([DATA_NOTE, 'Tell me about the X account @' + a.handle + '.', facts.length ? facts.join('; ') + '.' : '',
-    'Based on its public posts and replies, what country or region does it most likely operate from? Give confidence and clues, keep it at country level, and remember location alone doesn\u2019t say whether its posts are accurate.']
-    .filter(Boolean));
+  return fit([DATA_NOTE, 'Review the stored investigation of @'+s.account.handle+'.',
+    quoteForPrompt(s.findings.slice(0,5).map(f=>f.statement+' ['+f.evidenceIds.join(', ')+']').join(' '),1100),
+    'Explain observed disagreements and unanswered questions. Cite only the supplied evidence IDs. Do not infer physical location or insert unsupported facts. Source suggestions remain unverified until retrieved.']);
 }

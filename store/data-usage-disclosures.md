@@ -1,24 +1,17 @@
-# Data usage disclosures (CWS "Privacy practices" form)
+# Chrome Web Store data-use disclosures for 3.0
 
-**What user data do you plan to collect from users now or in the future?** Check **none** of the categories, because no data leaves the user's device for the developer or any third party:
+These are submission materials, not evidence of a submitted or approved store release.
 
-| Category | Answer | Why |
-|---|---|---|
-| Personally identifiable information | Not collected | |
-| Health information | Not collected | |
-| Financial and payment information | Not collected | |
-| Authentication information | Not collected | The X session is used by the browser for same-origin requests to x.com; the extension never stores or transmits credentials. |
-| Personal communications | Not collected | |
-| Location | Not collected | The user's own location is never read. The extension shows *other accounts'* country as published by X. |
-| Web history | Not collected | |
-| User activity | Not collected | |
-| Website content | Not collected | Post text on x.com is processed locally and stored only in `chrome.storage.local` when the user creates an investigation. |
+Single purpose: inspect selected public claims and source evidence in a versioned local investigation workspace.
 
-> If a reviewer treats local processing of X page content as "website content", the honest alternative is to check **Website content** and state it is processed and stored locally only and never transmitted.
+Data processed: selected public account handles/post content/URLs/timestamps; user-entered observations and sources; optional search queries; locally computed media fingerprints and metadata. Do not claim that the extension has no network transfers. Configured provider services receive the selected query and return public evidence. Optional xAI enrichment receives evidence summaries only when the user invokes it. Optional settings sync contacts the configured HTTPS settings origin.
 
-**Certifications (check all three):**
-- [x] I do not sell or transfer user data to third parties, outside of the approved use cases.
-- [x] I do not use or transfer user data for purposes that are unrelated to my item's single purpose.
-- [x] I do not use or transfer user data to determine creditworthiness or for lending purposes.
+Authentication information: no X browser cookies, authorization tokens or passwords are collected. Provider API credentials reside in a separate operator-controlled service, never extension storage.
 
-**Privacy policy URL:** https://github.com/outerheaven199X/ChudFinder/blob/main/docs/privacy.md
+Browsing activity: no broad browsing history or feed crawl. The selected X post/account URL is part of the requested investigation. Public content may itself include personal information; the operator must respect source access and provider terms.
+
+No sale, advertising use, automatic publication, automated X interaction, private-message collection or precise-location inference. Local deletion and bounded retention are described in the [privacy policy](privacy-policy.md).
+
+Permissions: storage, alarms and sidePanel. Content scripts run only on X/Twitter matches. HTTPS host grants are optional and requested for user-configured origins. No default host grants, cookies, webRequest or debugger permissions. Any final store-form selections must describe these actual flows, including website content and user-provided data processed by optional providers.
+
+Release qualification still requires approved X access, any configured provider's data-use review, and store review. Browser/session-safety guarantees are not claimed.

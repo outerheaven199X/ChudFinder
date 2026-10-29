@@ -1,0 +1,100 @@
+
+> chud-finder@2.3.0 test
+> npm run build && node --test test/*.test.ts && node test/legacy/settings.test.cjs && node test/legacy/test.cjs && python3 bot/test_lookup.py
+
+
+> chud-finder@2.3.0 build
+> node tools/build.mjs
+
+built dist/ (24 files) and chud-finder-2.3.0.zip
+✔ Origin X-Ray: reported based-in + corroboration by connection region and self-described location (13.2594ms)
+✔ VPN Detective: VPN note + conflicting connection region => conflicts listed, Location undetermined (1.6188ms)
+✔ VPN Detective: posting hours can tip an inference, labeled inferred with low/medium confidence (7.6477ms)
+✔ activity pattern needs enough data; offset consistency uses tzdata (0.2921ms)
+✔ missing data produces explicit unknown states, never a fabricated country (1.01ms)
+✔ regions are kept as regions (no country invented) (0.6464ms)
+✔ stable ids + versioned snapshots: re-observing keeps evidence history without duplicates (2.2387ms)
+✔ citation validation: every engine finding cites stored evidence (2.2655ms)
+✔ citation validation rejects nonexistent evidence, uncited claims, unsupported countries and boundary violations (1.1945ms)
+✔ generated text never crosses the hard boundaries (1.279ms)
+✔ prompt injection in post text cannot change findings or instructions (1.714ms)
+✔ evidence never claims a server retrieved X data (0.3627ms)
+✔ manifest + build output: MV3, side panel, every referenced file exists, zip has manifest at root (4.2489ms)
+✔ background: Investigate opens the side panel synchronously, stores a versioned investigation (46.9843ms)
+✔ background: rejects malformed observations and other extensions; falls back to a tab without sidePanel (13.1818ms)
+✔ content: badge click opens the provenance popover; Investigate submits a schema-valid observation (221.043ms)
+✔ content: popover=false keeps the 1.2.0 click-to-Ask-Grok behaviour (91.1117ms)
+✔ page.js relays posts from X timeline responses (id, text, time, lang, links) (59.9507ms)
+✔ careful mode (default): no lookups on scroll; hover or click triggers one; cached shows instantly (589.2348ms)
+✔ daily cap pauses lookups everywhere and is reported (436.1511ms)
+✔ jitter: passive gaps stay within 4-9 s and vary (1.5898ms)
+✔ pacing: intent >= 2 s apart; passive capped at 10 per rolling minute (1.2328ms)
+✔ daily cap: counts, enforces, resets at local midnight (2.121ms)
+✔ settings schema: lookupMode/dailyCap optional, bounded; old documents still valid (1.151ms)
+✔ JSON export contains only cited evidence and the limitations (3.8986ms)
+✔ X thread draft: numbered, <= 280 chars each, labeled, sourced (0.5091ms)
+✔ all five tabs render; untrusted text never becomes markup (XSS) (86.6294ms)
+✔ panel shows labels, conflicts in amber, unknown states and no emoji (17.8362ms)
+✔ Narrative and Claims: observable data + Ask Grok per post; Grok Bot link only when configured (28.9625ms)
+✔ evidence chips jump to stored evidence; every chip id exists (7.9673ms)
+✔ observation schema accepts a valid observation (3.7629ms)
+✔ observation schema rejects bad handles, http URLs, unknown keys and wrong types (1.5923ms)
+✔ finding / evidence schemas enforce id prefixes and closed enums (2.7163ms)
+✔ investigation and export round-trip through their schemas (12.0707ms)
+✔ settings schemaVersion 1: 1.2.0 documents stay valid; new popover / grokBotTemplateUrl keys validated (1.1163ms)
+✔ side panel: loads the active investigation, five tabs, Grok Bot link from settings, receipts (263.4451ms)
+✔ PNG receipt draws handle, headline and labeled findings onto a 1200x675 canvas (0.7481ms)
+✔ topic tags: deterministic keyword regions, acronyms case-sensitive (1.5652ms)
+✔ topic signal: exact neutral wording, inferred basis, mismatch only (0.285ms)
+✔ topic note + popover row render with textContent only and stay neutral (101.9487ms)
+✔ DOM adapter: main post, quoted author, time, text (quoted text excluded) (69.3849ms)
+✔ DOM adapter: links are https only, lang tag, reply target (13.99ms)
+✔ SPA routes (0.3827ms)
+ℹ tests 43
+ℹ suites 0
+ℹ pass 43
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2215.7122
+ok   valid full document; names resolve to ISO codes; dupes removed
+ok   schemaVersion required and must be 1
+ok   wrong types reject the whole document
+ok   unknown countries rejected; too many rejected
+ok   unknown keys ignored with a warning, never copied
+ok   prototype pollution attempt has no effect
+ok   parseAndValidate: bad JSON and oversize
+ok   merge keeps keys not in the document and copies arrays
+ok   export/import code round trip (incl. URL-safe base64 and raw JSON)
+ok   source URL must be plain https
+ok   background: applies remote settings, records "synced" state, creates 10-min alarm
+ok   background: same remote doc does not overwrite local edits; changed doc does
+ok   background: invalid doc rejected, settings untouched, error shown
+ok   background: no permission / http URL / HTTP error -> error, no fetch
+ok   askGrok: validated as strict boolean, round-trips through codes
+ok   background: ignores messages from other extensions
+
+16 passed
+ok   extracts main author from profile link and quoted author from @text
+ok   rejects reserved paths and bad handles
+ok   parseAbout reads based-in, VPN flag and source
+ok   classifySource handles iOS / Android / Web
+ok   stated location parsing
+ok   renders a neutral country badge
+ok   unknown -> grey ? badge
+ok   VPN warning when location_accurate is false, suppressible
+ok   mismatch warning: stated location and app-store region
+ok   highlight is purely user-chosen; topic mode outlines outside home country
+ok   regions get a globe, not a flag
+ok   every country has a valid flag
+ok   page.js: captures bearer, query id and self-reported locations
+ok   content.js: badges appear, cache + dedupe work, 429 backs off
+ok   Ask Grok prompt: VPN + source + stated location
+ok   Ask Grok prompt: no VPN, unknown parts omitted
+ok   Ask Grok URL is grok.com/?q= with encoding
+ok   badge click asks Grok and prevents X navigation
+ok   askGrok=false leaves badges as before
+
+19 passed
+Python was not found; run without arguments to install from the Microsoft Store, or disable this shortcut from Settings > Apps > Advanced app settings > App execution aliases.

@@ -54,5 +54,5 @@ export function topicSignal(postText: string, basedInCode: string | null, basedI
   const labels = regions.map(r => r.label);
   return { basis: 'inferred', topics, labels, basedInCode, basedInName, mismatch,
     text: 'Post discusses ' + labels.join('/') + ' topics \u00b7 X reports account based in ' + basedInName +
-      ' \u00b7 topic/location mismatch \u2014 a signal, not proof.' };
+      ' \u00b7 topic concentration only; no inference of misconduct.' };
 }
