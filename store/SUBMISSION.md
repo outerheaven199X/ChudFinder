@@ -1,9 +1,9 @@
-# Chrome Web Store submission checklist (Chud Finder 2.2.0)
+# Chrome Web Store submission checklist (Chud Finder 2.3.0)
 
-Package: `chud-finder-cws-2.2.0.zip` (dist only; no tests, demo, or sourcemaps; `manifest.json` at root).
+Package: `chud-finder-cws-2.3.0.zip` (dist only; no tests, demo, or sourcemaps; `manifest.json` at root).
 
 1. **Register** at https://chrome.google.com/webstore/devconsole. There's a one-time US$5 developer fee. Verify your contact email.
-2. **New item:** upload `chud-finder-cws-2.2.0.zip`.
+2. **New item:** upload `chud-finder-cws-2.3.0.zip`.
 3. **Store listing tab:** paste from `store/listing.md` (description, category Tools, language English).
    - Icon: `store/assets/store-icon-128.png`
    - Screenshots (1280×800): `store/assets/screenshot-1…5-1280x800.png` (demo data)

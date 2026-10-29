@@ -122,9 +122,10 @@ async function t(name, fn) {
       { url: 'https://x.com/home', runScripts: 'outside-only', pretendToBeVisual: true });
     const w = d.window;
     w.document.cookie = 'ct0=testcsrf';
-    const store = {};
+    const store = { settings: { lookupMode: 'auto' } };
     const calls = [];
     let rateLimitOnce = true;
+    w.__CF_PACING__ = { passiveMinMs: 20, passiveMaxMs: 40, passivePerMinute: 1000, intentGapMs: 10 };
     w.chrome = {
       storage: { local: {
         get: async keys => { if (keys === null) return { ...store }; const o = {}; for (const k of [].concat(keys)) if (k in store) o[k] = store[k]; return o; },

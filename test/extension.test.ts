@@ -100,7 +100,8 @@ function contentPage(settings: any = {}) {
   const w: any = d.window;
   w.document.cookie = 'ct0=testcsrf';
   const { store, area } = memStore();
-  store.settings = settings;
+  store.settings = { lookupMode: 'auto', ...settings };
+  w.__CF_PACING__ = { passiveMinMs: 20, passiveMaxMs: 40, passivePerMinute: 1000, intentGapMs: 10, hoverMs: 30, ...(settings.__pacing || {}) };
   const sent: any[] = [];
   w.chrome = { storage: { local: area, onChanged: { addListener() {} } },
     runtime: { id: 'me', sendMessage: async (m: any) => { sent.push(m); return { ok: true }; }, onMessage: { addListener() {} } } };
@@ -180,5 +181,45 @@ test('page.js relays posts from X timeline responses (id, text, time, lang, link
   const p = msgs.find(m => m.type === 'posts');
   assert.ok(p); assert.equal(p.payload[0].id, '555'); assert.equal(p.payload[0].handle, 'vllm_project');
   assert.deepEqual(p.payload[0].links, ['https://docs.vllm.ai']); assert.equal(p.payload[0].replyToHandle, 'someone');
+  w.close();
+});
+
+test('careful mode (default): no lookups on scroll; hover or click triggers one; cached shows instantly', async () => {
+  const { w, waitFor } = contentPage({ lookupMode: 'careful' });
+  const calls: string[] = [];
+  const orig = w.fetch; w.fetch = async (u: string, o: any) => { calls.push(u); return orig(u, o); };
+  await waitFor(() => w.document.querySelectorAll('.cf-badge.cf-idle').length === 2);
+  await new Promise(r => setTimeout(r, 300));
+  assert.equal(calls.length, 0, 'scrolling into view does not fetch');
+  const jackBlock = w.document.querySelector('[data-cf-handle="jack"]');
+  jackBlock.dispatchEvent(new w.MouseEvent('mouseenter'));
+  await waitFor(() => w.document.querySelector('.cf-badge[data-cf-for="jack"]:not(.cf-idle):not(.cf-pending)'));
+  assert.equal(calls.length, 1);
+  assert.match(w.document.querySelector('.cf-badge[data-cf-for="jack"]').textContent, /United States/);
+  // a brief hover (shorter than the intent delay) does nothing
+  const q = w.document.querySelector('[data-cf-handle="quoted_person"]');
+  q.dispatchEvent(new w.MouseEvent('mouseenter')); q.dispatchEvent(new w.MouseEvent('mouseleave'));
+  await new Promise(r => setTimeout(r, 120));
+  assert.equal(calls.length, 1);
+  // click on the placeholder = intent (opens the popover, then fills it in)
+  w.document.querySelector('.cf-badge[data-cf-for="quoted_person"]').click();
+  await waitFor(() => w.document.querySelector('.cf-badge[data-cf-for="quoted_person"]:not(.cf-idle):not(.cf-pending)'));
+  assert.equal(calls.length, 2);
+  await waitFor(() => /India/.test(w.document.querySelector('.cf-pop')?.textContent || ''));
+  w.close();
+});
+
+test('daily cap pauses lookups everywhere and is reported', async () => {
+  const day = (() => { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); })();
+  const { w, waitFor } = contentPage({ lookupMode: 'auto', dailyCap: 50 });
+  const calls: string[] = [];
+  const orig = w.fetch; w.fetch = async (u: string, o: any) => { calls.push(u); return orig(u, o); };
+  // simulate 50 lookups already made today (e.g. in another tab)
+  await w.chrome.storage.local.set({ 'cf:daily': { day, count: 50 } });
+  await new Promise(r => setTimeout(r, 400));
+  assert.equal(calls.length, 0, 'no fetch once the cap is reached');
+  const st = await w.chrome.storage.local.get(['cf:pauseUntil', 'cf:pauseReason']);
+  assert.equal(st['cf:pauseReason'], 'daily'); assert.ok(st['cf:pauseUntil'] > Date.now());
+  await waitFor(() => /daily lookup limit \(50\)/.test(w.document.querySelector('.cf-badge.cf-pending')?.getAttribute('title') || ''));
   w.close();
 });

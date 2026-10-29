@@ -51,6 +51,8 @@ function renderList() {
 function fillForm() {
   for (const id of ['showName', 'popover', 'askGrok', 'vpnWarnings', 'mismatchWarnings', 'topicMode']) $(id).checked = !!settings[id];
   $('homeCountry').value = settings.homeCountry || 'US';
+  $('lookupMode').value = settings.lookupMode === 'auto' ? 'auto' : 'careful';
+  $('dailyCap').value = String(settings.dailyCap || 300);
   renderList(); renderChosen();
 }
 
@@ -118,6 +120,12 @@ async function init() {
   const sel = $('homeCountry');
   for (const c of C.COUNTRIES) sel.add(new Option(C.flagEmoji(c.code) + ' ' + c.name, c.code));
   sel.addEventListener('change', () => { settings.homeCountry = sel.value; save(); });
+  $('lookupMode').addEventListener('change', () => { settings.lookupMode = $('lookupMode').value === 'auto' ? 'auto' : 'careful'; save(); });
+  $('dailyCap').addEventListener('change', () => {
+    const n = Math.round(Number($('dailyCap').value));
+    settings.dailyCap = Number.isFinite(n) ? Math.min(1000, Math.max(50, n)) : 300;
+    $('dailyCap').value = String(settings.dailyCap); save();
+  });
   $('filter').addEventListener('input', renderList);
   fillForm();
 

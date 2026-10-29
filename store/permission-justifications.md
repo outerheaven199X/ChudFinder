@@ -5,6 +5,7 @@
 | Permission | Justification |
 |---|---|
 | `storage` | Saves the user's settings, a 24-hour lookup cache, and investigations locally (`chrome.storage.local`). Nothing is synced or sent anywhere. |
+| `storage` (pacing) | Also stores the daily lookup counter and any rate-limit pause, so all tabs share one human-scale budget. |
 | `alarms` | Re-checks the optional settings URL the user configured every 10 minutes (only if one is set). |
 | `sidePanel` | Opens the local investigation workspace in Chrome's side panel when the user clicks "Investigate". |
 | Host `https://x.com/*`, `https://twitter.com/*` | Content scripts render badges on X pages and request X's public "About this account" data in the user's own session. This is the extension's single purpose. |

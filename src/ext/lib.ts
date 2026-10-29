@@ -8,11 +8,11 @@ import { cleanText } from '../shared/sanitize.ts';
 import type { TopicSignal } from '../shared/topics.ts';
 import { extractAuthors, handleFromUserName, cleanHandle } from './xdom.ts';
 
-export interface AboutInfo { basedIn?: string | null; accurate?: boolean | null; source?: string | null; notFound?: boolean; pending?: boolean; error?: string; t?: number }
+export interface AboutInfo { basedIn?: string | null; accurate?: boolean | null; source?: string | null; notFound?: boolean; pending?: boolean; idle?: boolean; error?: string; t?: number }
 
   export interface Settings {
     enabled: boolean; showName: boolean; highlightCountries: string[]; vpnWarnings: boolean; mismatchWarnings: boolean;
-    topicMode: boolean; homeCountry: string; askGrok: boolean; popover: boolean; grokBotTemplateUrl: string; [k: string]: any;
+    topicMode: boolean; homeCountry: string; askGrok: boolean; lookupMode: 'careful' | 'auto'; dailyCap: number; popover: boolean; grokBotTemplateUrl: string; [k: string]: any;
   }
   const DEFAULT_SETTINGS: Readonly<Settings> = Object.freeze({
     enabled: true,
@@ -24,6 +24,8 @@ export interface AboutInfo { basedIn?: string | null; accurate?: boolean | null;
     homeCountry: 'US',
     askGrok: true,             // Ask Grok action (badge click when popover is off, button in the popover)
     popover: true,             // clicking a badge opens the provenance popover (Investigate / Ask Grok)
+    lookupMode: 'careful',     // careful: look up only on hover/click/popover/Investigate; auto: also as handles scroll into view
+    dailyCap: 300,             // lookups per local day across all tabs (50-1000)
     grokBotTemplateUrl: ''     // optional link to the Chud Finder Grok Bot template; empty = hidden
   });
 
@@ -190,7 +192,9 @@ export interface AboutInfo { basedIn?: string | null; accurate?: boolean | null;
 
     if (!ev.known) {
       el.classList.add('cf-unknown');
+      if (info && info.idle) el.classList.add('cf-idle');
       el.title = info && info.pending ? 'Chud Finder: looking up\u2026'
+        : info && info.idle ? 'Chud Finder (careful mode): not checked yet. Hover for a moment or click to check where X says this account is based.'
         : info && info.error ? 'Chud Finder: lookup failed (' + info.error + ')'
         : 'Chud Finder: X does not show an \u201cAccount based in\u201d country for this account.';
       if (info && info.pending) el.classList.add('cf-pending');

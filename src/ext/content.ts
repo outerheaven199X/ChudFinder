@@ -8,6 +8,8 @@ import type { AboutInfo } from './lib.ts';
 import { ADAPTER_VERSION, extractPost, parseRoute, postsOnPage } from './xdom.ts';
 import { openPopover, closePopover } from './popover.ts';
 import { topicSignal } from '../shared/topics.ts';
+import { DEFAULT_PACING, HOVER_INTENT_MS, jitterGap, waitBeforeNext, capReached, bumpDaily, currentDaily, nextLocalMidnight, clampDailyCap } from '../shared/pacing.ts';
+import type { DailyState } from '../shared/pacing.ts';
 import { extractPost as cfExtractPost, SEL as CF_SEL } from './xdom.ts';
 import { AccountObservation, Post } from '../shared/schemas.ts';
 import { cleanText, safeHttpsUrl } from '../shared/sanitize.ts';
@@ -26,25 +28,32 @@ declare const chrome: any;
   const CACHE_PREFIX = 'cf:h:';
   const TTL_FOUND = 24 * 3600e3;
   const TTL_EMPTY = 6 * 3600e3;
-  const MIN_GAP_MS = 1500;          // at most ~40 lookups/minute
   const DEFAULT_BACKOFF_MS = 15 * 60e3;
   const PAUSE_KEY = 'cf:pauseUntil';
+  const PAUSE_REASON_KEY = 'cf:pauseReason';   // 'rate' (X said 429) | 'daily' (daily cap reached)
+  const DAILY_KEY = 'cf:daily';                // { day: 'YYYY-MM-DD' (local), count }
+  // Test-only override; the page cannot reach the content script's isolated world.
+  const P = Object.assign({}, DEFAULT_PACING, (window as any).__CF_PACING__ || {});
+  const HOVER_MS = (window as any).__CF_PACING__?.hoverMs ?? HOVER_INTENT_MS;
 
   // ---- state ---------------------------------------------------------------
   let settings: L.Settings = Object.assign({}, L.DEFAULT_SETTINGS) as L.Settings;
   let bearer = DEFAULT_BEARER;
   let queryId = DEFAULT_QUERY_ID;
   let pauseUntil = 0;
+  let pauseReason: 'rate' | 'daily' = 'rate';
+  let dailyMem: DailyState | null = null;     // used when chrome.storage is unavailable
+  const recent: number[] = [];                // request timestamps (last minute)
   const mem = new Map<string, Rec>();            // handle(lower) -> {basedIn, accurate, source, notFound, t}
   const inflight = new Map<string, Promise<Rec>>(); // handle(lower) -> Promise
-  const queue: string[] = [];                    // handles waiting for a lookup
+  const queue: string[] = [];                    // handles waiting for a passive (auto-mode) lookup
+  const intentQueue: string[] = [];              // handles the user asked about (hover, click, popover, Investigate)
   const queued = new Set<string>();
   const stated = new Map<string, string>();      // handle(lower) -> self-reported profile location
   const statedAt = new Map<string, number>();    // handle(lower) -> when it was seen
   const seenPosts = new Map<string, any[]>();    // handle(lower) -> recent posts from X's own timeline responses
   const MAX_POSTS_PER_HANDLE = 100;
   let pumping = false;
-  let lastRequestAt = 0;
 
   const ext = typeof chrome !== 'undefined' && chrome.storage ? chrome : null;
 
@@ -155,13 +164,17 @@ declare const chrome: any;
     return discovering!;
   }
 
-  function lookup(h: string): Promise<Rec> {
+  function lookup(h: string, intent = false): Promise<Rec> {
+    if (intent && queued.has(h) && !intentQueue.includes(h)) {
+      const i = queue.indexOf(h); if (i >= 0) queue.splice(i, 1);
+      intentQueue.push(h); pump();
+    }
     if (inflight.has(h)) return inflight.get(h)!;
     const p = (async () => {
       const c = await cacheGet(h);
       if (c) return c;
       return new Promise<Rec>((resolve, reject) => {
-        enqueue(h, resolve, reject);
+        enqueue(h, resolve, reject, intent);
       });
     })().finally(() => inflight.delete(h));
     inflight.set(h, p);
@@ -169,10 +182,10 @@ declare const chrome: any;
   }
 
   const waiters = new Map<string, { resolve: (r: Rec) => void; reject: (e: unknown) => void }[]>(); // h -> [{resolve, reject}]
-  function enqueue(h: string, resolve: (r: Rec) => void, reject: (e: unknown) => void) {
+  function enqueue(h: string, resolve: (r: Rec) => void, reject: (e: unknown) => void, intent = false) {
     if (!waiters.has(h)) waiters.set(h, []);
     waiters.get(h)!.push({ resolve, reject });
-    if (!queued.has(h)) { queued.add(h); queue.push(h); }
+    if (!queued.has(h)) { queued.add(h); (intent ? intentQueue : queue).push(h); }
     pump();
   }
 
@@ -181,26 +194,63 @@ declare const chrome: any;
     waiters.delete(h);
   }
 
+  function waitVisible(): Promise<void> {
+    return new Promise(r => {
+      const on = () => { if (document.visibilityState !== 'hidden') { document.removeEventListener('visibilitychange', on); r(); } };
+      document.addEventListener('visibilitychange', on);
+    });
+  }
+
+  async function readDaily(): Promise<DailyState> {
+    if (!ext) return currentDaily(dailyMem, Date.now());
+    const got = await ext.storage.local.get(DAILY_KEY);
+    return currentDaily(got[DAILY_KEY], Date.now());
+  }
+  async function writeDaily(st: DailyState) {
+    dailyMem = st;
+    if (ext) await ext.storage.local.set({ [DAILY_KEY]: st });
+  }
+
   async function pump() {
     if (pumping) return;
     pumping = true;
     try {
-      while (queue.length && settings.enabled) {
-        if (Date.now() < pauseUntil) { await sleep(Math.min(pauseUntil - Date.now(), 60e3)); continue; }
-        const wait = lastRequestAt + MIN_GAP_MS - Date.now();
-        if (wait > 0) await sleep(wait);
-        // Most recently seen handles first: they are what the user is looking at.
-        const h = queue.pop()!;
+      while ((intentQueue.length || queue.length) && settings.enabled) {
+        if (Date.now() < pauseUntil) { setPendingTitle(); await sleep(Math.min(pauseUntil - Date.now(), 60e3)); continue; }
+        if (document.visibilityState === 'hidden') { await waitVisible(); continue; }   // never look up from a background tab
+        const intent = intentQueue.length > 0;
+        const wait = waitBeforeNext(intent ? 'intent' : 'passive', Date.now(), recent, intent ? 0 : jitterGap(P), P);
+        if (wait > 0) {
+          const until = Date.now() + wait; let preempt = false;
+          while (Date.now() < until) {
+            await sleep(Math.min(250, until - Date.now()));
+            if (!intent && intentQueue.length) { preempt = true; break; }   // user intent jumps the passive queue
+          }
+          if (preempt) continue;
+        }
+        // Most recently requested handles first: they are what the user is looking at.
+        const h = (intent ? intentQueue : queue).pop()!;
         queued.delete(h);
-        lastRequestAt = Date.now();
+        // Another tab may have looked it up meanwhile (shared storage cache).
+        const cached = await cacheGet(h);
+        if (cached) { settle(h, w => w.resolve(cached)); continue; }
+        const daily = await readDaily();
+        if (capReached(daily, settings.dailyCap, Date.now())) {
+          setPause(nextLocalMidnight(Date.now()), 'daily');
+          (intent ? intentQueue : queue).push(h); queued.add(h);
+          continue;
+        }
+        await writeDaily(bumpDaily(daily, Date.now()));
+        const now = Date.now();
+        recent.push(now); while (recent.length && recent[0] < now - 120e3) recent.shift();
         try {
           const rec = await fetchAbout(h);
           cacheSet(h, rec);
           settle(h, w => w.resolve(rec));
         } catch (e) {
           if (e instanceof RateLimited) {
-            setPause(e.until);
-            queue.push(h); queued.add(h); // retry after the pause
+            setPause(e.until, 'rate');
+            (intent ? intentQueue : queue).push(h); queued.add(h); // retry after the pause
             setPendingTitle();
           } else {
             settle(h, w => w.reject(e));
@@ -212,15 +262,18 @@ declare const chrome: any;
     }
   }
 
-  function setPause(until: number) {
+  function setPause(until: number, reason: 'rate' | 'daily' = 'rate') {
+    if (until > pauseUntil) pauseReason = reason;
     pauseUntil = Math.max(pauseUntil, until);
-    if (ext) ext.storage.local.set({ [PAUSE_KEY]: pauseUntil });
+    if (ext) ext.storage.local.set({ [PAUSE_KEY]: pauseUntil, [PAUSE_REASON_KEY]: pauseReason });
   }
 
   function setPendingTitle() {
     const mins = Math.max(1, Math.round((pauseUntil - Date.now()) / 60e3));
     for (const el of document.querySelectorAll('.cf-badge.cf-pending')) {
-      (el as HTMLElement).title = 'Chud Finder: X rate limit reached; lookups resume in ~' + mins + ' min.';
+      (el as HTMLElement).title = pauseReason === 'daily'
+        ? 'Chud Finder: daily lookup limit (' + clampDailyCap(settings.dailyCap) + ') reached; lookups resume after midnight. Cached accounts still show.'
+        : 'Chud Finder: X rate limit reached; lookups resume in ~' + mins + ' min.';
     }
   }
 
@@ -239,6 +292,7 @@ declare const chrome: any;
     const onActivate = settings.popover !== false ? activate : undefined;
     const badge = L.renderBadge(document, info, settings, stated.get(h.toLowerCase()) || '', h, onActivate);
     place(block, badge);
+    if (info.idle) badge.addEventListener('click', () => { intentLookup(h.toLowerCase()).catch(() => {}); });
     drawTopic(block, h, info);
   }
 
@@ -289,8 +343,44 @@ declare const chrome: any;
     block.setAttribute('data-cf-handle', h);
     const known = mem.get(h);
     if (fresh(known)) { draw(block, h, known!); return; }
+    if (settings.lookupMode !== 'auto') {
+      // Careful mode: no network just because a handle scrolled into view. Show a neutral placeholder,
+      // use any cached result (from any tab), and look up only on user intent.
+      draw(block, h, { idle: true });
+      armIntent(block, h);
+      cacheGet(h).then(rec => { if (rec && block.getAttribute('data-cf-handle') === h) draw(block, h, rec); }, () => {});
+      return;
+    }
     draw(block, h, { pending: true });
     lookup(h).then(rec => draw(block, h, rec), err => draw(block, h, { error: String(err && err.message || err) }));
+  }
+
+  function blocksFor(h: string): Element[] {
+    return [...document.querySelectorAll('[data-cf-handle="' + CSS.escape(h) + '"]')];
+  }
+
+  /** A user-intent lookup (hover, click, popover, Investigate). Resolves with the record. */
+  function intentLookup(h: string): Promise<Rec> {
+    const known = mem.get(h);
+    if (fresh(known)) return Promise.resolve(known!);
+    for (const b of blocksFor(h)) if (b.querySelector('[data-cf-badge].cf-idle')) draw(b, h, { pending: true });
+    const p = lookup(h, true);
+    p.then(rec => { for (const b of blocksFor(h)) draw(b, h, rec); },
+      err => { for (const b of blocksFor(h)) draw(b, h, { error: String(err && err.message || err) }); });
+    return p;
+  }
+
+  // Hovering the author name/handle/badge for ~600 ms counts as intent.
+  function armIntent(block: Element, h: string) {
+    const b: any = block;
+    if (b.__cfArmed === h) return;
+    b.__cfArmed = h;
+    let timer: any = null;
+    block.addEventListener('mouseenter', () => {
+      if (timer || settings.lookupMode === 'auto') return;
+      timer = setTimeout(() => { timer = null; const cur = block.getAttribute('data-cf-handle'); if (cur) intentLookup(cur).catch(() => {}); }, HOVER_MS);
+    });
+    block.addEventListener('mouseleave', () => { if (timer) { clearTimeout(timer); timer = null; } });
   }
 
   // Only look up authors of tweets that are (nearly) on screen.
@@ -364,6 +454,14 @@ declare const chrome: any;
 
   function investigate(handle: string, anchor: Element | null) {
     if (!ext || !ext.runtime) return;
+    if (!fresh(mem.get(handle.toLowerCase()))) {
+      intentLookup(handle.toLowerCase()).then(() => investigate(handle, anchor), () => investigate2(handle, anchor));
+      return;
+    }
+    investigate2(handle, anchor);
+  }
+  function investigate2(handle: string, anchor: Element | null) {
+    if (!ext || !ext.runtime) return;
     let observation;
     try { observation = buildObservation(handle, anchor); }
     catch (e: any) { L.showToast(document, anchor, 'Chud Finder: could not read this page (' + (e && e.message || e) + ')'); return; }
@@ -375,6 +473,16 @@ declare const chrome: any;
 
   function activate(el: HTMLElement, ctx: { handle: string; info: AboutInfo | null | undefined; statedLocation: string; prompt: string; url: string }) {
     const h = ctx.handle.toLowerCase();
+    if (!fresh(mem.get(h))) {
+      // Opening the popover is intent: look up now and refresh the popover when the answer arrives.
+      const block = el.closest('[data-cf-handle]');
+      intentLookup(h).then(() => {
+        const open = document.querySelector('.cf-pop[aria-label="Chud Finder: @' + ctx.handle + '"]');
+        const nb = block && block.querySelector('[data-cf-badge]') as HTMLElement | null;
+        if (open && nb) activate(nb, { ...ctx, info: mem.get(h) });
+      }, () => {});
+      ctx = { ...ctx, info: { pending: true } };
+    }
     openPopover(document, el, {
       handle: ctx.handle, info: mem.get(h) || ctx.info || null, statedLocation: stated.get(h) || ctx.statedLocation || '',
       evaluation: L.evaluate(mem.get(h) || ctx.info, settings, stated.get(h) || ''), askGrok: settings.askGrok !== false,
@@ -401,7 +509,7 @@ declare const chrome: any;
       if (!msg || msg.type !== 'observe' || (sender && sender.id !== ext.runtime.id)) return false;
       const h = typeof msg.handle === 'string' ? msg.handle : '';
       if (!/^[A-Za-z0-9_]{1,15}$/.test(h)) { sendResponse({ ok: false, error: 'bad handle' }); return false; }
-      const ready = mem.has(h.toLowerCase()) ? Promise.resolve() : lookup(h.toLowerCase()).then(() => {}, () => {});
+      const ready = mem.has(h.toLowerCase()) ? Promise.resolve() : lookup(h.toLowerCase(), true).then(() => {}, () => {});
       ready.then(() => {
         try { sendResponse({ ok: true, observation: buildObservation(h, null) }); }
         catch (e: any) { sendResponse({ ok: false, error: String(e && e.message || e) }); }
@@ -420,10 +528,11 @@ declare const chrome: any;
   // ---- settings & lifecycle -------------------------------------------------
   async function init() {
     if (ext) {
-      const got = await ext.storage.local.get(['settings', 'cf:queryId', PAUSE_KEY]);
+      const got = await ext.storage.local.get(['settings', 'cf:queryId', PAUSE_KEY, PAUSE_REASON_KEY]);
       settings = Object.assign({}, L.DEFAULT_SETTINGS, got.settings || {}) as L.Settings;
       if (got['cf:queryId']) queryId = got['cf:queryId'];
       if (got[PAUSE_KEY]) pauseUntil = got[PAUSE_KEY];
+      if (got[PAUSE_REASON_KEY] === 'daily') pauseReason = 'daily';
       ext.storage.onChanged.addListener((changes: any, area: string) => {
         if (area !== 'local') return;
         if (changes.settings) {
@@ -434,6 +543,7 @@ declare const chrome: any;
           else rerenderAll();
         }
         if (changes[PAUSE_KEY]) pauseUntil = Math.max(pauseUntil, changes[PAUSE_KEY].newValue || 0);
+        if (changes[PAUSE_REASON_KEY]) pauseReason = changes[PAUSE_REASON_KEY].newValue === 'daily' ? 'daily' : 'rate';
         if (changes['cf:cacheCleared']) { mem.clear(); }
       });
     }

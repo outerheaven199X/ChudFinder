@@ -11,7 +11,8 @@
     demo_statehouse:    { basedIn: 'United States', accurate: true,  source: 'Web' }
   };
   const SETTINGS = { enabled: true, showName: true, vpnWarnings: true, mismatchWarnings: true, topicMode: true, homeCountry: 'US',
-    highlightCountries: ['BR'], askGrok: true, popover: true };
+    highlightCountries: ['BR'], askGrok: true, popover: true, lookupMode: 'auto' };
+  window.__CF_PACING__ = { passiveMinMs: 50, passiveMaxMs: 100, passivePerMinute: 1000, intentGapMs: 50 };
   document.cookie = 'ct0=demo';
   window.chrome = { storage: { local: { get: async () => ({ settings: SETTINGS }), set: async () => {}, remove: async () => {} },
     onChanged: { addListener() {} } } };

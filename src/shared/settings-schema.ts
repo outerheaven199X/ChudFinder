@@ -4,6 +4,7 @@
  * Nothing in it is ever evaluated or executed.
  */
 import * as C from './countries.ts';
+import { LOOKUP_MODES, DAILY_CAP_MIN, DAILY_CAP_MAX } from './pacing.ts';
 
 export type SettingsDoc = Record<string, unknown>;
 export interface ValidationResult { ok: boolean; settings: Record<string, any> | null; errors: string[]; warnings: string[] }
@@ -13,7 +14,7 @@ export interface ValidationResult { ok: boolean; settings: Record<string, any> |
   const MAX_COUNTRIES = 300;
   // popover was added in 2.0.0; documents without it stay valid (schemaVersion is still 1).
   const BOOL_KEYS = ['enabled', 'topicMode', 'vpnWarnings', 'mismatchWarnings', 'showName', 'askGrok', 'popover'];
-  const KNOWN = new Set(['schemaVersion', 'homeCountry', 'highlightCountries', 'updatedAt', 'note', 'grokBotTemplateUrl'].concat(BOOL_KEYS));
+  const KNOWN = new Set(['schemaVersion', 'homeCountry', 'highlightCountries', 'updatedAt', 'note', 'grokBotTemplateUrl', 'lookupMode', 'dailyCap'].concat(BOOL_KEYS));
 
   function resolveCountry(v: unknown): string | null {
     if (typeof v !== 'string' || !v.trim() || v.length > 80) return null;
@@ -70,6 +71,16 @@ export interface ValidationResult { ok: boolean; settings: Record<string, any> |
       else if (typeof v !== 'string' || v.length > 500 || !checkSourceUrl(v)) errors.push('grokBotTemplateUrl must be an https URL or empty.');
       else out.grokBotTemplateUrl = checkSourceUrl(v)!.href;
     }
+    // 2.3.0: optional pacing keys (absent = defaults, so older documents stay valid).
+    if ('lookupMode' in doc) {
+      if (!(LOOKUP_MODES as readonly unknown[]).includes(doc.lookupMode)) errors.push('lookupMode must be "careful" or "auto".');
+      else out.lookupMode = doc.lookupMode;
+    }
+    if ('dailyCap' in doc) {
+      const n = doc.dailyCap;
+      if (typeof n !== 'number' || !Number.isInteger(n) || n < DAILY_CAP_MIN || n > DAILY_CAP_MAX) errors.push('dailyCap must be a whole number from ' + DAILY_CAP_MIN + ' to ' + DAILY_CAP_MAX + '.');
+      else out.dailyCap = n;
+    }
     for (const k of Object.keys(doc)) if (!KNOWN.has(k)) warnings.push('Ignored unknown key "' + k + '".');
     if (errors.length) return { ok: false, settings: null, errors, warnings };
     return { ok: true, settings: out, errors, warnings };
@@ -113,6 +124,8 @@ export interface ValidationResult { ok: boolean; settings: Record<string, any> |
     const doc: Record<string, any> = { schemaVersion: SCHEMA_VERSION };
     for (const k of BOOL_KEYS) if (typeof settings[k] === 'boolean') doc[k] = settings[k];
     if (settings.homeCountry) doc.homeCountry = settings.homeCountry;
+    if (settings.lookupMode === 'careful' || settings.lookupMode === 'auto') doc.lookupMode = settings.lookupMode;
+    if (Number.isInteger(settings.dailyCap) && settings.dailyCap >= DAILY_CAP_MIN && settings.dailyCap <= DAILY_CAP_MAX) doc.dailyCap = settings.dailyCap;
     if (typeof settings.grokBotTemplateUrl === 'string' && settings.grokBotTemplateUrl) doc.grokBotTemplateUrl = settings.grokBotTemplateUrl;
     doc.highlightCountries = Array.isArray(settings.highlightCountries) ? settings.highlightCountries.slice() : [];
     return b64encode(JSON.stringify(doc));

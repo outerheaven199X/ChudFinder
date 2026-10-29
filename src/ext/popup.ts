@@ -9,7 +9,13 @@ async function refresh() {
   const n = Object.keys(all).filter(k => k.startsWith('cf:h:')).length;
   const pause = all['cf:pauseUntil'] || 0;
   let msg = n + ' account' + (n === 1 ? '' : 's') + ' cached.';
-  if (pause > Date.now()) msg += ' Rate-limited by X; resuming in ~' + Math.ceil((pause - Date.now()) / 60e3) + ' min.';
+  const d = new Date(); const today = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+  const daily = all['cf:daily'] && all['cf:daily'].day === today ? all['cf:daily'].count : 0;
+  const cap = Number.isInteger(s.dailyCap) ? s.dailyCap : 300;
+  msg += ' ' + (s.lookupMode === 'auto' ? 'Auto' : 'Careful') + ' mode \u00b7 ' + daily + '/' + cap + ' lookups today.';
+  if (pause > Date.now()) msg += all['cf:pauseReason'] === 'daily'
+    ? ' Paused: daily limit reached; resumes after midnight.'
+    : ' Paused: rate-limited by X; resuming in ~' + Math.ceil((pause - Date.now()) / 60e3) + ' min.';
   $('status').textContent = msg;
   const sync = $('sync');
   if (!all.syncUrl) { sync.textContent = ''; }

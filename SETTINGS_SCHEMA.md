@@ -68,3 +68,12 @@ The matching code is `btoa(JSON.stringify(doc))`, i.e. `base64.b64encode(json.du
 | `grokBotTemplateUrl` | https URL or `""` | `""` | Link shown as "Deep investigation with Chud Finder Grok Bot" in the side panel. Empty hides it; non-https values are rejected. |
 
 Validate a document exactly as the extension does: `npm run build && node tools/validate-settings.cjs < settings.json`.
+
+## 2.3.0 additions (optional, schemaVersion stays 1)
+
+| Key | Type | Default | Notes |
+|---|---|---|---|
+| `lookupMode` | `"careful"` \| `"auto"` | `"careful"` | careful = look up only on hover/click/popover/Investigate; auto = also as accounts scroll into view (paced) |
+| `dailyCap` | integer 50–1000 | `300` | lookups per local day across all tabs |
+
+Documents without these keys stay valid and keep the defaults.

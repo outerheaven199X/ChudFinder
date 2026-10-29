@@ -65,6 +65,17 @@ Every author gets a badge showing the country **X itself** reports the account i
 
 Findings cite evidence items by id. A finding that cites nothing, cites evidence that doesn't exist, or names a country the evidence doesn't support is rejected before it's shown.
 
+## ACCOUNT SAFETY
+
+Chud Finder talks to X **as you**, using your logged-in session. Extensions that fire lots of lookups in the background can look like automation to X, so 2.3.0 paces itself:
+
+- **Careful mode (default).** Scrolling makes **no requests**. An account is checked only when you show intent: hover its name or badge for ~0.6 s, click its badge, open the popover, or click Investigate. Accounts you've already checked (cached 24 h, or 6 h if X shows nothing) appear instantly in every tab. Unchecked accounts show a neutral `?` placeholder.
+- **Auto mode (opt-in).** Accounts are also checked as they scroll into view, with randomized 4–9 s gaps and at most 10 per minute.
+- **Always on:** user-intent lookups are at most 1 every 2 s. There's a **daily limit** (default 300, settable from 50 to 1000) shared by all tabs that resets at local midnight. If X returns a rate-limit (429), lookups pause everywhere until X's reset time. Background tabs never look anything up. The popup shows the mode, today's count, and any pause.
+- **What it requests:** only X's own *About this account* query on x.com (the same request X's site makes when you open that page), plus X's public script files fetched as text to find the query id.
+
+**No tool can guarantee X won't limit or act on an account.** This is an unofficial use of X's web API. Careful mode keeps the traffic close to what a person browsing makes, but X's rules and detection are up to X.
+
 ## INSTALL (BRAVE / CHROME)
 
 1. Download `chud-finder-<version>.zip` from [**Releases**](../../releases) and extract it to a folder. `manifest.json` sits at the top level of the zip.
