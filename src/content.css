@@ -1,0 +1,17 @@
+@font-face{font-family:"Twemoji Country Flags";unicode-range:U+1F1E6-1F1FF,U+1F3F4,U+E0062-E0063,U+E0065,U+E0067,U+E006C,U+E006E,U+E0073-E0074,U+E0077,U+E007F;src:url("chrome-extension://__MSG_@@extension_id__/fonts/TwemojiCountryFlags.woff2") format("woff2");font-display:swap}
+.cf-badge{display:inline-flex;align-items:center;gap:3px;margin-left:6px;padding:0 6px;height:18px;
+  border-radius:9px;font-size:12px;line-height:18px;font-weight:500;white-space:nowrap;vertical-align:middle;
+  background:rgba(29,155,240,.10);color:inherit;border:1px solid rgba(29,155,240,.25);cursor:help;flex-shrink:0;
+  font-family:"Twemoji Country Flags",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif}
+.cf-badge .cf-flag{font-size:13px}
+.cf-badge .cf-name{max-width:140px;overflow:hidden;text-overflow:ellipsis}
+.cf-badge.cf-unknown{background:rgba(128,128,128,.14);border-color:rgba(128,128,128,.3);color:rgb(113,118,123)}
+.cf-badge.cf-pending{opacity:.55}
+.cf-badge.cf-warn{background:rgba(255,173,31,.16);border-color:rgba(255,173,31,.7)}
+.cf-badge .cf-warn-icon{color:rgb(214,130,0)}
+.cf-badge.cf-highlight{background:rgba(249,24,128,.14);border-color:rgb(249,24,128);font-weight:700}
+.cf-badge.cf-outside{outline:1.5px dashed rgba(120,86,255,.85);outline-offset:1px}
+.cf-badge.cf-ask{cursor:pointer}
+.cf-badge.cf-ask:hover{filter:brightness(1.08);text-decoration:none}
+.cf-badge.cf-ask:focus-visible{outline:2px solid rgb(29,155,240);outline-offset:1px}
+.cf-toast{position:fixed;z-index:2147483647;top:12px;left:50%;padding:6px 10px;border-radius:8px;background:rgba(15,20,25,.92);color:#fff;font:500 13px/1.3 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;box-shadow:0 2px 8px rgba(0,0,0,.25);pointer-events:none}

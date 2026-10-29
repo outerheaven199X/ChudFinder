@@ -1,0 +1,53 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Chud Finder settings</title>
+<style>
+@font-face{font-family:"Twemoji Country Flags";unicode-range:U+1F1E6-1F1FF;src:url("../fonts/TwemojiCountryFlags.woff2") format("woff2")}
+body{font:14px "Twemoji Country Flags",system-ui,sans-serif;max-width:640px;margin:24px auto;padding:0 16px;color:#0f1419}
+h1{font-size:20px}h2{font-size:15px;margin-top:24px}.hint{color:#536471;font-size:12.5px;margin:4px 0 8px}
+label.opt{display:flex;gap:8px;align-items:flex-start;margin:10px 0}
+#filter{width:100%;padding:6px 8px;border:1px solid #cfd9de;border-radius:6px;box-sizing:border-box}
+#list{columns:3;column-gap:12px;max-height:320px;overflow:auto;border:1px solid #eff3f4;border-radius:6px;padding:8px;margin-top:6px;font-size:13px}
+#list label{display:block;break-inside:avoid;padding:2px 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#chosen{font-size:13px;color:#536471;margin-top:6px}#saved{color:#00ba7c;font-size:12.5px;height:16px}
+select{padding:4px}
+.line{display:flex;gap:6px;margin:6px 0}.line input{flex:1;padding:6px 8px;border:1px solid #cfd9de;border-radius:6px}
+button{padding:6px 12px;border-radius:16px;border:1px solid #cfd9de;background:#fff;cursor:pointer;font-weight:600}
+textarea{width:100%;box-sizing:border-box;font:12px ui-monospace,monospace;padding:6px;border:1px solid #cfd9de;border-radius:6px}
+.err{color:#f4212e}.good{color:#00ba7c}
+</style></head>
+<body>
+<h1>Chud Finder settings</h1>
+<p class="hint">Chud Finder shows the "Account based in" country X itself reports for every account. It treats every country the same; anything highlighted below is your own choice.</p>
+
+<label class="opt"><input type="checkbox" id="showName"><span>Show the country name next to the flag</span></label>
+<label class="opt"><input type="checkbox" id="askGrok"><span>Click a badge to ask Grok about that account (opens grok.com and copies the prompt)</span></label>
+<label class="opt"><input type="checkbox" id="vpnWarnings"><span>Warn when X says an account's location may not be accurate (possible VPN or proxy)</span></label>
+<label class="opt"><input type="checkbox" id="mismatchWarnings"><span>Warn when the profile's self-reported location, or the app-store region it connects through, differs from where X says it's based</span></label>
+
+<h2>Topic mode</h2>
+<label class="opt"><input type="checkbox" id="topicMode"><span>Give a subtle outline to accounts based outside my home country</span></label>
+<label class="opt"><span>Home country</span><select id="homeCountry"></select></label>
+
+<h2>Highlight countries</h2>
+<p class="hint">Optional. Pick any countries you want to stand out. Empty by default.</p>
+<input id="filter" placeholder="Filter countries…">
+<div id="list"></div>
+<div id="chosen"></div>
+
+<h2>Sync with Grok Bot</h2>
+<p class="hint">Optional. Point this at a settings file your bot keeps for you, such as a raw GitHub Gist URL (https only). Chud Finder checks it on startup and every 10 minutes, and applies it when it changes. It only ever reads data, never code. See SETTINGS_SCHEMA.md.</p>
+<div class="line"><input id="syncUrl" type="url" placeholder="https://gist.githubusercontent.com/you/…/raw/chud-finder-settings.json">
+<button id="saveUrl">Save</button><button id="removeUrl">Remove</button></div>
+<p id="syncStatus" class="hint"></p>
+
+<h2>Settings code</h2>
+<p class="hint">Paste a settings code from your bot (or JSON), or export yours to share.</p>
+<textarea id="code" rows="3" placeholder="Paste settings code…"></textarea>
+<div class="line"><button id="applyCode">Apply code</button><button id="exportCode">Export settings code</button></div>
+<p id="codeStatus" class="hint"></p>
+<p id="saved"></p>
+<script src="countries.js"></script>
+<script src="lib.js"></script>
+<script src="settings-schema.js"></script>
+<script src="options.js"></script>
+</body></html>

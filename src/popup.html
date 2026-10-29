@@ -1,0 +1,21 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Chud Finder</title>
+<style>
+@font-face{font-family:"Twemoji Country Flags";unicode-range:U+1F1E6-1F1FF;src:url("../fonts/TwemojiCountryFlags.woff2") format("woff2")}
+body{font:13px "Twemoji Country Flags",system-ui,sans-serif;width:260px;margin:0;padding:14px;color:#0f1419}
+h1{font-size:15px;margin:0 0 2px}p.sub{margin:0 0 12px;color:#536471;font-size:12px}
+.row{display:flex;justify-content:space-between;align-items:center;margin:10px 0}
+button{width:100%;padding:7px;border-radius:16px;border:1px solid #cfd9de;background:#fff;cursor:pointer;font-weight:600;margin-top:6px}
+button:hover{background:#f7f9f9}#status{color:#536471;font-size:12px;margin-top:8px;min-height:16px}
+#sync{font-size:12px;margin-top:4px;color:#536471}#sync.err{color:#f4212e}#sync.good{color:#00ba7c}
+</style></head>
+<body>
+<h1>Chud Finder</h1>
+<p class="sub">Where X says each post's author is based.</p>
+<label class="row"><span>Enabled</span><input type="checkbox" id="enabled"></label>
+<button id="clear">Clear cache</button>
+<button id="options">Settings…</button>
+<div id="status"></div>
+<div id="sync"></div>
+<script src="popup.js"></script>
+</body></html>
