@@ -7,6 +7,8 @@ import * as L from './lib.ts';
 import type { AboutInfo } from './lib.ts';
 import { ADAPTER_VERSION, extractPost, parseRoute, postsOnPage } from './xdom.ts';
 import { openPopover, closePopover } from './popover.ts';
+import { topicSignal } from '../shared/topics.ts';
+import { extractPost as cfExtractPost, SEL as CF_SEL } from './xdom.ts';
 import { AccountObservation, Post } from '../shared/schemas.ts';
 import { cleanText, safeHttpsUrl } from '../shared/sanitize.ts';
 
@@ -237,6 +239,29 @@ declare const chrome: any;
     const onActivate = settings.popover !== false ? activate : undefined;
     const badge = L.renderBadge(document, info, settings, stated.get(h.toLowerCase()) || '', h, onActivate);
     place(block, badge);
+    drawTopic(block, h, info);
+  }
+
+  // Topic mode: neutral, inferred note when a post's topic tags don't match where X reports the account is based.
+  function topicFor(article: Element | null, h: string, info: Rec | null | undefined) {
+    if (!settings.topicMode || !article || !info || !info.basedIn) return null;
+    const post = cfExtractPost(article);
+    if (!post || post.handle.toLowerCase() !== h.toLowerCase()) return null;
+    const ev = L.evaluate(info, settings, '');
+    return topicSignal(post.text, ev.code, ev.name);
+  }
+  function drawTopic(block: Element, h: string, info: Rec) {
+    const art = block.closest(CF_SEL.article);
+    if (!art) return;
+    const post = cfExtractPost(art);
+    if (!post || post.handle.toLowerCase() !== h.toLowerCase()) return;   // quoted author: leave the main post's note alone
+    const old = art.querySelector('[data-cf-topic]');
+    const sig = topicFor(art, h, info);
+    if (!sig) { if (old) old.remove(); return; }
+    const note = L.renderTopicNote(document, sig);
+    if (old) { old.replaceWith(note); return; }
+    const text = art.querySelector(CF_SEL.tweetText);
+    if (text) text.after(note);
   }
 
   function rerenderHandle(h: string) {
@@ -254,7 +279,7 @@ declare const chrome: any;
   }
 
   function removeAll() {
-    for (const el of document.querySelectorAll('[data-cf-badge]')) el.remove();
+    for (const el of document.querySelectorAll('[data-cf-badge], [data-cf-topic]')) el.remove();
     for (const el of document.querySelectorAll('[data-cf-handle]')) el.removeAttribute('data-cf-handle');
   }
 
@@ -353,6 +378,7 @@ declare const chrome: any;
     openPopover(document, el, {
       handle: ctx.handle, info: mem.get(h) || ctx.info || null, statedLocation: stated.get(h) || ctx.statedLocation || '',
       evaluation: L.evaluate(mem.get(h) || ctx.info, settings, stated.get(h) || ''), askGrok: settings.askGrok !== false,
+      topic: topicFor(el.closest(CF_SEL.article), ctx.handle, mem.get(h) || ctx.info),
       onInvestigate: () => { closePopover(document); investigate(ctx.handle, el); },
       onAskGrok: () => { closePopover(document); L.askGrok(document, el, ctx.prompt, ctx.url); }
     });

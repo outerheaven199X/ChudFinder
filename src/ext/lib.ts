@@ -5,6 +5,7 @@ import * as C from '../shared/countries.ts';
 import { classifySource, countryFromStatedLocation } from '../shared/geo.ts';
 import { GROK_BASE, grokUrl } from '../shared/prompts.ts';
 import { cleanText } from '../shared/sanitize.ts';
+import type { TopicSignal } from '../shared/topics.ts';
 import { extractAuthors, handleFromUserName, cleanHandle } from './xdom.ts';
 
 export interface AboutInfo { basedIn?: string | null; accurate?: boolean | null; source?: string | null; notFound?: boolean; pending?: boolean; error?: string; t?: number }
@@ -229,9 +230,20 @@ export interface AboutInfo { basedIn?: string | null; accurate?: boolean | null;
     return el;
   }
 
+  /** Neutral, inferred topic/location note shown under a post in topic mode. textContent only. */
+  function renderTopicNote(doc: Document, sig: TopicSignal): HTMLElement {
+    const el = doc.createElement('div');
+    el.className = 'cf-topic'; el.setAttribute('data-cf-topic', ''); el.setAttribute('role', 'note');
+    const tag = doc.createElement('span'); tag.className = 'cf-topic-tag'; tag.textContent = '[INFERRED]';
+    const t = doc.createElement('span'); t.className = 'cf-topic-text'; t.textContent = sig.text;
+    el.append(tag, t);
+    el.title = 'Chud Finder topic mode: keyword topic tags (' + sig.topics.join(', ') + ') compared with X\u2019s \u201cAbout this account\u201d. Not a judgement of the post or its author.';
+    return el;
+  }
+
 export type ActivateFn = (el: HTMLElement, ctx: { handle: string; info: AboutInfo | null | undefined; statedLocation: string; prompt: string; url: string }) => void;
 export const CFLib = { DEFAULT_SETTINGS, cleanHandle, handleFromUserName, extractAuthors, classifySource,
   parseAbout, countryFromStatedLocation, evaluate, renderBadge,
-  buildGrokPrompt, grokUrl, copyText, attachAskGrok, askGrok, showToast, GROK_BASE };
-export { DEFAULT_SETTINGS, cleanHandle, handleFromUserName, extractAuthors, classifySource, parseAbout, countryFromStatedLocation,
+  buildGrokPrompt, grokUrl, copyText, attachAskGrok, askGrok, showToast, renderTopicNote, GROK_BASE };
+export { renderTopicNote, DEFAULT_SETTINGS, cleanHandle, handleFromUserName, extractAuthors, classifySource, parseAbout, countryFromStatedLocation,
   evaluate, renderBadge, buildGrokPrompt, grokUrl, copyText, attachAskGrok, askGrok, showToast, GROK_BASE };

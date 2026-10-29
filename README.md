@@ -22,6 +22,23 @@ Every author gets a badge showing the country **X itself** reports the account i
 
 ---
 
+## SEE IT IN ACTION
+
+> **DEMO DATA.** Every account below is fictional (`@demo_*` / `@sample_*`), with letter avatars. The timeline is a seeded mock of X's markup (`demo/`), running the **real built content script** in headless Chrome with a mocked *About this account* response. These are not captures of live X. Reproduce: `npm run build && PUPPETEER_CORE=<path> node demo/shoot.mjs`.
+
+| | |
+|---|---|
+| ![Demo timeline, dark](docs/screenshots/01-timeline-dark.png) | ![Demo timeline, light](docs/screenshots/01b-timeline-light.png) |
+| **Timeline (dark).** The home-country badge is plain, the highlighted country is yellow, the VPN/mismatch note is orange ⚠, unknown shows `?`, and accounts outside your home country get a dashed outline. | **Timeline (light).** The same badges carry their own colors, so they read the same on both X themes. |
+| ![VPN popover, dark](docs/screenshots/02-popover-vpn-dark.png) | ![VPN popover, light](docs/screenshots/03-popover-vpn-light.png) |
+| **Full spread (dark).** Based in, Connected via and the location note, each with its source and when it was seen, plus the self-reported location and warnings. | **Full spread (light).** |
+| ![Topic mismatch US/EU](docs/screenshots/04-mismatch-us-eu-topics-dark.png) | ![Topic mismatch India topic](docs/screenshots/05-mismatch-domestic-india-topic-light.png) |
+| **Topic/location mismatch.** The post discusses US/EU topics and X reports the account based in India. The note is labeled `[INFERRED]`: it's a signal, not proof. | **The same rule works both ways.** A US-based account posting about India's domestic politics gets the same neutral note. |
+| ![Side panel overview](docs/screenshots/06-panel-overview-mismatch.png) | ![Side panel origin](docs/screenshots/06-panel-origin-mismatch.png) |
+| **Side panel, Overview.** | **Side panel, Origin.** |
+
+**TOPIC MODE** tags each post using a small, auditable keyword list (`src/shared/topics.ts`: US, EU, UK, India, Canada, Australia, Brazil) and compares the tags with the country X reports. When they don't match, it shows one fixed sentence: *"Post discusses US/EU topics · X reports account based in India · topic/location mismatch — a signal, not proof."* Plenty of people follow other countries' news. The note never says anything about intent, accuracy or nationality.
+
 ## WHAT IT DOES
 
 **ORIGIN X-RAY.** Shows *Based in*, *Connected via* and X's location note, each with its source and when it was seen in your session, next to the profile's self-reported location. Anything missing reads **Unavailable**.

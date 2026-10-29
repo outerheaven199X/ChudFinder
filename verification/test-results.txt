@@ -7,48 +7,51 @@
 > node tools/build.mjs
 
 built dist/ (24 files) and chud-finder-2.1.0.zip
-✔ Origin X-Ray: reported based-in + corroboration by connection region and self-described location (19.349684ms)
-✔ VPN Detective: VPN note + conflicting connection region => conflicts listed, Location undetermined (3.573812ms)
-✔ VPN Detective: posting hours can tip an inference, labeled inferred with low/medium confidence (13.698252ms)
-✔ activity pattern needs enough data; offset consistency uses tzdata (0.407137ms)
-✔ missing data produces explicit unknown states, never a fabricated country (1.869589ms)
-✔ regions are kept as regions (no country invented) (0.949806ms)
-✔ stable ids + versioned snapshots: re-observing keeps evidence history without duplicates (4.071585ms)
-✔ citation validation: every engine finding cites stored evidence (6.161728ms)
-✔ citation validation rejects nonexistent evidence, uncited claims, unsupported countries and boundary violations (2.268533ms)
-✔ generated text never crosses the hard boundaries (3.60542ms)
-✔ prompt injection in post text cannot change findings or instructions (3.061903ms)
-✔ evidence never claims a server retrieved X data (0.622394ms)
-✔ manifest + build output: MV3, side panel, every referenced file exists, zip has manifest at root (3.461226ms)
-✔ background: Investigate opens the side panel synchronously, stores a versioned investigation (114.094115ms)
-✔ background: rejects malformed observations and other extensions; falls back to a tab without sidePanel (26.287867ms)
-✔ content: badge click opens the provenance popover; Investigate submits a schema-valid observation (1842.24318ms)
-✔ content: popover=false keeps the 1.2.0 click-to-Ask-Grok behaviour (1590.528265ms)
-✔ page.js relays posts from X timeline responses (id, text, time, lang, links) (59.847962ms)
-✔ JSON export contains only cited evidence and the limitations (4.123836ms)
-✔ X thread draft: numbered, <= 280 chars each, labeled, sourced (0.744345ms)
-✔ all five tabs render; untrusted text never becomes markup (XSS) (145.604937ms)
-✔ panel shows labels, conflicts in amber, unknown states and no emoji (33.749332ms)
-✔ Narrative and Claims: observable data + Ask Grok per post; Grok Bot link only when configured (79.637266ms)
-✔ evidence chips jump to stored evidence; every chip id exists (21.655036ms)
-✔ observation schema accepts a valid observation (9.937731ms)
-✔ observation schema rejects bad handles, http URLs, unknown keys and wrong types (3.298058ms)
-✔ finding / evidence schemas enforce id prefixes and closed enums (3.265402ms)
-✔ investigation and export round-trip through their schemas (20.535282ms)
-✔ settings schemaVersion 1: 1.2.0 documents stay valid; new popover / grokBotTemplateUrl keys validated (1.83194ms)
-✔ side panel: loads the active investigation, five tabs, Grok Bot link from settings, receipts (336.8885ms)
-✔ PNG receipt draws handle, headline and labeled findings onto a 1200x675 canvas (1.208665ms)
-✔ DOM adapter: main post, quoted author, time, text (quoted text excluded) (137.347279ms)
-✔ DOM adapter: links are https only, lang tag, reply target (26.3445ms)
-✔ SPA routes (0.7398ms)
-ℹ tests 34
+✔ Origin X-Ray: reported based-in + corroboration by connection region and self-described location (18.942228ms)
+✔ VPN Detective: VPN note + conflicting connection region => conflicts listed, Location undetermined (2.26208ms)
+✔ VPN Detective: posting hours can tip an inference, labeled inferred with low/medium confidence (14.256779ms)
+✔ activity pattern needs enough data; offset consistency uses tzdata (0.29898ms)
+✔ missing data produces explicit unknown states, never a fabricated country (1.460342ms)
+✔ regions are kept as regions (no country invented) (0.91037ms)
+✔ stable ids + versioned snapshots: re-observing keeps evidence history without duplicates (3.387755ms)
+✔ citation validation: every engine finding cites stored evidence (4.241074ms)
+✔ citation validation rejects nonexistent evidence, uncited claims, unsupported countries and boundary violations (2.398635ms)
+✔ generated text never crosses the hard boundaries (4.264594ms)
+✔ prompt injection in post text cannot change findings or instructions (2.551313ms)
+✔ evidence never claims a server retrieved X data (1.473202ms)
+✔ manifest + build output: MV3, side panel, every referenced file exists, zip has manifest at root (2.408825ms)
+✔ background: Investigate opens the side panel synchronously, stores a versioned investigation (79.831044ms)
+✔ background: rejects malformed observations and other extensions; falls back to a tab without sidePanel (21.691635ms)
+✔ content: badge click opens the provenance popover; Investigate submits a schema-valid observation (1751.869976ms)
+✔ content: popover=false keeps the 1.2.0 click-to-Ask-Grok behaviour (1570.5501ms)
+✔ page.js relays posts from X timeline responses (id, text, time, lang, links) (59.592731ms)
+✔ JSON export contains only cited evidence and the limitations (3.075275ms)
+✔ X thread draft: numbered, <= 280 chars each, labeled, sourced (0.596559ms)
+✔ all five tabs render; untrusted text never becomes markup (XSS) (153.022166ms)
+✔ panel shows labels, conflicts in amber, unknown states and no emoji (29.739769ms)
+✔ Narrative and Claims: observable data + Ask Grok per post; Grok Bot link only when configured (51.232382ms)
+✔ evidence chips jump to stored evidence; every chip id exists (37.30322ms)
+✔ observation schema accepts a valid observation (6.798559ms)
+✔ observation schema rejects bad handles, http URLs, unknown keys and wrong types (2.254447ms)
+✔ finding / evidence schemas enforce id prefixes and closed enums (2.263541ms)
+✔ investigation and export round-trip through their schemas (14.332986ms)
+✔ settings schemaVersion 1: 1.2.0 documents stay valid; new popover / grokBotTemplateUrl keys validated (1.231135ms)
+✔ side panel: loads the active investigation, five tabs, Grok Bot link from settings, receipts (440.578411ms)
+✔ PNG receipt draws handle, headline and labeled findings onto a 1200x675 canvas (1.128778ms)
+✔ topic tags: deterministic keyword regions, acronyms case-sensitive (4.343411ms)
+✔ topic signal: exact neutral wording, inferred basis, mismatch only (0.668738ms)
+✔ topic note + popover row render with textContent only and stay neutral (218.439732ms)
+✔ DOM adapter: main post, quoted author, time, text (quoted text excluded) (130.213316ms)
+✔ DOM adapter: links are https only, lang tag, reply target (22.940824ms)
+✔ SPA routes (0.572794ms)
+ℹ tests 37
 ℹ suites 0
-ℹ pass 34
+ℹ pass 37
 ℹ fail 0
 ℹ cancelled 0
 ℹ skipped 0
 ℹ todo 0
-ℹ duration_ms 4432.852747
+ℹ duration_ms 4171.082348
 ok   valid full document; names resolve to ISO codes; dupes removed
 ok   schemaVersion required and must be 1
 ok   wrong types reject the whole document
@@ -97,6 +100,6 @@ test_not_found (__main__.T.test_not_found) ... ok
 test_rate_limit (__main__.T.test_rate_limit) ... ok
 
 ----------------------------------------------------------------------
-Ran 7 tests in 0.860s
+Ran 7 tests in 0.889s
 
 OK

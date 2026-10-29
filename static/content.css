@@ -1,6 +1,6 @@
 /* Chud Finder on-page styles. Everything is scoped to .cf-* elements; tokens are set on those elements only. */
 /*@cf-fonts-ext*/
-.cf-badge,.cf-pop,.cf-toast{/*@cf-vars*/}
+.cf-badge,.cf-pop,.cf-toast,.cf-topic{/*@cf-vars*/}
 .cf-badge{display:inline-flex;align-items:center;gap:4px;margin-left:6px;padding:0 6px;height:18px;box-sizing:border-box;
   border-radius:0;font:700 10.5px/16px var(--cf-font-mono);letter-spacing:.04em;text-transform:uppercase;white-space:nowrap;vertical-align:middle;
   background:var(--cf-surface);color:var(--cf-ink);border:1px solid var(--cf-rule);cursor:help;flex-shrink:0}
@@ -40,3 +40,8 @@
 .cf-pop-primary:hover{background:var(--cf-signal-white);border-color:var(--cf-signal-white)}
 .cf-pop-btn:focus-visible,.cf-pop-x:focus-visible{outline:2px solid var(--cf-focus);outline-offset:2px}
 .cf-pop-fine{margin-top:10px;padding-top:8px;border-top:1px solid #26262c;color:var(--cf-ink-dim);font:10.5px/15px var(--cf-font-mono)}
+.cf-topic{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px;margin:8px 0 2px;padding:6px 8px;border:1px dashed var(--cf-structure);border-radius:0;
+  background:var(--cf-ground);color:var(--cf-ink);font:11.5px/16px var(--cf-font-mono)}
+.cf-topic-tag{font-weight:700;letter-spacing:.04em;color:var(--cf-ember-orange)}
+.cf-topic-text{color:var(--cf-ink)}
+.cf-pop-topic .cf-pop-value{font-weight:500;font-size:12px}

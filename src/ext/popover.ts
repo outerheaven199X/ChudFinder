@@ -1,10 +1,11 @@
 /* Compact account provenance popover shown when a badge is clicked. Built with textContent only. */
 import type { AboutInfo } from './lib.ts';
+import type { TopicSignal } from '../shared/topics.ts';
 
 export interface PopoverOpts {
   handle: string; info: (AboutInfo & { t?: number }) | null; statedLocation: string;
   evaluation: { known: boolean; name: string | null; isRegion: boolean; warnings: string[]; flag: string };
-  askGrok: boolean; onInvestigate: () => void; onAskGrok: () => void;
+  askGrok: boolean; topic?: TopicSignal | null; onInvestigate: () => void; onAskGrok: () => void;
 }
 
 let cleanup: (() => void) | null = null;
@@ -44,6 +45,10 @@ export function openPopover(doc: Document, anchor: HTMLElement, o: PopoverOpts):
     pop.appendChild(row(doc, 'Location note', i && i.accurate === false ? 'X says it may not be accurate (possible VPN/proxy)' : i && i.accurate === true ? 'None' : null));
   }
   pop.appendChild(row(doc, 'Profile location', o.statedLocation || null, o.statedLocation ? 'Self-reported by the account' : undefined));
+  if (o.topic) {
+    const r = row(doc, 'Topic signal', o.topic.text, '[INFERRED] from keywords in this post (' + o.topic.topics.join(', ') + ')');
+    r.classList.add('cf-pop-topic'); pop.appendChild(r);
+  }
   if (o.evaluation.warnings.length) {
     const w = doc.createElement('ul'); w.className = 'cf-pop-warn';
     for (const t of o.evaluation.warnings) { const li = doc.createElement('li'); li.textContent = t; w.appendChild(li); }
