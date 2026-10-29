@@ -1,3 +1,5 @@
+<p align="center"><img src="static/icons/icon128.png" alt="Chud Finder icon" width="96" height="96"></p>
+
 <p align="center"><img src="verification/screenshots/1-badge-and-popover.png" alt="Chud Finder badge and provenance popover on X (fixture data)" width="640"></p>
 
 # KNOW WHERE YOUR INFORMATION IS COMING FROM

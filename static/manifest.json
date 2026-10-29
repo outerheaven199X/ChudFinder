@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "Chud Finder",
-  "version": "2.1.0",
-  "description": "Shows where X says each account is based, with VPN/mismatch hints, plus a local provenance workspace (side panel).",
+  "version": "2.2.0",
+  "description": "See which country X reports each account is based in, with VPN/proxy hints and a local evidence workspace. A signal, not proof.",
   "icons": {
     "16": "icons/icon16.png",
     "32": "icons/icon32.png",
