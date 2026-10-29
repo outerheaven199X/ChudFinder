@@ -1,39 +1,78 @@
-# Chud Finder
+<p align="center"><img src="verification/screenshots/1-badge-and-popover.png" alt="Chud Finder badge and provenance popover on X (fixture data)" width="640"></p>
 
-A browser-native provenance layer for X, as a Manifest V3 extension for **Chrome and Brave**.
+# KNOW WHERE YOUR INFORMATION IS COMING FROM
+# CONFIRM THE SOURCE
+# SOME ACCOUNTS AREN'T WHERE THEY SAY THEY ARE
 
-- **Badges:** next to each author, the country X's own *About this account* says the account is based in. Includes flag images that also work on Windows, VPN/proxy and mismatch warnings, highlights you choose, and topic mode.
-- **Popover:** click a badge to see the account's provenance. That covers *Based in*, *Connected via*, X's location note (each with its source and when it was seen in your session) and the self-reported profile location. Anything missing shows as *Unavailable*. From there you can **Investigate** or **Ask Grok**.
-- **Side panel workspace** (`chrome.sidePanel`), with five tabs: **Overview | Origin | Narrative | Claims | Evidence**.
-  - **Origin X-Ray** and **VPN Detective** are computed deterministically in the extension. Every finding is labeled *reported*, *self-described*, *corroborated*, *inferred* or *unknown*. Conflicts are listed, and you get **"Location undetermined"** when the evidence doesn't support a single country.
-  - **Narrative** and **Claims** show only what's observable on the page: post text, links, quotes, replies and timestamps. Each post gets an **Ask Grok** button with a neutral prompt tailored to it (claim verification or narrative spread). There's also an optional **Deep investigation with Chud Finder Grok Bot** link. The extension does no fake analysis here.
-  - **Evidence**: every stored evidence item with its source, observed/first/last-seen times and link. Findings cite these items by id.
-  - **Receipts**: a PNG card (canvas), a JSON export (cited evidence only) and a copyable X thread draft. Nothing is posted automatically.
-- **Local storage:** investigations live in `chrome.storage.local`. They have stable ids, versioned snapshots (Refresh creates v2, v3, ...) and append-only evidence history. The last 50 appear in a recent list.
+**CHUD FINDER** is a provenance layer for X. It's a Manifest V3 extension for Chrome and Brave.
 
-There's **no server.** Everything runs in your browser and uses your own logged-in X session. Data only goes between your browser and x.com, plus grok.com when you click Ask Grok.
+Every author gets a badge showing the country **X itself** reports the account is based in. Click the badge to see the evidence. Then decide for yourself.
 
-> Principle: expose the origin of influence, show the evidence, and let the reader decide. A location is context about where an account operates. It is never treated as evidence that its posts are true or false. Findings stay at country level and never infer nationality.
+> **LOCATION IS A SIGNAL, NOT PROOF.**
+> Where an account operates is context. It never tells you whether a post is true or false. An account's country never makes it a bad actor. Findings stay at country level, and Chud Finder never infers nationality.
 
-## Install (Brave or Chrome, Windows/macOS/Linux)
+<p>
+  <img src="verification/screenshots/2-panel-Overview.png" alt="Side panel overview tab" width="300">
+  <img src="verification/screenshots/3-receipt-png.png" alt="Receipt PNG card" width="520">
+</p>
 
-1. Get `chud-finder-<version>.zip` (from a build, see below) and extract it to a folder, e.g. `Desktop\chud-finder`.
-   `manifest.json` is at the top of the zip, so the folder you extract to is the one you pick.
-2. Open `brave://extensions` (Brave) or `chrome://extensions` (Chrome).
-3. Turn on **Developer mode**, click **Load unpacked**, and choose that folder.
-   *Updating:* extract over the same folder, click the reload arrow on Chud Finder, and refresh X.
-4. Open https://x.com while logged in. Click a badge, then **Investigate**, and the side panel opens.
-   (Brave: if the side panel doesn't appear, the workspace opens in a tab instead. The popup's **Investigations...** button opens it too.)
+<sub>Screenshots are headless renders of the real UI code using a made-up <code>@sample_acct</code> fixture. They are not captures of live X.</sub>
 
-Needs Chromium 116+ (side panel API). The settings gist URL you already use keeps working.
+---
 
-## Build & test
+## WHAT IT DOES
+
+**ORIGIN X-RAY.** Shows *Based in*, *Connected via* and X's location note, each with its source and when it was seen in your session, next to the profile's self-reported location. Anything missing reads **Unavailable**.
+
+**VPN DETECTIVE.** Compares the signals: X's location-accuracy note, *Connected via* vs *Based in*, the self-described location vs *Based in*, and the posting-hour pattern (a UTC-offset band of ±3h). It runs deterministically, inside your browser. If the signals don't agree, it says **LOCATION UNDETERMINED** instead of guessing.
+
+**NARRATIVE + CLAIMS.** Lists only what's observable on the page: post text, links, quotes, replies and timestamps. Each post has an **ASK GROK** button that opens grok.com with a neutral, prompt-injection-hardened question and copies it to your clipboard. The extension does no scoring of its own. Grok's answers are hypotheses to check.
+
+**RECEIPTS.** Export a PNG card, a JSON file (cited evidence only), or a copyable X thread draft. Nothing is ever posted for you.
+
+**LOCAL WORKSPACE.** The side panel has five tabs: Overview, Origin, Narrative, Claims and Evidence. Investigations are versioned (each Refresh creates a new version) and keep append-only evidence history.
+
+## EVERY FINDING SHOWS ITS BASIS
+
+| LABEL | MEANING |
+|---|---|
+| `REPORTED` | X's own *About this account* data says it. |
+| `SELF-DESCRIBED` | The account says it about itself, for example its profile location. |
+| `CORROBORATED` | Independent signals agree. |
+| `INFERRED` | Derived from patterns such as posting hours. Always comes with a confidence level, never stated as fact. |
+| `UNKNOWN` | The evidence doesn't support an answer. |
+
+Findings cite evidence items by id. A finding that cites nothing, cites evidence that doesn't exist, or names a country the evidence doesn't support is rejected before it's shown.
+
+## INSTALL (BRAVE / CHROME)
+
+1. Download `chud-finder-<version>.zip` from [**Releases**](../../releases) and extract it to a folder. `manifest.json` sits at the top level of the zip.
+2. Open `brave://extensions` or `chrome://extensions`.
+3. Turn on **Developer mode**, click **Load unpacked**, and choose the extracted folder.
+4. Open x.com while logged in. Badges appear next to authors. Click a badge, then **INVESTIGATE**, to open the side panel. Before investigating, scroll the account's profile first so it has enough posts for the posting-hour signal (it needs at least 12).
+
+To update, extract over the same folder, click reload on Chud Finder, and refresh X. Requires Chromium 116 or later.
+
+## SETTINGS
+
+Right-click the toolbar icon and choose **Options**. You can set warnings, the popover, Ask Grok, topic mode with your home country, and countries to highlight. Highlights are empty by default.
+
+**GIST SYNC.** You can point Chud Finder at a raw GitHub Gist URL (https only). It checks the gist on startup and every 10 minutes. The gist is read as data only, never as code, and is strictly validated. Schema: [SETTINGS_SCHEMA.md](SETTINGS_SCHEMA.md) (`schemaVersion 1`). You can also paste or export a settings code.
+
+## PRIVACY
+
+- **No server.** **No AI API.** **No accounts.**
+- Lookups use **your own logged-in X session**, as same-origin requests to x.com.
+- Investigations are stored in `chrome.storage.local` on your machine.
+- Data goes only between your browser and x.com. It reaches grok.com only when you click Ask Grok, or a gist URL only if you set one.
+
+## BUILD FROM SOURCE
 
 ```
 npm install
 npm run build      # -> dist/ (unpacked extension) + chud-finder-<version>.zip  (Node >= 22.18)
-npm test           # build + all tests (node:test TS suites, legacy 1.2.0 suites, python bot tests)
-npm run typecheck  # tsc --noEmit
+npm test           # build + all suites (TS node:test, legacy suites, python bot tests)
+npm run typecheck
 ```
 
 ## Layout
@@ -59,19 +98,13 @@ verification/ test results, fixture screenshots
 - **VPN Detective signals:** X's location-accuracy note, *Connected via* vs *Based in*, the self-described location vs *Based in*, and the posting-hour pattern. The quietest 6-hour window gives a UTC-offset band of ±3h, checked against tzdata offsets per country. The likely operating region is *reported* when nothing conflicts. Otherwise it's a low/medium-confidence *inferred* country when the signals clearly agree, or **Location undetermined**.
 - **Untrusted text** (posts, profile fields) is cleaned (control, zero-width and bidi characters stripped) and rendered with `textContent` only. Links must be `https:`. In Ask Grok prompts the text is quoted inside `<< >>` as data, with fixed instructions last, so a post can't rewrite the request.
 
-## Settings
+## LIMITS
 
-See [SETTINGS_SCHEMA.md](SETTINGS_SCHEMA.md). This is still **schemaVersion 1**. 2.0 adds two optional keys, `popover` and `grokBotTemplateUrl`, and older documents stay valid.
-
-## Known limitations
-
-- **Logged-in X required.** *About this account* only works in your session. Logged out, badges are grey `?` and investigations show unknown states.
-- **Undocumented X endpoint and DOM.** Query-id rotation is handled. Other changes need an update, and selectors are isolated in `src/ext/xdom.ts` (`ADAPTER_VERSION`).
-- **X data isn't ground truth.** *Based in* is X's estimate, and the VPN note means X thinks the location *may* be inaccurate.
-- **Observations are limited to what your tab has seen.** Scroll an account's profile before Investigate to give the posting-hour signal enough posts (it needs at least 12).
-- **No narrative scoring or claim verification inside the extension.** Those go to Ask Grok or the Grok Bot, and their answers are hypotheses to check.
-- **Receipts are local files or text.** There's no public permalink because there's no server.
-- **Rate limits:** X limits the endpoint, so heavy scrolling pauses lookups until the limit resets.
+- **Not yet verified on live X.** The tests run against jsdom fixtures and recorded-shape responses. See [verification/](verification/README.md).
+- **X's DOM and endpoints may change.** Selectors are kept in one file, `src/ext/xdom.ts`. A change on X's side may need an update.
+- **X's data isn't ground truth.** *Based in* is X's estimate, and the VPN note only means X thinks the location *may* be inaccurate.
+- **You need to be logged in to X.** Logged out, badges show `?`.
+- **Rate limits.** X limits the lookup endpoint, so heavy scrolling pauses lookups for a while.
 
 ## Design system and fonts (2.1.0)
 
@@ -81,6 +114,6 @@ Bundled fonts (no remote loading, served via `web_accessible_resources`):
 
 | Font | File | License |
 |---|---|---|
-| Archivo (variable, wdth 62–125, wght 100–900, Latin subset) | `fonts/Archivo-Variable-latin.woff2` | SIL OFL 1.1, `fonts/OFL-Archivo.txt` |
-| JetBrains Mono (variable, wght 400–800, Latin subset) | `fonts/JetBrainsMono-Variable-latin.woff2` | SIL OFL 1.1, `fonts/OFL-JetBrainsMono.txt` |
-| Twemoji Country Flags | `fonts/TwemojiCountryFlags.woff2` | see `fonts/LICENSE-TwemojiCountryFlags.md` |
+| Archivo (variable, wdth 62–125, wght 100–900, Latin subset) | `static/fonts/Archivo-Variable-latin.woff2` | SIL OFL 1.1, `static/fonts/OFL-Archivo.txt` |
+| JetBrains Mono (variable, wght 400–800, Latin subset) | `static/fonts/JetBrainsMono-Variable-latin.woff2` | SIL OFL 1.1, `static/fonts/OFL-JetBrainsMono.txt` |
+| Twemoji Country Flags | `static/fonts/TwemojiCountryFlags.woff2` | see `static/fonts/LICENSE-TwemojiCountryFlags.md` |
