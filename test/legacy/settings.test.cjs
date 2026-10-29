@@ -1,12 +1,15 @@
 /* Run: node test/settings.test.js  (no dependencies) */
 'use strict';
+// Legacy 1.2.0 tests, run against the built extension in dist/src (npm run build first).
+const DIST = require('path').join(__dirname, '../../dist/src');
+const load = f => { require('vm').runInThisContext(require('fs').readFileSync(require('path').join(DIST, f), 'utf8'), { filename: f }); return { 'countries.js': globalThis.CFCountries, 'lib.js': globalThis.CFLib, 'settings-schema.js': globalThis.CFSettings }[f]; };
 const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
 const vm = require('vm');
-require('../src/countries.js');
-require('../src/lib.js');
-const S = require('../src/settings-schema.js');
+load('countries.js');
+load('lib.js');
+const S = load('settings-schema.js');
 
 let passed = 0;
 async function t(name, fn) {
@@ -105,9 +108,9 @@ async function t(name, fn) {
     const ctx = { chrome, console, TextEncoder, TextDecoder, crypto: globalThis.crypto, URL, btoa, atob,
       fetch: async (url, opts) => { fetches.push({ url, opts }); return remote(url); } };
     ctx.self = ctx; ctx.globalThis = ctx;
-    ctx.importScripts = (...files) => { for (const f of files) vm.runInContext(fs.readFileSync(path.join(__dirname, '../src', f), 'utf8'), ctx); };
+    ctx.importScripts = (...files) => { for (const f of files) vm.runInContext(fs.readFileSync(path.join(DIST, f), 'utf8'), ctx); };
     vm.createContext(ctx);
-    vm.runInContext(fs.readFileSync(path.join(__dirname, '../src/background.js'), 'utf8'), ctx);
+    vm.runInContext(fs.readFileSync(path.join(DIST, 'background.js'), 'utf8'), ctx);
     const send = msg => new Promise(r => { listeners.msg(msg, { id: 'me' }, r); });
     return { store, listeners, granted, alarms, fetches, send };
   }
@@ -161,7 +164,7 @@ async function t(name, fn) {
     assert.ok(/HTTP 500/.test(w.store.syncState.error));
   });
   await t('askGrok: validated as strict boolean, round-trips through codes', () => {
-    const S = require('../src/settings-schema.js');
+    const S = load('settings-schema.js');
     const ok = S.validate({ schemaVersion: 1, askGrok: false });
     assert.ok(ok.ok); assert.strictEqual(ok.settings.askGrok, false); assert.deepStrictEqual(ok.warnings, []);
     const bad = S.validate({ schemaVersion: 1, askGrok: 'no' });

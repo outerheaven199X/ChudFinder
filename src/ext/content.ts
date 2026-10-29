@@ -3,9 +3,18 @@
  * X's own AboutAccountQuery (same-origin, using the logged-in session), caches
  * results, and renders a badge next to the author name.
  */
+import * as L from './lib.ts';
+import type { AboutInfo } from './lib.ts';
+import { ADAPTER_VERSION, extractPost, parseRoute, postsOnPage } from './xdom.ts';
+import { openPopover, closePopover } from './popover.ts';
+import { AccountObservation, Post } from '../shared/schemas.ts';
+import { cleanText, safeHttpsUrl } from '../shared/sanitize.ts';
+
+declare const chrome: any;
+
 (function () {
   'use strict';
-  const L = globalThis.CFLib;
+  type Rec = AboutInfo & { t?: number };
 
   // ---- constants -----------------------------------------------------------
   const DEFAULT_QUERY_ID = 'XRqGa7EeokUU5kppkh13EA'; // AboutAccountQuery, as used by the X web client (Oct 2026)
@@ -20,22 +29,25 @@
   const PAUSE_KEY = 'cf:pauseUntil';
 
   // ---- state ---------------------------------------------------------------
-  let settings = Object.assign({}, L.DEFAULT_SETTINGS);
+  let settings: L.Settings = Object.assign({}, L.DEFAULT_SETTINGS) as L.Settings;
   let bearer = DEFAULT_BEARER;
   let queryId = DEFAULT_QUERY_ID;
   let pauseUntil = 0;
-  const mem = new Map();            // handle(lower) -> {basedIn, accurate, source, notFound, t}
-  const inflight = new Map();       // handle(lower) -> Promise
-  const queue = [];                 // handles waiting for a lookup
-  const queued = new Set();
-  const stated = new Map();         // handle(lower) -> self-reported profile location
+  const mem = new Map<string, Rec>();            // handle(lower) -> {basedIn, accurate, source, notFound, t}
+  const inflight = new Map<string, Promise<Rec>>(); // handle(lower) -> Promise
+  const queue: string[] = [];                    // handles waiting for a lookup
+  const queued = new Set<string>();
+  const stated = new Map<string, string>();      // handle(lower) -> self-reported profile location
+  const statedAt = new Map<string, number>();    // handle(lower) -> when it was seen
+  const seenPosts = new Map<string, any[]>();    // handle(lower) -> recent posts from X's own timeline responses
+  const MAX_POSTS_PER_HANDLE = 100;
   let pumping = false;
   let lastRequestAt = 0;
 
   const ext = typeof chrome !== 'undefined' && chrome.storage ? chrome : null;
 
   // ---- messages from page.js (MAIN world) ----------------------------------
-  window.addEventListener('message', ev => {
+  window.addEventListener('message', (ev: MessageEvent) => {
     if (ev.source !== window || !ev.data || ev.data.__chudFinder !== true) return;
     const { type, payload } = ev.data;
     if (type === 'auth' && typeof payload === 'string' && /^Bearer [A-Za-z0-9%_-]+$/.test(payload)) bearer = payload;
@@ -45,21 +57,29 @@
       for (const [h, loc] of Object.entries(payload)) {
         if (typeof loc !== 'string') continue;
         const prev = stated.get(h);
-        stated.set(h, loc.slice(0, 120));
+        stated.set(h, loc.slice(0, 120)); statedAt.set(h, Date.now());
         if (prev !== stated.get(h) && mem.has(h)) rerenderHandle(h);
+      }
+    } else if (type === 'posts' && Array.isArray(payload)) {
+      for (const p of payload.slice(0, 200)) {
+        if (!p || typeof p.handle !== 'string' || typeof p.id !== 'string') continue;
+        const h = p.handle.toLowerCase();
+        const list = seenPosts.get(h) || [];
+        if (!list.some(x => x.id === p.id)) { list.push(p); if (list.length > MAX_POSTS_PER_HANDLE) list.shift(); }
+        seenPosts.set(h, list);
       }
     }
   });
 
   // ---- cache ---------------------------------------------------------------
-  function fresh(rec) {
+  function fresh(rec: Rec | null | undefined): boolean {
     if (!rec || !rec.t) return false;
     return Date.now() - rec.t < (rec.basedIn ? TTL_FOUND : TTL_EMPTY);
   }
 
-  async function cacheGet(h) {
+  async function cacheGet(h: string): Promise<Rec | null> {
     const m = mem.get(h);
-    if (fresh(m)) return m;
+    if (fresh(m)) return m!;
     if (!ext) return null;
     const key = CACHE_PREFIX + h;
     const got = await ext.storage.local.get(key);
@@ -69,7 +89,7 @@
     return null;
   }
 
-  function cacheSet(h, rec) {
+  function cacheSet(h: string, rec: Rec) {
     rec.t = Date.now();
     mem.set(h, rec);
     if (ext) ext.storage.local.set({ [CACHE_PREFIX + h]: rec });
@@ -82,10 +102,11 @@
   }
 
   class RateLimited extends Error {
-    constructor(until) { super('rate limited'); this.until = until; }
+    until: number;
+    constructor(until: number) { super('rate limited'); this.until = until; }
   }
 
-  async function fetchAbout(handle) {
+  async function fetchAbout(handle: string): Promise<Rec> {
     const token = csrf();
     if (!token) throw new Error('not logged in (no ct0 cookie)');
     const vars = encodeURIComponent(JSON.stringify({ screenName: handle }));
@@ -115,29 +136,29 @@
     return L.parseAbout(json, handle);
   }
 
-  let discovering = null;
-  function discoverQueryId() {
+  let discovering: Promise<string | null> | null = null;
+  function discoverQueryId(): Promise<string | null> {
     if (!ext || !ext.runtime) return Promise.resolve(null);
     if (discovering) return discovering;
     const urls = performance.getEntriesByType('resource').map(e => e.name)
       .filter(u => /^https:\/\/abs\.twimg\.com\/responsive-web\/client-web[^/]*\/.+\.js$/.test(u));
-    for (const s of document.scripts) if (s.src && /abs\.twimg\.com\/responsive-web\//.test(s.src)) urls.push(s.src);
+    for (const s of Array.from(document.scripts)) if (s.src && /abs\.twimg\.com\/responsive-web\//.test(s.src)) urls.push(s.src);
     discovering = ext.runtime.sendMessage({ type: 'discoverQueryId', urls: [...new Set(urls)] })
-      .then(r => {
+      .then((r: any) => {
         const id = r && r.queryId;
         if (id) ext.storage.local.set({ 'cf:queryId': id });
         return id || null;
       })
       .catch(() => null);
-    return discovering;
+    return discovering!;
   }
 
-  function lookup(h) {
-    if (inflight.has(h)) return inflight.get(h);
+  function lookup(h: string): Promise<Rec> {
+    if (inflight.has(h)) return inflight.get(h)!;
     const p = (async () => {
       const c = await cacheGet(h);
       if (c) return c;
-      return new Promise((resolve, reject) => {
+      return new Promise<Rec>((resolve, reject) => {
         enqueue(h, resolve, reject);
       });
     })().finally(() => inflight.delete(h));
@@ -145,15 +166,15 @@
     return p;
   }
 
-  const waiters = new Map(); // h -> [{resolve, reject}]
-  function enqueue(h, resolve, reject) {
+  const waiters = new Map<string, { resolve: (r: Rec) => void; reject: (e: unknown) => void }[]>(); // h -> [{resolve, reject}]
+  function enqueue(h: string, resolve: (r: Rec) => void, reject: (e: unknown) => void) {
     if (!waiters.has(h)) waiters.set(h, []);
-    waiters.get(h).push({ resolve, reject });
+    waiters.get(h)!.push({ resolve, reject });
     if (!queued.has(h)) { queued.add(h); queue.push(h); }
     pump();
   }
 
-  function settle(h, fn) {
+  function settle(h: string, fn: (w: { resolve: (r: Rec) => void; reject: (e: unknown) => void }) => void) {
     for (const w of waiters.get(h) || []) fn(w);
     waiters.delete(h);
   }
@@ -167,7 +188,7 @@
         const wait = lastRequestAt + MIN_GAP_MS - Date.now();
         if (wait > 0) await sleep(wait);
         // Most recently seen handles first: they are what the user is looking at.
-        const h = queue.pop();
+        const h = queue.pop()!;
         queued.delete(h);
         lastRequestAt = Date.now();
         try {
@@ -189,7 +210,7 @@
     }
   }
 
-  function setPause(until) {
+  function setPause(until: number) {
     pauseUntil = Math.max(pauseUntil, until);
     if (ext) ext.storage.local.set({ [PAUSE_KEY]: pauseUntil });
   }
@@ -197,35 +218,36 @@
   function setPendingTitle() {
     const mins = Math.max(1, Math.round((pauseUntil - Date.now()) / 60e3));
     for (const el of document.querySelectorAll('.cf-badge.cf-pending')) {
-      el.title = 'Chud Finder: X rate limit reached; lookups resume in ~' + mins + ' min.';
+      (el as HTMLElement).title = 'Chud Finder: X rate limit reached; lookups resume in ~' + mins + ' min.';
     }
   }
 
-  const sleep = ms => new Promise(r => setTimeout(r, ms));
+  const sleep = (ms: number) => new Promise(r => setTimeout(r, ms));
 
   // ---- rendering -----------------------------------------------------------
-  function place(block, badge) {
+  function place(block: Element, badge: HTMLElement) {
     const old = block.querySelector(':scope [data-cf-badge]');
     if (old) { old.replaceWith(badge); return; }
     const row = block.firstElementChild || block;
     row.appendChild(badge);
   }
 
-  function draw(block, h, info) {
+  function draw(block: Element, h: string, info: Rec) {
     if (!settings.enabled) return;
-    const badge = L.renderBadge(document, info, settings, stated.get(h.toLowerCase()) || '', h);
+    const onActivate = settings.popover !== false ? activate : undefined;
+    const badge = L.renderBadge(document, info, settings, stated.get(h.toLowerCase()) || '', h, onActivate);
     place(block, badge);
   }
 
-  function rerenderHandle(h) {
+  function rerenderHandle(h: string) {
     for (const block of document.querySelectorAll('[data-cf-handle="' + CSS.escape(h) + '"]')) {
-      draw(block, h, mem.get(h));
+      draw(block, h, mem.get(h)!);
     }
   }
 
   function rerenderAll() {
     for (const block of document.querySelectorAll('[data-cf-handle]')) {
-      const h = block.getAttribute('data-cf-handle');
+      const h = block.getAttribute('data-cf-handle')!;
       const rec = mem.get(h);
       if (rec) draw(block, h, rec);
     }
@@ -236,12 +258,12 @@
     for (const el of document.querySelectorAll('[data-cf-handle]')) el.removeAttribute('data-cf-handle');
   }
 
-  function processBlock(block, handle) {
+  function processBlock(block: Element, handle: string) {
     const h = handle.toLowerCase();
     if (block.getAttribute('data-cf-handle') === h && block.querySelector('[data-cf-badge]')) return;
     block.setAttribute('data-cf-handle', h);
     const known = mem.get(h);
-    if (fresh(known)) { draw(block, h, known); return; }
+    if (fresh(known)) { draw(block, h, known!); return; }
     draw(block, h, { pending: true });
     lookup(h).then(rec => draw(block, h, rec), err => draw(block, h, { error: String(err && err.message || err) }));
   }
@@ -255,7 +277,7 @@
     }
   }, { rootMargin: '600px 0px' });
 
-  function scan(root) {
+  function scan(root: any) {
     if (!settings.enabled) return;
     const scope = root && root.querySelectorAll ? root : document;
     const arts = scope.matches && scope.matches('article[data-testid="tweet"]') ? [scope]
@@ -273,27 +295,116 @@
     }
   }
 
+  // ---- popover + investigate ------------------------------------------------
+  function aboutObservation(rec: Rec | undefined) {
+    if (!rec || rec.pending || rec.error || !rec.t) return null;
+    return { basedIn: rec.basedIn ?? null, accurate: rec.accurate ?? null, source: rec.source ?? null, notFound: !!rec.notFound,
+      observedAt: new Date(rec.t).toISOString() };
+  }
+
+  function graphqlPost(p: any): any | null {
+    const d = Date.parse(p.createdAt || '');
+    const r = Post.safeParse({
+      id: p.id, handle: p.handle, url: 'https://x.com/' + p.handle + '/status/' + p.id, text: cleanText(p.text, 4000),
+      createdAt: Number.isNaN(d) ? null : new Date(d).toISOString(), lang: typeof p.lang === 'string' && /^[a-z]{2,3}$/.test(p.lang) ? p.lang : null,
+      links: (Array.isArray(p.links) ? p.links : []).map(safeHttpsUrl).filter(Boolean).slice(0, 20),
+      quotedPostId: p.quotedPostId || null, quotedHandle: null,
+      replyToHandle: typeof p.replyToHandle === 'string' && /^[A-Za-z0-9_]{1,15}$/.test(p.replyToHandle) ? p.replyToHandle : null,
+      capturedFrom: 'x_graphql'
+    });
+    return r.success ? r.data : null;
+  }
+
+  /** Everything this tab has observed about one account, as a schema-validated observation. */
+  function buildObservation(handle: string, anchor: Element | null) {
+    const h = handle.toLowerCase();
+    const byId = new Map<string, any>();
+    for (const p of seenPosts.get(h) || []) { const g = graphqlPost(p); if (g) byId.set(g.id, g); }
+    for (const p of postsOnPage(document, handle)) {
+      const prev = byId.get(p.id);
+      byId.set(p.id, prev ? { ...p, createdAt: p.createdAt || prev.createdAt, lang: p.lang || prev.lang, links: p.links.length ? p.links : prev.links } : p);
+    }
+    const article = anchor ? anchor.closest('article[data-testid="tweet"]') : null;
+    const focus = article ? extractPost(article, location.origin) : null;
+    if (focus && !byId.has(focus.id)) byId.set(focus.id, focus);
+    const loc = stated.get(h);
+    const obs = {
+      handle, observedAt: new Date().toISOString(), pageUrl: location.href.split('#')[0].slice(0, 2048), adapterVersion: ADAPTER_VERSION,
+      about: aboutObservation(mem.get(h)),
+      profileLocation: loc ? { text: loc, observedAt: new Date(statedAt.get(h) || Date.now()).toISOString() } : null,
+      posts: [...byId.values()].slice(-100), focusPostId: focus ? focus.id : null
+    };
+    return AccountObservation.parse(obs);
+  }
+
+  function investigate(handle: string, anchor: Element | null) {
+    if (!ext || !ext.runtime) return;
+    let observation;
+    try { observation = buildObservation(handle, anchor); }
+    catch (e: any) { L.showToast(document, anchor, 'Chud Finder: could not read this page (' + (e && e.message || e) + ')'); return; }
+    // Sent straight from the click handler so the background keeps the user gesture for sidePanel.open().
+    ext.runtime.sendMessage({ type: 'investigate', observation }).then((r: any) => {
+      if (r && r.ok === false) L.showToast(document, anchor, 'Chud Finder: ' + (r.error || 'investigation failed'));
+    }, () => {});
+  }
+
+  function activate(el: HTMLElement, ctx: { handle: string; info: AboutInfo | null | undefined; statedLocation: string; prompt: string; url: string }) {
+    const h = ctx.handle.toLowerCase();
+    openPopover(document, el, {
+      handle: ctx.handle, info: mem.get(h) || ctx.info || null, statedLocation: stated.get(h) || ctx.statedLocation || '',
+      evaluation: L.evaluate(mem.get(h) || ctx.info, settings, stated.get(h) || ''), askGrok: settings.askGrok !== false,
+      onInvestigate: () => { closePopover(document); investigate(ctx.handle, el); },
+      onAskGrok: () => { closePopover(document); L.askGrok(document, el, ctx.prompt, ctx.url); }
+    });
+  }
+
+  // ---- SPA routing -----------------------------------------------------------
+  let lastHref = location.href;
+  function checkRoute() {
+    if (location.href === lastHref) return;
+    lastHref = location.href;
+    closePopover(document);
+    const r = parseRoute(location.href);
+    if (ext && ext.runtime) ext.runtime.sendMessage({ type: 'route', route: r }).catch(() => {});
+  }
+  window.addEventListener('popstate', checkRoute);
+
+  // Side panel "Refresh": the background asks this tab for a fresh observation.
+  if (ext && ext.runtime && ext.runtime.onMessage) {
+    ext.runtime.onMessage.addListener((msg: any, sender: any, sendResponse: (r: any) => void) => {
+      if (!msg || msg.type !== 'observe' || (sender && sender.id !== ext.runtime.id)) return false;
+      const h = typeof msg.handle === 'string' ? msg.handle : '';
+      if (!/^[A-Za-z0-9_]{1,15}$/.test(h)) { sendResponse({ ok: false, error: 'bad handle' }); return false; }
+      const ready = mem.has(h.toLowerCase()) ? Promise.resolve() : lookup(h.toLowerCase()).then(() => {}, () => {});
+      ready.then(() => {
+        try { sendResponse({ ok: true, observation: buildObservation(h, null) }); }
+        catch (e: any) { sendResponse({ ok: false, error: String(e && e.message || e) }); }
+      });
+      return true;
+    });
+  }
+
   let scheduled = false;
   const mo = new MutationObserver(() => {
     if (scheduled) return;
     scheduled = true;
-    requestAnimationFrame(() => { scheduled = false; scan(document); });
+    requestAnimationFrame(() => { scheduled = false; checkRoute(); scan(document); });
   });
 
   // ---- settings & lifecycle -------------------------------------------------
   async function init() {
     if (ext) {
       const got = await ext.storage.local.get(['settings', 'cf:queryId', PAUSE_KEY]);
-      settings = Object.assign({}, L.DEFAULT_SETTINGS, got.settings || {});
+      settings = Object.assign({}, L.DEFAULT_SETTINGS, got.settings || {}) as L.Settings;
       if (got['cf:queryId']) queryId = got['cf:queryId'];
       if (got[PAUSE_KEY]) pauseUntil = got[PAUSE_KEY];
-      ext.storage.onChanged.addListener((changes, area) => {
+      ext.storage.onChanged.addListener((changes: any, area: string) => {
         if (area !== 'local') return;
         if (changes.settings) {
           const was = settings.enabled;
-          settings = Object.assign({}, L.DEFAULT_SETTINGS, changes.settings.newValue || {});
+          settings = Object.assign({}, L.DEFAULT_SETTINGS, changes.settings.newValue || {}) as L.Settings;
           if (!settings.enabled) removeAll();
-          else if (!was) { document.querySelectorAll('article[data-testid="tweet"]').forEach(a => { a.__cfObserved = false; }); scan(document); pump(); }
+          else if (!was) { document.querySelectorAll('article[data-testid="tweet"]').forEach((a: any) => { a.__cfObserved = false; }); scan(document); pump(); }
           else rerenderAll();
         }
         if (changes[PAUSE_KEY]) pauseUntil = Math.max(pauseUntil, changes[PAUSE_KEY].newValue || 0);

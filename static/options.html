@@ -20,7 +20,8 @@ textarea{width:100%;box-sizing:border-box;font:12px ui-monospace,monospace;paddi
 <p class="hint">Chud Finder shows the "Account based in" country X itself reports for every account. It treats every country the same; anything highlighted below is your own choice.</p>
 
 <label class="opt"><input type="checkbox" id="showName"><span>Show the country name next to the flag</span></label>
-<label class="opt"><input type="checkbox" id="askGrok"><span>Click a badge to ask Grok about that account (opens grok.com and copies the prompt)</span></label>
+<label class="opt"><input type="checkbox" id="popover"><span>Click a badge to open the account popover (provenance details, Investigate, Ask Grok)</span></label>
+<label class="opt"><input type="checkbox" id="askGrok"><span>Ask Grok about an account (button in the popover; when the popover is off, clicking a badge opens grok.com and copies the prompt)</span></label>
 <label class="opt"><input type="checkbox" id="vpnWarnings"><span>Warn when X says an account's location may not be accurate (possible VPN or proxy)</span></label>
 <label class="opt"><input type="checkbox" id="mismatchWarnings"><span>Warn when the profile's self-reported location, or the app-store region it connects through, differs from where X says it's based</span></label>
 
@@ -46,8 +47,5 @@ textarea{width:100%;box-sizing:border-box;font:12px ui-monospace,monospace;paddi
 <div class="line"><button id="applyCode">Apply code</button><button id="exportCode">Export settings code</button></div>
 <p id="codeStatus" class="hint"></p>
 <p id="saved"></p>
-<script src="countries.js"></script>
-<script src="lib.js"></script>
-<script src="settings-schema.js"></script>
 <script src="options.js"></script>
 </body></html>

@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "Chud Finder",
-  "version": "1.2.0",
-  "description": "Shows the country X says each post's author is based in, with VPN/proxy and location-mismatch hints.",
+  "version": "2.0.0",
+  "description": "Shows where X says each account is based, with VPN/mismatch hints, plus a local provenance workspace (side panel).",
   "icons": {
     "16": "icons/icon16.png",
     "32": "icons/icon32.png",
@@ -24,7 +24,8 @@
   },
   "permissions": [
     "storage",
-    "alarms"
+    "alarms",
+    "sidePanel"
   ],
   "host_permissions": [
     "https://x.com/*",
@@ -49,8 +50,6 @@
         "https://twitter.com/*"
       ],
       "js": [
-        "src/countries.js",
-        "src/lib.js",
         "src/content.js"
       ],
       "css": [
@@ -72,5 +71,9 @@
         "https://twitter.com/*"
       ]
     }
-  ]
+  ],
+  "side_panel": {
+    "default_path": "src/sidepanel.html"
+  },
+  "minimum_chrome_version": "116"
 }

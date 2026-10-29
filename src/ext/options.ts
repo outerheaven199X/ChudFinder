@@ -1,9 +1,10 @@
-'use strict';
-const $ = id => document.getElementById(id);
-const C = globalThis.CFCountries;
-const S = globalThis.CFSettings;
-const D = globalThis.CFLib.DEFAULT_SETTINGS;
-let settings = Object.assign({}, D);
+import * as C from '../shared/countries.ts';
+import * as S from '../shared/settings-schema.ts';
+import { DEFAULT_SETTINGS as D } from './lib.ts';
+
+declare const chrome: any;
+const $ = (id: string): any => document.getElementById(id);
+let settings: Record<string, any> = Object.assign({}, D);
 
 function save() {
   chrome.storage.local.set({ settings }).then(() => {
@@ -12,14 +13,14 @@ function save() {
   });
 }
 
-function say(id, text, cls) {
+function say(id: string, text: string, cls?: string) {
   const el = $(id);
   el.textContent = text;
   el.className = 'hint' + (cls ? ' ' + cls : '');
 }
 
 function renderChosen() {
-  const names = settings.highlightCountries.map(code => {
+  const names = settings.highlightCountries.map((code: string) => {
     const c = C.COUNTRIES.find(x => x.code === code);
     return c ? C.flagEmoji(c.code) + ' ' + c.name : code;
   });
@@ -48,12 +49,12 @@ function renderList() {
 }
 
 function fillForm() {
-  for (const id of ['showName', 'askGrok', 'vpnWarnings', 'mismatchWarnings', 'topicMode']) $(id).checked = !!settings[id];
+  for (const id of ['showName', 'popover', 'askGrok', 'vpnWarnings', 'mismatchWarnings', 'topicMode']) $(id).checked = !!settings[id];
   $('homeCountry').value = settings.homeCountry || 'US';
   renderList(); renderChosen();
 }
 
-function loadSettings(raw) {
+function loadSettings(raw: any) {
   settings = Object.assign({}, D, raw || {});
   settings.highlightCountries = Array.isArray(settings.highlightCountries) ? settings.highlightCountries.slice() : [];
 }
@@ -111,8 +112,8 @@ async function init() {
   const got = await chrome.storage.local.get(['settings', 'syncUrl', 'syncState']);
   loadSettings(got.settings);
 
-  for (const id of ['showName', 'askGrok', 'vpnWarnings', 'mismatchWarnings', 'topicMode']) {
-    $(id).addEventListener('change', e => { settings[id] = e.target.checked; save(); });
+  for (const id of ['showName', 'popover', 'askGrok', 'vpnWarnings', 'mismatchWarnings', 'topicMode']) {
+    $(id).addEventListener('change', (e: any) => { settings[id] = e.target.checked; save(); });
   }
   const sel = $('homeCountry');
   for (const c of C.COUNTRIES) sel.add(new Option(C.flagEmoji(c.code) + ' ' + c.name, c.code));
@@ -124,7 +125,7 @@ async function init() {
   renderSyncState(got.syncState, got.syncUrl);
 
   // Reflect background syncs while the page is open.
-  chrome.storage.onChanged.addListener(async (ch, area) => {
+  chrome.storage.onChanged.addListener(async (ch: any, area: string) => {
     if (area !== 'local') return;
     if (ch.settings && JSON.stringify(ch.settings.newValue) !== JSON.stringify(settings)) { loadSettings(ch.settings.newValue); fillForm(); }
     if (ch.syncState) { const { syncUrl } = await chrome.storage.local.get('syncUrl'); renderSyncState(ch.syncState.newValue, syncUrl); }

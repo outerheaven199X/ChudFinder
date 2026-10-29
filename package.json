@@ -1,0 +1,26 @@
+{
+  "name": "chud-finder",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Chud Finder: browser-native provenance layer for X (MV3 extension, Chrome + Brave).",
+  "type": "module",
+  "scripts": {
+    "build": "node tools/build.mjs",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "npm run build && node --test test/*.test.ts && node test/legacy/settings.test.cjs && node test/legacy/test.cjs && python3 bot/test_lookup.py",
+    "gen:tz": "python3 tools/gen-tz.py"
+  },
+  "engines": {
+    "node": ">=22.18"
+  },
+  "devDependencies": {
+    "@types/chrome": "^0.3.7",
+    "@types/node": "^26.6.6",
+    "esbuild": "^0.28.2",
+    "jsdom": "^30.1.3",
+    "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "zod": "^4.6.7"
+  }
+}

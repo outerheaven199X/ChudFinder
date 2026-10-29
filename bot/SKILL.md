@@ -44,7 +44,7 @@ The extension can sync from a raw Gist URL. The format is in `/workspace/chud-fi
 1. Change only the keys the user asked about, and always keep `"schemaVersion": 1`. Add `"updatedAt"`
    (ISO time) and `"note": "updated by Grok Bot"` if you like.
 2. Before writing, validate the document:
-   `node -e "require('/workspace/chud-finder/src/countries.js');const S=require('/workspace/chud-finder/src/settings-schema.js');const r=S.parseAndValidate(require('fs').readFileSync(0,'utf8'));console.log(JSON.stringify(r));process.exit(r.ok?0:1)" < settings.json`
+   `(cd /workspace/chud-finder && npm run build >/dev/null) && node /workspace/chud-finder/tools/validate-settings.cjs < settings.json`
 3. Write it with the user's own GitHub auth: their connected GitHub tool, or `gh` if they're logged in.
    - Create (first time): `gh gist create --filename chud-finder-settings.json settings.json` (secret by default).
    - Update: `gh api -X PATCH /gists/<id> -f "files[chud-finder-settings.json][content]=$(cat settings.json)"`.

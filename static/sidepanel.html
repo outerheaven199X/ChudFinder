@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Chud Finder</title>
+<meta name="viewport" content="width=device-width">
+<style>
+@font-face{font-family:"Twemoji Country Flags";unicode-range:U+1F1E6-1F1FF;src:url("../fonts/TwemojiCountryFlags.woff2") format("woff2")}
+:root{--bg:#121416;--panel:#1b1e21;--line:#2a2f34;--fg:#e6e8ea;--dim:#8b98a5;--amber:#ffad1f;--accent:#7fb7e6}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:13px/1.45 "Twemoji Country Flags","Segoe UI",system-ui,sans-serif}
+.mono{font-family:"Cascadia Mono",Consolas,ui-monospace,SFMono-Regular,monospace}
+header{position:sticky;top:0;z-index:2;background:var(--bg);border-bottom:1px solid var(--line);padding:8px 10px}
+.bar{display:flex;gap:6px;align-items:center}
+.brand{font-weight:700;letter-spacing:.08em;font-size:12px;color:var(--dim);margin-right:auto}
+select,button,textarea{font:inherit;color:var(--fg);background:var(--panel);border:1px solid var(--line);border-radius:6px}
+select{padding:4px 6px;max-width:100%}
+.bar select{flex:1;min-width:0}
+.btn{padding:5px 9px;cursor:pointer}.btn:hover{border-color:#4a535c}.btn.small{padding:2px 7px;font-size:12px}
+.btn-link{display:inline-block;text-decoration:none;color:var(--fg)}
+#tabs{display:flex;gap:2px;margin-top:8px}
+.tab{flex:1;padding:5px 2px;font-size:10.5px;letter-spacing:.06em;background:none;border:0;border-bottom:2px solid transparent;color:var(--dim);cursor:pointer;border-radius:0}
+.tab.active{color:var(--fg);border-bottom-color:var(--accent)}
+main{padding:10px}
+.pane>*+*{margin-top:8px}
+.headline{font-size:14px;margin:0}
+.sec{font-size:11px;letter-spacing:.1em;color:var(--dim);margin:14px 0 4px;font-weight:600}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:8px 10px}
+.card.conflict{border-color:rgba(255,173,31,.55)}
+.card-head{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.card-title{font-weight:600}
+.statement{margin:6px 0 4px}
+.post-text{margin:6px 0;white-space:pre-wrap;word-break:break-word}
+.meta{color:var(--dim);font-size:11.5px}
+.caveat{color:var(--dim);font-size:12px;margin:4px 0 0}
+.tag{font-size:10.5px;padding:1px 6px;border-radius:4px;border:1px solid var(--line);color:var(--accent);white-space:nowrap}
+.amber{color:var(--amber)!important}.tag.amber{border-color:rgba(255,173,31,.5)}
+.refs{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
+.chip{font-size:10.5px;padding:1px 6px;cursor:pointer;color:var(--dim)}
+.kv{display:grid;grid-template-columns:100px 1fr;gap:3px 8px;margin:0}
+.kv dt{color:var(--dim);font-size:11px;text-transform:uppercase;padding-top:1px}.kv dd{margin:0}
+.na{color:var(--dim);font-style:italic}.note{color:var(--dim);font-size:11px}
+.actions{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:6px}
+a.ext{color:var(--accent);word-break:break-all}
+table.edges{width:100%;border-collapse:collapse;font-size:11.5px}
+.edges th,.edges td{border-bottom:1px solid var(--line);padding:3px 4px;text-align:left;vertical-align:top;word-break:break-all}
+.conflicts{margin:4px 0;padding-left:18px;color:var(--amber)}
+.links{margin:4px 0 0;padding-left:16px;font-size:12px}
+.status{font-size:11px;color:var(--dim);margin-top:6px;min-height:14px}
+.flash{outline:2px solid var(--amber)}
+#threadWrap{padding:10px;border-top:1px solid var(--line)}
+#thread{width:100%;height:220px;padding:6px}
+</style></head>
+<body>
+<header>
+  <div class="bar"><span class="brand mono">CHUD FINDER</span>
+    <button id="refresh" class="btn small" type="button" title="Re-observe from the open X tab (new version)">Refresh</button>
+    <button id="delete" class="btn small" type="button" title="Delete this local investigation">Delete</button></div>
+  <div class="bar" style="margin-top:6px"><select id="recent" aria-label="Recent investigations"></select><select id="version" aria-label="Version"></select></div>
+  <nav id="tabs" role="tablist"></nav>
+  <div id="status" class="status mono"></div>
+</header>
+<main id="main"></main>
+<div id="threadWrap" hidden>
+  <div class="bar"><span class="mono meta" style="margin-right:auto">X THREAD DRAFT (not posted)</span>
+    <button id="copyThread" class="btn small" type="button">Copy</button><button id="closeThread" class="btn small" type="button">Close</button></div>
+  <textarea id="thread" readonly></textarea>
+</div>
+<script src="sidepanel.js"></script>
+</body></html>

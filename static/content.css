@@ -15,3 +15,17 @@
 .cf-badge.cf-ask:hover{filter:brightness(1.08);text-decoration:none}
 .cf-badge.cf-ask:focus-visible{outline:2px solid rgb(29,155,240);outline-offset:1px}
 .cf-toast{position:fixed;z-index:2147483647;top:12px;left:50%;padding:6px 10px;border-radius:8px;background:rgba(15,20,25,.92);color:#fff;font:500 13px/1.3 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;box-shadow:0 2px 8px rgba(0,0,0,.25);pointer-events:none}
+.cf-pop{position:fixed;z-index:2147483646;width:300px;box-sizing:border-box;padding:10px 12px;border-radius:10px;background:#17191c;color:#e6e8ea;border:1px solid #2f3336;box-shadow:0 8px 24px rgba(0,0,0,.45);font:13px/1.35 "Twemoji Country Flags",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+.cf-pop-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.cf-pop-title{font:600 13px ui-monospace,SFMono-Regular,Consolas,monospace}
+.cf-pop-x{background:none;border:0;color:#8b98a5;font-size:18px;line-height:1;cursor:pointer;padding:0 2px}
+.cf-pop-row{display:grid;grid-template-columns:96px 1fr;gap:2px 8px;padding:3px 0;border-top:1px solid #23272b}
+.cf-pop-label{font:11px ui-monospace,SFMono-Regular,Consolas,monospace;color:#8b98a5;text-transform:uppercase;letter-spacing:.04em;padding-top:2px}
+.cf-pop-value{word-break:break-word}.cf-pop-na{color:#8b98a5;font-style:italic}
+.cf-pop-note{grid-column:2;color:#8b98a5;font-size:11px}
+.cf-pop-warn{margin:6px 0 0;padding:6px 8px 6px 22px;border:1px solid rgba(255,173,31,.5);border-radius:6px;color:#ffc56b;font-size:12px}
+.cf-pop-actions{display:flex;gap:8px;margin-top:10px}
+.cf-pop-btn{flex:1;padding:6px 8px;border-radius:6px;border:1px solid #3a3f44;background:#22262a;color:#e6e8ea;font-weight:600;cursor:pointer}
+.cf-pop-btn:hover{background:#2b3035}.cf-pop-primary{border-color:#5b6b7a;background:#2c3640}
+.cf-pop-btn:focus-visible,.cf-pop-x:focus-visible{outline:2px solid #ffad1f;outline-offset:1px}
+.cf-pop-fine{margin-top:8px;color:#6e7a86;font-size:11px}

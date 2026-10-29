@@ -1,12 +1,15 @@
 /* Run: NODE_PATH=<dir with jsdom>/node_modules node test/test.js */
 'use strict';
+// Legacy 1.2.0 tests, run against the built extension in dist/src (npm run build first).
+const DIST = require('path').join(__dirname, '../../dist/src');
+const load = f => { require('vm').runInThisContext(require('fs').readFileSync(require('path').join(DIST, f), 'utf8'), { filename: f }); return { 'countries.js': globalThis.CFCountries, 'lib.js': globalThis.CFLib, 'settings-schema.js': globalThis.CFSettings }[f]; };
 const assert = require('assert');
 const path = require('path');
 const fs = require('fs');
 const { JSDOM } = require('jsdom');
-const C = require('../src/countries.js');
-const L = require('../src/lib.js');
-const F = require('./fixtures.js');
+const C = load('countries.js');
+const L = load('lib.js');
+const F = require('./fixtures.cjs');
 
 let passed = 0;
 async function t(name, fn) {
@@ -103,7 +106,7 @@ async function t(name, fn) {
     const timeline = { data: { home: { instructions: [{ entries: [{ content: { itemContent: { tweet_results: { result: {
       core: { user_results: { result: { __typename: 'User', core: { screen_name: 'Jack' }, location: { location: 'San Francisco, CA' } } } } } } } } }] }] } } };
     w.fetch = async () => ({ headers: new w.Headers({ 'content-type': 'application/json' }), clone() { return { json: async () => timeline }; } });
-    w.eval(fs.readFileSync(path.join(__dirname, '../src/page.js'), 'utf8'));
+    w.eval(fs.readFileSync(path.join(DIST, 'page.js'), 'utf8'));
     await w.fetch('https://x.com/i/api/graphql/abcdefghijklmnop12/HomeTimeline?x=1', { headers: { authorization: 'Bearer TESTTOKEN' } });
     await w.fetch('https://x.com/i/api/graphql/NEWQUERYID12345678/AboutAccountQuery?variables=%7B%7D', { headers: {} });
     await new Promise(r => setTimeout(r, 50));
@@ -144,7 +147,7 @@ async function t(name, fn) {
         : F.about(sn, { account_based_in: 'India', location_accurate: false, source: 'India Android App' });
       return { ok: true, status: 200, headers: { get: () => null }, json: async () => body };
     };
-    for (const f of ['countries.js', 'lib.js', 'content.js']) w.eval(fs.readFileSync(path.join(__dirname, '../src', f), 'utf8'));
+    for (const f of ['countries.js', 'lib.js', 'content.js']) w.eval(fs.readFileSync(path.join(DIST, f), 'utf8'));
 
     const waitFor = async (pred, ms = 15000) => { const end = Date.now() + ms; while (Date.now() < end) { if (pred()) return; await new Promise(r => setTimeout(r, 50)); } throw new Error('timeout'); };
     await waitFor(() => w.document.querySelectorAll('.cf-badge:not(.cf-pending)').length === 4);

@@ -1,5 +1,6 @@
-'use strict';
-const $ = id => document.getElementById(id);
+declare const chrome: any;
+const $ = (id: string): any => document.getElementById(id);
+export {};
 
 async function refresh() {
   const all = await chrome.storage.local.get(null);
@@ -17,7 +18,7 @@ async function refresh() {
   else { sync.textContent = 'Waiting for first sync from bot\u2026'; sync.className = ''; }
 }
 
-$('enabled').addEventListener('change', async e => {
+$('enabled').addEventListener('change', async (e: any) => {
   const { settings = {} } = await chrome.storage.local.get('settings');
   settings.enabled = e.target.checked;
   await chrome.storage.local.set({ settings });
@@ -32,4 +33,9 @@ $('clear').addEventListener('click', async () => {
 });
 
 $('options').addEventListener('click', () => chrome.runtime.openOptionsPage());
+$('panel').addEventListener('click', async () => {
+  // Open the investigations workspace for this window (falls back to a tab).
+  try { const w = await chrome.windows.getCurrent(); await chrome.sidePanel.open({ windowId: w.id }); window.close(); }
+  catch (_) { chrome.tabs.create({ url: chrome.runtime.getURL('src/sidepanel.html') }); }
+});
 refresh();

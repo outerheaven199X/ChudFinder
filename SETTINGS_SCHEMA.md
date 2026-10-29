@@ -17,6 +17,8 @@ Chud Finder can take its settings from three places, which all use this one JSON
   "enabled": true,
   "showName": true,
   "askGrok": true,
+  "popover": true,
+  "grokBotTemplateUrl": "",
   "vpnWarnings": true,
   "mismatchWarnings": true,
   "topicMode": true,
@@ -57,3 +59,12 @@ The matching code is `btoa(JSON.stringify(doc))`, i.e. `base64.b64encode(json.du
   Remove drops that permission again.
 - **Data only:** the document goes through `JSON.parse` and per-field type checks. Nothing in it is evaluated,
   executed, injected into pages, or used to build URLs.
+
+## Added in 2.0.0 (still schemaVersion 1; both optional)
+
+| Key | Type | Default | Meaning |
+|---|---|---|---|
+| `popover` | boolean | `true` | Clicking a badge opens the provenance popover (Investigate / Ask Grok). `false` restores the 1.2.0 behaviour (click = Ask Grok). |
+| `grokBotTemplateUrl` | https URL or `""` | `""` | Link shown as "Deep investigation with Chud Finder Grok Bot" in the side panel. Empty hides it; non-https values are rejected. |
+
+Validate a document exactly as the extension does: `npm run build && node tools/validate-settings.cjs < settings.json`.

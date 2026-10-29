@@ -1,0 +1,102 @@
+
+> chud-finder@2.0.0 test
+> npm run build && node --test test/*.test.ts && node test/legacy/settings.test.cjs && node test/legacy/test.cjs && python3 bot/test_lookup.py
+
+
+> chud-finder@2.0.0 build
+> node tools/build.mjs
+
+built dist/ (20 files) and chud-finder-2.0.0.zip
+✔ Origin X-Ray: reported based-in + corroboration by connection region and self-described location (19.705954ms)
+✔ VPN Detective: VPN note + conflicting connection region => conflicts listed, Location undetermined (3.649126ms)
+✔ VPN Detective: posting hours can tip an inference, labeled inferred with low/medium confidence (15.403913ms)
+✔ activity pattern needs enough data; offset consistency uses tzdata (0.402727ms)
+✔ missing data produces explicit unknown states, never a fabricated country (1.979925ms)
+✔ regions are kept as regions (no country invented) (1.289928ms)
+✔ stable ids + versioned snapshots: re-observing keeps evidence history without duplicates (4.423916ms)
+✔ citation validation: every engine finding cites stored evidence (5.475826ms)
+✔ citation validation rejects nonexistent evidence, uncited claims, unsupported countries and boundary violations (2.410818ms)
+✔ generated text never crosses the hard boundaries (2.917417ms)
+✔ prompt injection in post text cannot change findings or instructions (2.04829ms)
+✔ evidence never claims a server retrieved X data (0.467966ms)
+✔ manifest + build output: MV3, side panel, every referenced file exists, zip has manifest at root (5.848172ms)
+✔ background: Investigate opens the side panel synchronously, stores a versioned investigation (146.451903ms)
+✔ background: rejects malformed observations and other extensions; falls back to a tab without sidePanel (19.452776ms)
+✔ content: badge click opens the provenance popover; Investigate submits a schema-valid observation (1795.744637ms)
+✔ content: popover=false keeps the 1.2.0 click-to-Ask-Grok behaviour (1598.229508ms)
+✔ page.js relays posts from X timeline responses (id, text, time, lang, links) (59.896587ms)
+✔ JSON export contains only cited evidence and the limitations (2.751744ms)
+✔ X thread draft: numbered, <= 280 chars each, labeled, sourced (0.562615ms)
+✔ all five tabs render; untrusted text never becomes markup (XSS) (263.748089ms)
+✔ panel shows labels, conflicts in amber, unknown states and no emoji (44.20557ms)
+✔ Narrative and Claims: observable data + Ask Grok per post; Grok Bot link only when configured (63.863834ms)
+✔ evidence chips jump to stored evidence; every chip id exists (25.48656ms)
+✔ observation schema accepts a valid observation (9.33049ms)
+✔ observation schema rejects bad handles, http URLs, unknown keys and wrong types (2.160765ms)
+✔ finding / evidence schemas enforce id prefixes and closed enums (2.354146ms)
+✔ investigation and export round-trip through their schemas (13.890629ms)
+✔ settings schemaVersion 1: 1.2.0 documents stay valid; new popover / grokBotTemplateUrl keys validated (1.164297ms)
+✔ side panel: loads the active investigation, five tabs, Grok Bot link from settings, receipts (510.549761ms)
+✔ PNG receipt draws handle, headline and labeled findings onto a 1200x675 canvas (1.350495ms)
+✔ DOM adapter: main post, quoted author, time, text (quoted text excluded) (111.418204ms)
+✔ DOM adapter: links are https only, lang tag, reply target (16.643554ms)
+✔ SPA routes (0.46796ms)
+ℹ tests 34
+ℹ suites 0
+ℹ pass 34
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4365.229327
+ok   valid full document; names resolve to ISO codes; dupes removed
+ok   schemaVersion required and must be 1
+ok   wrong types reject the whole document
+ok   unknown countries rejected; too many rejected
+ok   unknown keys ignored with a warning, never copied
+ok   prototype pollution attempt has no effect
+ok   parseAndValidate: bad JSON and oversize
+ok   merge keeps keys not in the document and copies arrays
+ok   export/import code round trip (incl. URL-safe base64 and raw JSON)
+ok   source URL must be plain https
+ok   background: applies remote settings, records "synced" state, creates 10-min alarm
+ok   background: same remote doc does not overwrite local edits; changed doc does
+ok   background: invalid doc rejected, settings untouched, error shown
+ok   background: no permission / http URL / HTTP error -> error, no fetch
+ok   askGrok: validated as strict boolean, round-trips through codes
+ok   background: ignores messages from other extensions
+
+16 passed
+ok   extracts main author from profile link and quoted author from @text
+ok   rejects reserved paths and bad handles
+ok   parseAbout reads based-in, VPN flag and source
+ok   classifySource handles iOS / Android / Web
+ok   stated location parsing
+ok   renders a neutral country badge
+ok   unknown -> grey ? badge
+ok   VPN warning when location_accurate is false, suppressible
+ok   mismatch warning: stated location and app-store region
+ok   highlight is purely user-chosen; topic mode outlines outside home country
+ok   regions get a globe, not a flag
+ok   every country has a valid flag
+ok   page.js: captures bearer, query id and self-reported locations
+ok   content.js: badges appear, cache + dedupe work, 429 backs off
+ok   Ask Grok prompt: VPN + source + stated location
+ok   Ask Grok prompt: no VPN, unknown parts omitted
+ok   Ask Grok URL is grok.com/?q= with encoding
+ok   badge click asks Grok and prevents X navigation
+ok   askGrok=false leaves badges as before
+
+19 passed
+test_bad_handle (__main__.T.test_bad_handle) ... ok
+test_cookie_file_flag (__main__.T.test_cookie_file_flag) ... ok
+test_cookie_formats (__main__.T.test_cookie_formats) ... ok
+test_lookup_ok_and_headers (__main__.T.test_lookup_ok_and_headers) ... ok
+test_missing_cookies (__main__.T.test_missing_cookies) ... ok
+test_not_found (__main__.T.test_not_found) ... ok
+test_rate_limit (__main__.T.test_rate_limit) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 0.881s
+
+OK
