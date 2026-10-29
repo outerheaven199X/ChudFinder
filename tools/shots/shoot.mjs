@@ -16,6 +16,7 @@ async function shot(url, name, w, h, full = true) {
   console.log('wrote', name);
 }
 await shot('x.html#popover', '1-badge-and-popover', 640, 480, false);
+await shot('xl.html#popover', '1-badge-and-popover-light', 640, 480, false);
 for (const t of ['Overview', 'Origin', 'Narrative', 'Claims', 'Evidence']) await shot('panel.html#' + t, '2-panel-' + t, 420, 900);
 await shot('panel.html#png', '3-receipt-png', 1220, 800, true);
 await shot('panel.html#thread', '4-thread-draft', 420, 700);

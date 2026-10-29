@@ -5,6 +5,7 @@ import { cpSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync, writeFi
 import { dirname, join, relative, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { crc32, deflateRawSync } from 'node:zlib';
+import { cssVars, fontFaces, cornersBg, HAZARD } from '../src/ext/styles/tokens.ts';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const dist = join(root, 'dist');
@@ -35,6 +36,17 @@ for (const f of readdirSync(st)) {
   const p = join(st, f);
   if (statSync(p).isDirectory()) cpSync(p, join(dist, f), { recursive: true });
   else cpSync(p, join(dist, 'src', f));
+}
+
+// Inline design tokens into CSS/HTML (see src/ext/styles/tokens.ts).
+const TOKENS = { '/*@cf-fonts-ext*/': fontFaces('chrome-extension://__MSG_@@extension_id__/fonts/'), '/*@cf-fonts-page*/': fontFaces('../fonts/'),
+  '/*@cf-vars*/': cssVars(), '/*@cf-corners*/': cornersBg(), '/*@cf-hazard*/': HAZARD(), '/*@cf-hazard-red*/': HAZARD('var(--cf-hazard)') };
+for (const f of readdirSync(join(dist, 'src'))) {
+  if (!/\.(css|html)$/.test(f)) continue;
+  const p = join(dist, 'src', f); let s = readFileSync(p, 'utf8');
+  for (const [k, v] of Object.entries(TOKENS)) s = s.split(k).join(v);
+  if (s.includes('/*@cf-')) throw new Error('unresolved token marker in ' + f);
+  writeFileSync(p, s);
 }
 
 // Zip with manifest.json at the archive root (deterministic order and timestamps).

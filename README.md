@@ -72,3 +72,15 @@ See [SETTINGS_SCHEMA.md](SETTINGS_SCHEMA.md). This is still **schemaVersion 1**.
 - **No narrative scoring or claim verification inside the extension.** Those go to Ask Grok or the Grok Bot, and their answers are hypotheses to check.
 - **Receipts are local files or text.** There's no public permalink because there's no server.
 - **Rate limits:** X limits the endpoint, so heavy scrolling pauses lookups until the limit resets.
+
+## Design system and fonts (2.1.0)
+
+Tokens live in `src/ext/styles/tokens.ts`. The build inlines them into every CSS/HTML file and the receipt canvas uses them directly. All custom properties use the `--cf-` prefix and are set only on Chud Finder's own `.cf-*` elements, so nothing leaks into X. The look: void-black ground, system-yellow field/mark, overstructure-blue for reported tags, ember-orange for caution/conflict, emissive-cyan for focus, 0 radius, hairline rules, 2.4px section rules, registration corners and hazard stripes, and mono uppercase labels.
+
+Bundled fonts (no remote loading, served via `web_accessible_resources`):
+
+| Font | File | License |
+|---|---|---|
+| Archivo (variable, wdth 62–125, wght 100–900, Latin subset) | `fonts/Archivo-Variable-latin.woff2` | SIL OFL 1.1, `fonts/OFL-Archivo.txt` |
+| JetBrains Mono (variable, wght 400–800, Latin subset) | `fonts/JetBrainsMono-Variable-latin.woff2` | SIL OFL 1.1, `fonts/OFL-JetBrainsMono.txt` |
+| Twemoji Country Flags | `fonts/TwemojiCountryFlags.woff2` | see `fonts/LICENSE-TwemojiCountryFlags.md` |

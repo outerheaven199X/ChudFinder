@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Chud Finder",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "Shows where X says each account is based, with VPN/mismatch hints, plus a local provenance workspace (side panel).",
   "icons": {
     "16": "icons/icon16.png",
@@ -64,7 +64,9 @@
   "web_accessible_resources": [
     {
       "resources": [
-        "fonts/TwemojiCountryFlags.woff2"
+        "fonts/TwemojiCountryFlags.woff2",
+        "fonts/Archivo-Variable-latin.woff2",
+        "fonts/JetBrainsMono-Variable-latin.woff2"
       ],
       "matches": [
         "https://x.com/*",

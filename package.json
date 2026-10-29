@@ -1,6 +1,6 @@
 {
   "name": "chud-finder",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "private": true,
   "description": "Chud Finder: browser-native provenance layer for X (MV3 extension, Chrome + Brave).",
   "type": "module",

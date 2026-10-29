@@ -4,7 +4,7 @@ set -e
 cd "$(dirname "$0")/../.."
 OUT=verification/screenshots; mkdir -p "$OUT" /tmp/cf-shots
 npx esbuild tools/shots/harness.ts --bundle --format=iife --outfile=/tmp/cf-shots/harness.js --log-level=warning
-cp dist/fonts/TwemojiCountryFlags.woff2 /tmp/cf-shots/
+cp dist/fonts/*.woff2 /tmp/cf-shots/
 STYLE=$(sed -n '/<style>/,/<\/style>/p' dist/src/sidepanel.html | sed 's#\.\./fonts/#./#')
 cat > /tmp/cf-shots/panel.html <<HTML
 <!doctype html><html><head><meta charset="utf-8">$STYLE</head><body>
@@ -21,4 +21,5 @@ body{background:#000;color:#e7e9ea;font:15px -apple-system,"Segoe UI",sans-serif
 <div class="tw" style="margin-top:260px"><div id="row2"><span class="n">Other</span> <span class="h">@other · 5h</span></div><div>Good morning from Osaka.</div></div>
 <script src="harness.js"></script></body></html>
 HTML
+sed -e 's/background:#000;color:#e7e9ea/background:#fff;color:#0f1419/' -e 's/#2f3336/#eff3f4/' -e 's/#71767b/#536471/' /tmp/cf-shots/x.html > /tmp/cf-shots/xl.html
 echo prepared /tmp/cf-shots

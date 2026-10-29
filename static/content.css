@@ -1,31 +1,42 @@
-@font-face{font-family:"Twemoji Country Flags";unicode-range:U+1F1E6-1F1FF,U+1F3F4,U+E0062-E0063,U+E0065,U+E0067,U+E006C,U+E006E,U+E0073-E0074,U+E0077,U+E007F;src:url("chrome-extension://__MSG_@@extension_id__/fonts/TwemojiCountryFlags.woff2") format("woff2");font-display:swap}
-.cf-badge{display:inline-flex;align-items:center;gap:3px;margin-left:6px;padding:0 6px;height:18px;
-  border-radius:9px;font-size:12px;line-height:18px;font-weight:500;white-space:nowrap;vertical-align:middle;
-  background:rgba(29,155,240,.10);color:inherit;border:1px solid rgba(29,155,240,.25);cursor:help;flex-shrink:0;
-  font-family:"Twemoji Country Flags",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif}
-.cf-badge .cf-flag{font-size:13px}
+/* Chud Finder on-page styles. Everything is scoped to .cf-* elements; tokens are set on those elements only. */
+/*@cf-fonts-ext*/
+.cf-badge,.cf-pop,.cf-toast{/*@cf-vars*/}
+.cf-badge{display:inline-flex;align-items:center;gap:4px;margin-left:6px;padding:0 6px;height:18px;box-sizing:border-box;
+  border-radius:0;font:700 10.5px/16px var(--cf-font-mono);letter-spacing:.04em;text-transform:uppercase;white-space:nowrap;vertical-align:middle;
+  background:var(--cf-surface);color:var(--cf-ink);border:1px solid var(--cf-rule);cursor:help;flex-shrink:0}
+.cf-badge .cf-flag{font-size:13px;letter-spacing:0}
 .cf-badge .cf-name{max-width:140px;overflow:hidden;text-overflow:ellipsis}
-.cf-badge.cf-unknown{background:rgba(128,128,128,.14);border-color:rgba(128,128,128,.3);color:rgb(113,118,123)}
+.cf-badge.cf-unknown{color:var(--cf-ink-dim);border-style:dashed}
 .cf-badge.cf-pending{opacity:.55}
-.cf-badge.cf-warn{background:rgba(255,173,31,.16);border-color:rgba(255,173,31,.7)}
-.cf-badge .cf-warn-icon{color:rgb(214,130,0)}
-.cf-badge.cf-highlight{background:rgba(249,24,128,.14);border-color:rgb(249,24,128);font-weight:700}
-.cf-badge.cf-outside{outline:1.5px dashed rgba(120,86,255,.85);outline-offset:1px}
+.cf-badge.cf-warn{background:var(--cf-ember-orange);border-color:var(--cf-void-black);color:var(--cf-void-black)}
+.cf-badge .cf-warn-icon{color:inherit}
+.cf-badge.cf-highlight{background:var(--cf-field);border-color:var(--cf-void-black);color:var(--cf-on-field)}
+.cf-badge.cf-outside{outline:1.5px dashed var(--cf-structure);outline-offset:1px}
 .cf-badge.cf-ask{cursor:pointer}
-.cf-badge.cf-ask:hover{filter:brightness(1.08);text-decoration:none}
-.cf-badge.cf-ask:focus-visible{outline:2px solid rgb(29,155,240);outline-offset:1px}
-.cf-toast{position:fixed;z-index:2147483647;top:12px;left:50%;padding:6px 10px;border-radius:8px;background:rgba(15,20,25,.92);color:#fff;font:500 13px/1.3 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;box-shadow:0 2px 8px rgba(0,0,0,.25);pointer-events:none}
-.cf-pop{position:fixed;z-index:2147483646;width:300px;box-sizing:border-box;padding:10px 12px;border-radius:10px;background:#17191c;color:#e6e8ea;border:1px solid #2f3336;box-shadow:0 8px 24px rgba(0,0,0,.45);font:13px/1.35 "Twemoji Country Flags",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
-.cf-pop-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
-.cf-pop-title{font:600 13px ui-monospace,SFMono-Regular,Consolas,monospace}
-.cf-pop-x{background:none;border:0;color:#8b98a5;font-size:18px;line-height:1;cursor:pointer;padding:0 2px}
-.cf-pop-row{display:grid;grid-template-columns:96px 1fr;gap:2px 8px;padding:3px 0;border-top:1px solid #23272b}
-.cf-pop-label{font:11px ui-monospace,SFMono-Regular,Consolas,monospace;color:#8b98a5;text-transform:uppercase;letter-spacing:.04em;padding-top:2px}
-.cf-pop-value{word-break:break-word}.cf-pop-na{color:#8b98a5;font-style:italic}
-.cf-pop-note{grid-column:2;color:#8b98a5;font-size:11px}
-.cf-pop-warn{margin:6px 0 0;padding:6px 8px 6px 22px;border:1px solid rgba(255,173,31,.5);border-radius:6px;color:#ffc56b;font-size:12px}
-.cf-pop-actions{display:flex;gap:8px;margin-top:10px}
-.cf-pop-btn{flex:1;padding:6px 8px;border-radius:6px;border:1px solid #3a3f44;background:#22262a;color:#e6e8ea;font-weight:600;cursor:pointer}
-.cf-pop-btn:hover{background:#2b3035}.cf-pop-primary{border-color:#5b6b7a;background:#2c3640}
-.cf-pop-btn:focus-visible,.cf-pop-x:focus-visible{outline:2px solid #ffad1f;outline-offset:1px}
-.cf-pop-fine{margin-top:8px;color:#6e7a86;font-size:11px}
+.cf-badge.cf-ask:hover{border-color:var(--cf-mark);text-decoration:none}
+.cf-badge.cf-warn.cf-ask:hover,.cf-badge.cf-highlight.cf-ask:hover{border-color:var(--cf-void-black);box-shadow:inset 0 -2px 0 var(--cf-void-black)}
+.cf-badge.cf-ask:focus-visible{outline:2px solid var(--cf-focus);outline-offset:1px;box-shadow:0 0 0 4px var(--cf-void-black)}
+.cf-toast{position:fixed;z-index:2147483647;top:12px;left:50%;padding:6px 10px;border-radius:0;background:var(--cf-void-black);color:var(--cf-ink);
+  border:1px solid var(--cf-mark);font:700 11px/16px var(--cf-font-mono);letter-spacing:.04em;text-transform:uppercase;pointer-events:none}
+.cf-pop{position:fixed;z-index:2147483646;width:300px;box-sizing:border-box;padding:14px 16px 12px;border-radius:0;
+  background:/*@cf-corners*/,var(--cf-ground);color:var(--cf-ink);border:1px solid var(--cf-rule);
+  box-shadow:0 0 0 1px var(--cf-void-black),0 12px 28px rgba(0,0,0,.5);font:13px/1.4 var(--cf-font-sans);text-align:left}
+.cf-pop-head{display:flex;justify-content:space-between;align-items:center;padding-bottom:8px;margin-bottom:6px;border-bottom:var(--cf-section-rule) solid var(--cf-mark)}
+.cf-pop-title{font:800 15px/1.1 var(--cf-font-display);font-stretch:125%;text-transform:uppercase;letter-spacing:-.01em;color:var(--cf-field)}
+.cf-pop-x{background:none;border:1px solid var(--cf-rule);border-radius:0;color:var(--cf-ink);font:700 14px/1 var(--cf-font-mono);width:22px;height:22px;cursor:pointer;padding:0}
+.cf-pop-x:hover{border-color:var(--cf-mark)}
+.cf-pop-row{display:grid;grid-template-columns:96px 1fr;gap:2px 8px;padding:5px 0;border-top:1px solid #26262c}
+.cf-pop-head+.cf-pop-row{border-top:0}
+.cf-pop-label{font:700 10.5px/16px var(--cf-font-mono);color:var(--cf-ink-dim);text-transform:uppercase;letter-spacing:.04em;padding-top:1px}
+.cf-pop-value{word-break:break-word;font-weight:600}.cf-pop-na{color:var(--cf-ink-dim);font-style:italic;font-weight:400}
+.cf-pop-note{grid-column:2;color:var(--cf-ink-dim);font:11px/15px var(--cf-font-mono)}
+.cf-pop-warn{margin:8px 0 0;padding:16px 10px 6px 24px;border:1px solid var(--cf-caution);border-radius:0;color:var(--cf-ember-orange);font-size:12px}
+.cf-pop-warn{background:repeating-linear-gradient(-45deg,var(--cf-ember-orange) 0 6px,var(--cf-void-black) 6px 12px) top/100% 6px no-repeat}
+.cf-pop-actions{display:flex;gap:8px;margin-top:12px}
+.cf-pop-btn{flex:1;padding:7px 8px;border-radius:0;border:1px solid var(--cf-rule);background:transparent;color:var(--cf-ink);
+  font:700 11px/16px var(--cf-font-mono);letter-spacing:.04em;text-transform:uppercase;cursor:pointer}
+.cf-pop-btn:hover{border-color:var(--cf-mark)}
+.cf-pop-primary{background:var(--cf-field);border-color:var(--cf-field);color:var(--cf-on-field)}
+.cf-pop-primary:hover{background:var(--cf-signal-white);border-color:var(--cf-signal-white)}
+.cf-pop-btn:focus-visible,.cf-pop-x:focus-visible{outline:2px solid var(--cf-focus);outline-offset:2px}
+.cf-pop-fine{margin-top:10px;padding-top:8px;border-top:1px solid #26262c;color:var(--cf-ink-dim);font:10.5px/15px var(--cf-font-mono)}

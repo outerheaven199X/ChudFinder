@@ -1,4 +1,4 @@
-# Verification (Chud Finder 2.0.0)
+# Verification (Chud Finder 2.1.0)
 
 Run: `npm install && npm test` (builds first). Output from the last run: [test-results.txt](test-results.txt).
 

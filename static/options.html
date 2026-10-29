@@ -1,7 +1,18 @@
 <!doctype html>
 <html><head><meta charset="utf-8"><title>Chud Finder settings</title>
 <style>
-@font-face{font-family:"Twemoji Country Flags";unicode-range:U+1F1E6-1F1FF;src:url("../fonts/TwemojiCountryFlags.woff2") format("woff2")}
+/*@cf-fonts-page*/
+:root{/*@cf-vars*/}
+
+.hz{height:6px;background:/*@cf-hazard*/;margin:0 0 12px}
+h1,h2{font-family:var(--cf-font-display);font-stretch:125%;text-transform:uppercase;letter-spacing:-.01em;font-weight:800}
+h2{font-size:13px;border-bottom:var(--cf-section-rule) solid var(--cf-void-black);padding-bottom:5px}
+button{border-radius:0!important;font:700 11px/16px var(--cf-font-mono)!important;letter-spacing:.04em;text-transform:uppercase;border:1px solid var(--cf-void-black)!important;background:var(--cf-signal-white);color:var(--cf-void-black);cursor:pointer}
+button:hover{background:var(--cf-field)!important}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--cf-void-black);outline-offset:2px}
+input[type=checkbox]{accent-color:var(--cf-void-black)}
+input,select,textarea{border-radius:0!important;font-family:var(--cf-font-mono)}
+
 body{font:14px "Twemoji Country Flags",system-ui,sans-serif;max-width:640px;margin:24px auto;padding:0 16px;color:#0f1419}
 h1{font-size:20px}h2{font-size:15px;margin-top:24px}.hint{color:#536471;font-size:12.5px;margin:4px 0 8px}
 label.opt{display:flex;gap:8px;align-items:flex-start;margin:10px 0}
@@ -14,8 +25,10 @@ select{padding:4px}
 button{padding:6px 12px;border-radius:16px;border:1px solid #cfd9de;background:#fff;cursor:pointer;font-weight:600}
 textarea{width:100%;box-sizing:border-box;font:12px ui-monospace,monospace;padding:6px;border:1px solid #cfd9de;border-radius:6px}
 .err{color:#f4212e}.good{color:#00ba7c}
+body{font:14px var(--cf-font-sans)!important;color:var(--cf-void-black)!important}h1{font-size:24px}
 </style></head>
 <body>
+<div class="hz" aria-hidden="true"></div>
 <h1>Chud Finder settings</h1>
 <p class="hint">Chud Finder shows the "Account based in" country X itself reports for every account. It treats every country the same; anything highlighted below is your own choice.</p>
 

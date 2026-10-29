@@ -1,15 +1,28 @@
 <!doctype html>
 <html><head><meta charset="utf-8"><title>Chud Finder</title>
 <style>
-@font-face{font-family:"Twemoji Country Flags";unicode-range:U+1F1E6-1F1FF;src:url("../fonts/TwemojiCountryFlags.woff2") format("woff2")}
+/*@cf-fonts-page*/
+:root{/*@cf-vars*/}
+
+.hz{height:6px;background:/*@cf-hazard*/;margin:0 0 12px}
+h1,h2{font-family:var(--cf-font-display);font-stretch:125%;text-transform:uppercase;letter-spacing:-.01em;font-weight:800}
+h2{font-size:13px;border-bottom:var(--cf-section-rule) solid var(--cf-void-black);padding-bottom:5px}
+button{border-radius:0!important;font:700 11px/16px var(--cf-font-mono)!important;letter-spacing:.04em;text-transform:uppercase;border:1px solid var(--cf-void-black)!important;background:var(--cf-signal-white);color:var(--cf-void-black);cursor:pointer}
+button:hover{background:var(--cf-field)!important}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--cf-void-black);outline-offset:2px}
+input[type=checkbox]{accent-color:var(--cf-void-black)}
+input,select,textarea{border-radius:0!important;font-family:var(--cf-font-mono)}
+
 body{font:13px "Twemoji Country Flags",system-ui,sans-serif;width:260px;margin:0;padding:14px;color:#0f1419}
 h1{font-size:15px;margin:0 0 2px}p.sub{margin:0 0 12px;color:#536471;font-size:12px}
 .row{display:flex;justify-content:space-between;align-items:center;margin:10px 0}
 button{width:100%;padding:7px;border-radius:16px;border:1px solid #cfd9de;background:#fff;cursor:pointer;font-weight:600;margin-top:6px}
 button:hover{background:#f7f9f9}#status{color:#536471;font-size:12px;margin-top:8px;min-height:16px}
 #sync{font-size:12px;margin-top:4px;color:#536471}#sync.err{color:#f4212e}#sync.good{color:#00ba7c}
+body{font:13px var(--cf-font-sans)!important;color:var(--cf-void-black)!important}h1{font-size:16px}
 </style></head>
 <body>
+<div class="hz" aria-hidden="true"></div>
 <h1>Chud Finder</h1>
 <p class="sub">Where X says each post's author is based.</p>
 <label class="row"><span>Enabled</span><input type="checkbox" id="enabled"></label>

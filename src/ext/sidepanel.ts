@@ -4,7 +4,7 @@ import { buildExport, threadDraft } from '../shared/receipts.ts';
 import { Investigation } from '../shared/schemas.ts';
 import { el, renderTab, TABS } from './render.ts';
 import type { Tab } from './render.ts';
-import { drawReceipt } from './receipt-png.ts';
+import { drawReceipt, receiptFontsReady } from './receipt-png.ts';
 import { ACTIVE_KEY, INDEX_KEY, INV_PREFIX, deleteInvestigation, loadInvestigation } from './store.ts';
 import type { IndexEntry } from './store.ts';
 import { GROK_BOT_TEMPLATE_URL } from './config.ts';
@@ -50,8 +50,9 @@ function onAction(a: { type: string; [k: string]: unknown }) {
     case 'evidence-scope': evidenceAll = !!a.all; render(); break;
     case 'export-json': download(fname + '.json', new Blob([JSON.stringify(buildExport(inv, version), null, 2)], { type: 'application/json' })); note('JSON'); break;
     case 'export-png': {
-      const c = document.createElement('canvas'); drawReceipt(c, inv, version);
-      c.toBlob(b => { if (b) { download(fname + '.png', b); note('PNG'); } }, 'image/png'); break;
+      const c = document.createElement('canvas'); const cur = inv;
+      void receiptFontsReady().then(() => { drawReceipt(c, cur, version);
+        c.toBlob(b => { if (b) { download(fname + '.png', b); note('PNG'); } }, 'image/png'); }); break;
     }
     case 'thread': {
       const parts = threadDraft(inv, version);

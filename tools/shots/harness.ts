@@ -5,7 +5,7 @@ import { renderBadge, evaluate } from '../../src/ext/lib.ts';
 import { openPopover } from '../../src/ext/popover.ts';
 import { renderTab } from '../../src/ext/render.ts';
 import type { Tab } from '../../src/ext/render.ts';
-import { drawReceipt } from '../../src/ext/receipt-png.ts';
+import { drawReceipt, receiptFontsReady } from '../../src/ext/receipt-png.ts';
 import { threadDraft } from '../../src/shared/receipts.ts';
 
 const T0 = '2026-10-29T15:00:00.000Z';
@@ -35,7 +35,8 @@ if (mode === 'popover') {
   openPopover(document, badge, { handle: 'sample_acct', info, statedLocation: 'Dallas, TX', evaluation: evaluate(info, {}, 'Dallas, TX'),
     askGrok: true, onInvestigate() {}, onAskGrok() {} });
 } else if (mode === 'png') {
-  const c = document.createElement('canvas'); drawReceipt(c, inv); c.style.width = '1200px'; document.body.appendChild(c);
+  const c = document.createElement('canvas'); c.style.width = '1200px'; document.body.appendChild(c);
+  void receiptFontsReady().then(() => drawReceipt(c, inv));
 } else if (mode === 'thread') {
   const pre = document.createElement('pre'); pre.textContent = threadDraft(inv).join('\n\n'); document.getElementById('main')!.appendChild(pre);
 } else {
