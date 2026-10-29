@@ -4,6 +4,8 @@
 # CONFIRM THE SOURCE
 # SOME ACCOUNTS AREN'T WHERE THEY SAY THEY ARE
 
+[![License: MIT](https://img.shields.io/badge/license-MIT-faf905?labelColor=0b0b0d)](LICENSE)
+
 **CHUD FINDER** is a provenance layer for X. It's a Manifest V3 extension for Chrome and Brave.
 
 Every author gets a badge showing the country **X itself** reports the account is based in. Click the badge to see the evidence. Then decide for yourself.
@@ -117,3 +119,7 @@ Bundled fonts (no remote loading, served via `web_accessible_resources`):
 | Archivo (variable, wdth 62–125, wght 100–900, Latin subset) | `static/fonts/Archivo-Variable-latin.woff2` | SIL OFL 1.1, `static/fonts/OFL-Archivo.txt` |
 | JetBrains Mono (variable, wght 400–800, Latin subset) | `static/fonts/JetBrainsMono-Variable-latin.woff2` | SIL OFL 1.1, `static/fonts/OFL-JetBrainsMono.txt` |
 | Twemoji Country Flags | `static/fonts/TwemojiCountryFlags.woff2` | see `static/fonts/LICENSE-TwemojiCountryFlags.md` |
+
+## LICENSE
+
+Code: [MIT](LICENSE) © 2026 Nick Pittsinger. Bundled fonts keep their own licenses (SIL OFL 1.1 for Archivo and JetBrains Mono; see `static/fonts/`).
