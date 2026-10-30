@@ -5,7 +5,7 @@
 import { z } from 'zod';
 
 export const SCHEMA_VERSION = 1 as const;
-export const ENGINE_VERSION = 'deterministic@3.1.2';
+export const ENGINE_VERSION = 'deterministic@3.2.0';
 
 const handle = z.string().regex(/^[A-Za-z0-9_]{1,15}$/);
 const iso = z.iso.datetime({ offset: true });
@@ -196,7 +196,7 @@ export const Evidence = z
     derivedFrom: z.array(z.string()).optional(),
     provider: z.string().optional(),
     provenance: z
-      .enum(['platform_reported', 'self_described', 'external_source', 'user_captured', 'derived'])
+      .enum(['platform_reported', 'self_described', 'external_source', 'user_captured', 'page_observed', 'derived'])
       .optional(),
     publishedAt: iso.optional(),
     coverage: z.array(Coverage).optional(),
@@ -311,7 +311,7 @@ export const AboutObservation = z
     observedAt: iso,
     sourceUrl: httpsUrl.optional(),
     displayText: z.string().max(600).optional(),
-    provenance: z.enum(['platform_reported', 'user_captured']).optional(),
+    provenance: z.enum(['platform_reported', 'user_captured', 'page_observed']).optional(),
   })
   .strict();
 export type AboutObservation = z.infer<typeof AboutObservation>;

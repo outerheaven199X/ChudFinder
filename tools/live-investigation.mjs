@@ -37,7 +37,7 @@ try {
   page.on('pageerror', (e) => errors.push(e.message));
   await page.goto('chrome-extension://' + id + '/src/sidepanel.html');
   await page.locator('#controls>summary').click();
-  await page.getByText('Provider connection', { exact: true }).click();
+  await page.getByText('Optional API data', { exact: true }).click();
   await page.locator('#adapterUrl').fill('http://127.0.0.1:18879');
   await page.locator('#saveProvider').click();
   await page.waitForFunction(() =>

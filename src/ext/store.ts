@@ -29,12 +29,12 @@ export async function loadInvestigation(area: Area, id: string): Promise<Investi
 }
 
 let saveQueue: Promise<unknown> = Promise.resolve();
-export function saveInvestigation(area: Area, inv: Investigation): Promise<IndexEntry[]> {
-  const task = saveQueue.catch(() => {}).then(() => saveImmediately(area, inv));
+export function saveInvestigation(area: Area, inv: Investigation, activate = true): Promise<IndexEntry[]> {
+  const task = saveQueue.catch(() => {}).then(() => saveImmediately(area, inv, activate));
   saveQueue = task;
   return task;
 }
-async function saveImmediately(area: Area, inv: Investigation): Promise<IndexEntry[]> {
+async function saveImmediately(area: Area, inv: Investigation, activate: boolean): Promise<IndexEntry[]> {
   const valid = Investigation.parse(inv);
   const got = await area.get(INDEX_KEY);
   let index: IndexEntry[] = Array.isArray(got[INDEX_KEY]) ? got[INDEX_KEY] : [];
@@ -51,7 +51,7 @@ async function saveImmediately(area: Area, inv: Investigation): Promise<IndexEnt
   ];
   const dropped = index.slice(MAX_INVESTIGATIONS);
   index = index.slice(0, MAX_INVESTIGATIONS);
-  await area.set({ [INV_PREFIX + valid.id]: valid, [INDEX_KEY]: index, [ACTIVE_KEY]: valid.id });
+  await area.set({ [INV_PREFIX + valid.id]: valid, [INDEX_KEY]: index, ...(activate ? {[ACTIVE_KEY]: valid.id} : {}) });
   if (dropped.length) await area.remove(dropped.map((e) => INV_PREFIX + e.id));
   return index;
 }

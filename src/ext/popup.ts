@@ -7,7 +7,8 @@ async function refresh() {
   const s = all.settings || {};
   $('enabled').checked = s.enabled !== false;
   const n = (all['cf:invIndex'] || []).length;
-  const msg = n + ' local investigations. User-selected evidence; no background X lookups.';
+  $('lookupMode').value = all['cf:lookupV32'] ? s.lookupMode || 'auto' : 'auto';
+  const msg = n + ' investigations. Auto reads visible accounts; Careful reads on hover/click. One temporary X tab, no API credits.';
   $('status').textContent = msg;
   const sync = $('sync');
   if (!all.syncUrl) { sync.textContent = ''; }
@@ -21,13 +22,17 @@ $('enabled').addEventListener('change', async (e: any) => {
   settings.enabled = e.target.checked;
   await chrome.storage.local.set({ settings });
 });
+$('lookupMode').addEventListener('change',async(e:any)=>{
+  const {settings={}}=await chrome.storage.local.get('settings');
+  await chrome.storage.local.set({settings:{...settings,lookupMode:e.target.value},'cf:lookupV32':true});
+});
 
 $('clear').addEventListener('click', async () => {
   const all = await chrome.storage.local.get(null);
-  const keys = Object.keys(all).filter(k => k.startsWith('cf:h:'));
+  const keys = Object.keys(all).filter(k => k.startsWith('cf:h:') || k.startsWith('cf:country:'));
   await chrome.storage.local.remove(keys);
   await chrome.storage.local.set({ 'cf:cacheCleared': Date.now() });
-  $('status').textContent = 'Cleared ' + keys.length + ' legacy cached accounts. Investigation history remains available.';
+  $('status').textContent = 'Cleared ' + keys.length + ' cached accounts. Countries will reload; investigation history is retained.';
 });
 
 $('options').addEventListener('click', () => chrome.runtime.openOptionsPage());

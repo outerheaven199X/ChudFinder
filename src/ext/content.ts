@@ -1,148 +1,132 @@
-/* Lightweight selection UI. No network, cookies, page bridge or passive evidence collection. */
-import { extractPost, handleFromUserName, parseRoute, SEL, ADAPTER_VERSION } from './xdom.ts';
+/* Rendered X display acquisition. No auth-token extraction or internal API requests. */
+import { extractPost, handleFromUserName, parseRoute, postsOnPage, SEL, ADAPTER_VERSION } from './xdom.ts';
 import { DEFAULT_SETTINGS } from './lib.ts';
-import { countryBadge } from './country-badge.ts';
+import { cachedCountryBadge, countryBadge } from './country-badge.ts';
 import { AccountObservation } from '../shared/schemas.ts';
 import { cleanText } from '../shared/sanitize.ts';
 import { investigationId } from '../shared/engine.ts';
-declare const chrome: any;
-let settings = { ...DEFAULT_SETTINGS };
-const mounted = new WeakMap<Element, {handle:string; button:HTMLButtonElement}>();
-const badges = new Map<string, ReturnType<typeof countryBadge>>();
-const pending = new Map<string, Promise<void>>();
-const generations = new Map<string, number>();
-function loadBadge(handle: string) {
-  const h = handle.toLowerCase();
-  if (badges.has(h) || pending.has(h)) return;
-  const key = 'cf:inv:' + investigationId(h), generation = generations.get(h) || 0;
-  pending.set(h, chrome.storage.local.get(key).then(g => {
-    if ((generations.get(h) || 0) === generation) badges.set(h, countryBadge(g[key],h));
-  }).catch(() => badges.set(h,countryBadge(null,h))).finally(() => {pending.delete(h);schedule();}));
+import { readAbout, aboutFailure, locationWarning, workerToken } from './about-dom.ts';
+import { COUNTRY_PREFIX } from './country-lookup.ts';
+import type { CountryRecord } from './country-lookup.ts';
+declare const chrome:any;
+let settings={...DEFAULT_SETTINGS,lookupMode:'auto' as 'auto'|'careful'};
+const mounted=new WeakMap<Element,{handle:string;button:HTMLButtonElement}>();
+const badges=new Map<string,ReturnType<typeof countryBadge>>(),records=new Map<string,CountryRecord>();
+const pending=new Set<string>(),requests=new Map<string,number>();
+let scheduled=false,lastAbout='',workerDone=false;
+const nonce=workerToken(location.href);
+function toast(message:string){
+  let e=document.getElementById('cf-message');
+  if(!e){e=document.createElement('div');e.id='cf-message';e.setAttribute('role','alert');e.style.cssText='position:fixed;bottom:76px;right:18px;z-index:2147483646;background:#151515;color:#fff;padding:14px;max-width:400px;border:1px solid #ffae52;font:14px system-ui';document.body.appendChild(e);}
+  e.textContent=message;
 }
-function paint(button: HTMLButtonElement, handle: string, profile = false) {
-  const value = badges.get(handle.toLowerCase()) || countryBadge(null,handle);
-  const label = value.flag + (value.name && settings.showName ? ' ' + value.name : '') +
-    (value.warning && settings.vpnWarnings ? ' ⚠' : '') + (profile ? ' / @' + handle : '');
-  const signature = JSON.stringify([label,value.detail]);
-  if (button.dataset.cfDisplay === signature) return;
-  button.dataset.cfDisplay = signature;
-  button.className = 'cf-badge cf-ask' + (value.name ? '' : ' cf-unknown');
-  button.textContent = label;
-  button.title = value.detail;
-  button.setAttribute('aria-label','Investigate @' + handle + ': ' + (value.name || 'country unavailable'));
+async function request(handle:string,reason:string){
+  const h=handle.toLowerCase(),r=records.get(h);
+  if(reason==='auto' && (settings.lookupMode!=='auto'||document.visibilityState==='hidden'))return;
+  if(r?.status==='ready'&&r.expiresAt>Date.now())return;
+  if(Date.now()-(requests.get(h)||0)<(reason==='auto'?30000:1500))return;
+  requests.set(h,Date.now());
+  try{const result=await chrome.runtime.sendMessage({type:'lookup-country',handle:h,reason});if(!result?.ok)throw new Error(result?.error || 'Country lookup did not respond');}
+  catch(e:any){if(reason!=='auto')toast('Chud Finder: '+e.message+'. Reload this X tab after updating the extension.');}
 }
-function observation(handle: string, article: Element | null) {
-  const now = new Date().toISOString(),
-    candidate = article ? extractPost(article) : null;
-  const post = candidate?.handle.toLowerCase() === handle.toLowerCase() ? candidate : null;
-  const route = parseRoute(location.href);
-  const profile =
-    route?.handle?.toLowerCase() === handle.toLowerCase()
-      ? document.querySelector('[data-testid="UserLocation"]')?.textContent
-      : null;
-  return AccountObservation.parse({
-    handle,
-    observedAt: now,
-    pageUrl: 'https://x.com/' + handle,
-    adapterVersion: ADAPTER_VERSION,
-    about: null,
-    profileLocation: profile ? { text: cleanText(profile, 120), observedAt: now } : null,
-    posts: post ? [post] : [],
-    focusPostId: post?.id || null,
-    provider: 'UserEvidenceProvider',
+function loadBadge(handle:string){
+  const h=handle.toLowerCase();if(badges.has(h)||pending.has(h))return;pending.add(h);
+  const key='cf:inv:'+investigationId(h);
+  chrome.storage.local.get([key,COUNTRY_PREFIX+h]).then(g=>{
+    badges.set(h,countryBadge(g[key],h));if(g[COUNTRY_PREFIX+h])records.set(h,g[COUNTRY_PREFIX+h]);
+  }).catch(()=>badges.set(h,countryBadge(null,h))).finally(()=>{pending.delete(h);schedule();});
+}
+function paint(button:HTMLButtonElement,handle:string,profile=false){
+  const h=handle.toLowerCase(),r=records.get(h),value=cachedCountryBadge(r,h)||badges.get(h)||countryBadge(null,h),state=r?.status;
+  const symbol=value.name?value.flag:state==='queued'||state==='loading'?'…':state==='error'?'!':state==='paused'?'Ⅱ':!r?(settings.lookupMode==='careful'?'↗':'…'):'?';
+  const label=symbol+(value.name&&settings.showName?' '+value.name:'')+(value.warning&&settings.vpnWarnings?' ⚠':'')+(profile?' / @'+handle:'');
+  const detail=value.name?value.detail:(r?.message|| (settings.lookupMode==='careful'?'Careful mode: hover or click to read X About.':'Country lookup will start when this account is visible.'))+' Click to investigate @'+handle+'.';
+  const signature=JSON.stringify([label,detail]);if(button.dataset.cfDisplay===signature)return;
+  button.dataset.cfDisplay=signature;button.className='cf-badge cf-ask'+(value.name?'':' cf-unknown');button.textContent=label;button.title=detail;
+  button.setAttribute('aria-label','Investigate @'+handle+': '+(value.name||detail));
+}
+function observation(handle:string,article:Element|null){
+  const now=new Date().toISOString(),route=parseRoute(location.href),onProfile=route.handle?.toLowerCase()===handle.toLowerCase();
+  const candidate=article?extractPost(article):null,post=candidate?.handle.toLowerCase()===handle.toLowerCase()?candidate:null;
+  const profile=onProfile?document.querySelector('[data-testid="UserLocation"]')?.textContent:null;
+  return AccountObservation.parse({handle,observedAt:now,pageUrl:location.href.split('#')[0],adapterVersion:ADAPTER_VERSION,
+    about:onProfile?readAbout(document,location.href):null,profileLocation:profile?{text:cleanText(profile,120),observedAt:now}:null,
+    posts:post?[post]:onProfile?postsOnPage(document,handle,50):[],focusPostId:post?.id||null,provider:'UserEvidenceProvider'});
+}
+function select(handle:string,article:Element|null){
+  try{const obs=observation(handle,article);
+    chrome.runtime.sendMessage({type:'investigate',observation:obs,localOnly:true}).then(r=>{if(!r?.ok)throw new Error(r?.error||'Investigation did not respond');})
+      .catch(e=>toast('Could not open investigation: '+e.message+'. Reload X if you just updated Chud Finder.'));
+  }catch(e:any){toast('Cannot read this account: '+e.message);}
+}
+function bind(button:HTMLButtonElement,handle:string,article:Element|null){
+  button.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();select(handle,article);});
+  let timer:ReturnType<typeof setTimeout>|undefined;
+  button.addEventListener('mouseenter',()=>{timer=setTimeout(()=>void request(handle,'hover'),450);});
+  button.addEventListener('mouseleave',()=>{if(timer)clearTimeout(timer);});
+  button.addEventListener('focus',()=>void request(handle,'hover'));
+}
+function visible(e:Element){const r=e.getBoundingClientRect();return r.height>0&&r.bottom>0&&r.top<innerHeight;}
+function controls(){
+  let root=document.getElementById('cf-mode-control');
+  if(!root){root=document.createElement('div');root.id='cf-mode-control';root.style.cssText='position:fixed;left:16px;bottom:16px;z-index:1000;background:#101014;color:#fff;padding:7px;border:1px solid #888;font:12px system-ui';
+    const label=document.createElement('label');label.textContent='Chud Finder ';const mode=document.createElement('select');mode.id='cf-lookup-mode';mode.setAttribute('aria-label','Chud Finder lookup mode');
+    for(const [v,t]of [['auto','Auto'],['careful','Careful']]){const o=document.createElement('option');o.value=v;o.textContent=t;mode.appendChild(o);}
+    mode.addEventListener('change',async()=>{const g=await chrome.storage.local.get('settings');await chrome.storage.local.set({settings:{...g.settings,lookupMode:mode.value},'cf:lookupV32':true});});
+    label.appendChild(mode);root.appendChild(label);document.body.appendChild(root);
+  }
+  const mode=root.querySelector('select')!;if(mode.value!==settings.lookupMode)mode.value=settings.lookupMode;
+  root.title='Auto reads visible accounts in one temporary background X tab. Careful reads on hover/click. Results are cached. No API credits.';
+}
+function captureOpenAbout(){
+  const about=readAbout(document,location.href),handle=parseRoute(location.href).handle;if(!about||!handle)return;
+  const prior=records.get(handle.toLowerCase())?.about;
+  const warningRow=[...document.querySelectorAll('[data-testid="pivot"]')].find(e=>e.textContent?.startsWith('Account based in'));
+  if(about.accurate===null&&prior?.accurate===false&&prior.basedIn===about.basedIn&&prior.source===about.source&&warningRow&&warningRow.querySelectorAll('svg').length>1){about.accurate=false;about.displayText=prior.displayText;}
+  const signature=JSON.stringify([handle,about.basedIn,about.source,about.accurate,about.displayText]);if(lastAbout===signature)return;lastAbout=signature;
+  chrome.runtime.sendMessage({type:'about-observed',handle,about}).then(r=>{if(!r?.ok)lastAbout='';}).catch(()=>{lastAbout='';});
+}
+function scan(){
+  if(!settings.enabled)return;controls();captureOpenAbout();
+  for(const block of document.querySelectorAll(SEL.userName)){
+    const handle=handleFromUserName(block);if(!handle)continue;loadBadge(handle);const old=mounted.get(block);
+    if(old?.handle===handle&&old.button.isConnected)paint(old.button,handle);
+    else{old?.button.remove();const b=document.createElement('button');b.type='button';paint(b,handle);bind(b,handle,block.closest(SEL.article));block.appendChild(b);mounted.set(block,{handle,button:b});
+      if(!old)block.addEventListener('mouseenter',()=>{const current=handleFromUserName(block);if(current)void request(current,'hover');});}
+    if(visible(block))void request(handle,'auto');
+  }
+  const route=parseRoute(location.href);let button=document.getElementById('cf-profile-select') as HTMLButtonElement|null;
+  if(route.handle){if(!button){button=document.createElement('button');button.id='cf-profile-select';button.style.cssText='position:fixed;right:18px;bottom:24px;z-index:1000';document.body.appendChild(button);}
+    loadBadge(route.handle);paint(button,route.handle,true);const h=route.handle;button.onclick=()=>select(h,null);
+    if(!/\/about\/?$/.test(location.pathname))void request(h,'auto');
+  }else button?.remove();
+}
+function schedule(){if(scheduled)return;scheduled=true;requestAnimationFrame(()=>{scheduled=false;scan();});}
+async function runWorker(token:string){
+  let captured:ReturnType<typeof readAbout>=null,warningTried=false,warningAt=0;
+  const timer=setInterval(async()=>{if(workerDone)return;const error=aboutFailure(document);captured=readAbout(document,location.href)||captured;
+    if(captured&&!warningTried){warningTried=true;const row=[...document.querySelectorAll<HTMLElement>('[data-testid="pivot"]')].find(e=>e.textContent?.startsWith('Account based in'));
+      if(row&&row.querySelectorAll('svg').length>1){row.click();warningAt=Date.now();return;}}
+    if(warningAt&&Date.now()-warningAt<700)return;if(!captured&&!error)return;
+    workerDone=true;clearInterval(timer);const warning=locationWarning(document);if(captured&&warning){captured.accurate=false;captured.displayText=warning;}
+    await chrome.runtime.sendMessage({type:'country-result',nonce:token,...(captured?{about:captured}:{error})}).catch(()=>{});
+  },350);setTimeout(()=>clearInterval(timer),22000);
+}
+chrome.runtime.onMessage.addListener((msg,_sender,reply)=>{
+  if(msg.type==='country-worker-check'){reply({owned:!!nonce&&nonce===msg.nonce&&workerToken(location.href)===nonce});return false;}
+  if(msg.type!=='observe')return false;
+  if(parseRoute(location.href).handle?.toLowerCase()!==String(msg.handle).toLowerCase()){reply({ok:false,error:'Open this X profile to refresh its visible data.'});return false;}
+  reply({ok:true,observation:observation(msg.handle,null)});return false;
+});
+if(nonce)void runWorker(nonce);
+else{
+  chrome.storage.local.get(['settings','cf:lookupV32']).then(g=>{settings={...settings,...g.settings,lookupMode:g['cf:lookupV32']?(g.settings?.lookupMode||'auto'):'auto'};scan();new MutationObserver(schedule).observe(document.body,{childList:true,subtree:true});});
+  addEventListener('scroll',schedule,{passive:true});addEventListener('popstate',schedule);document.addEventListener('visibilitychange',schedule);
+  chrome.storage.onChanged.addListener((changes,area)=>{if(area!=='local')return;
+    for(const [key,change]of Object.entries(changes) as [string,any][]){
+      if(key.startsWith(COUNTRY_PREFIX)){const h=key.slice(COUNTRY_PREFIX.length);if(change.newValue)records.set(h,change.newValue);else{records.delete(h);requests.delete(h);}schedule();}
+      if(key.startsWith('cf:inv:')){const h=change.newValue?.subject?.handle||change.oldValue?.subject?.handle;if(h){badges.set(h.toLowerCase(),countryBadge(change.newValue,h));schedule();}}
+    }
+    if(changes.settings){settings={...settings,...changes.settings.newValue};if(!settings.enabled){for(const b of document.querySelectorAll('.cf-badge,#cf-mode-control'))b.remove();}else{requests.clear();scan();}}
   });
 }
-function select(anchor: HTMLElement, handle: string, article: Element | null) {
-  // Send within the click gesture so the browser can open the side panel directly.
-  chrome.runtime.sendMessage({type:'investigate',observation:observation(handle,article)})
-    .then(r => {if (!r?.ok) anchor.title = r?.error || 'Investigation failed';})
-    .catch(() => {anchor.title = 'Extension updated. Reload this X tab to investigate.';});
-}
-function scan() {
-  if (!settings.enabled) return;
-  for (const block of document.querySelectorAll(SEL.userName)) {
-    const handle = handleFromUserName(block);
-    if (!handle) continue;
-    const existing = mounted.get(block);
-    loadBadge(handle);
-    if (existing?.handle === handle && existing.button.isConnected) {
-      paint(existing.button,handle);
-      continue;
-    }
-    existing?.button.remove();
-    const b = document.createElement('button');
-    b.type = 'button';
-    paint(b,handle);
-    b.addEventListener('click', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      select(b, handle, block.closest(SEL.article));
-    });
-    block.appendChild(b);
-    mounted.set(block,{handle,button:b});
-  }
-  const route = parseRoute(location.href);
-  let button = document.getElementById('cf-profile-select');
-  if (route?.handle) {
-    if (!button) {
-      button = document.createElement('button');
-      button.id = 'cf-profile-select';
-      button.className = 'cf-badge';
-      button.style.cssText = 'position:fixed;right:18px;bottom:24px;z-index:1000';
-      document.body.appendChild(button);
-    }
-    loadBadge(route.handle);
-    paint(button as HTMLButtonElement,route.handle,true);
-    const h = route.handle;
-    button.onclick = () => select(button!, h, null);
-  } else button?.remove();
-}
-let scheduled = false;
-function schedule() {
-  if (!scheduled) {
-    scheduled = true;
-    requestAnimationFrame(() => {
-      scheduled = false;
-      scan();
-    });
-  }
-}
-const observer = new MutationObserver(schedule);
-chrome.storage.local.get('settings').then((g) => {
-  settings = { ...settings, ...g.settings };
-  scan();
-  observer.observe(document.body, { childList: true, subtree: true });
-});
-chrome.storage.onChanged.addListener((changes, area) => {
-  if (area !== 'local') return;
-  for (const [key, change] of Object.entries(changes) as [string,any][]) {
-    if (!key.startsWith('cf:inv:')) continue;
-    const handle = change.newValue?.subject?.handle || change.oldValue?.subject?.handle;
-    if (typeof handle !== 'string') continue;
-    const h = handle.toLowerCase();
-    if (key !== 'cf:inv:' + investigationId(h)) continue;
-    generations.set(h,(generations.get(h) || 0)+1);
-    badges.set(h,countryBadge(change.newValue,h));
-    schedule();
-  }
-  if (area === 'local' && changes.settings) {
-    settings = { ...settings, ...changes.settings.newValue };
-    if (!settings.enabled) for (const b of document.querySelectorAll('.cf-badge')) b.remove();
-    else scan();
-  }
-});
-chrome.runtime.onMessage.addListener((msg, _sender, reply) => {
-  if (msg.type !== 'observe') return false;
-  const route = parseRoute(location.href);
-  if (route?.handle?.toLowerCase() !== String(msg.handle).toLowerCase()) {
-    reply({ ok: false, error: 'Select this account on X to refresh its visible observation.' });
-    return false;
-  }
-  const article = route.statusId
-    ? [...document.querySelectorAll(SEL.article)].find(
-        (a) => extractPost(a)?.id === route.statusId,
-      ) || null
-    : null;
-  reply({ ok: true, observation: observation(msg.handle, article) });
-  return false;
-});

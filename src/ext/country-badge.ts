@@ -1,6 +1,16 @@
 import { Investigation } from '../shared/schemas.ts';
 import { findCountry, flagEmoji } from '../shared/countries.ts';
 import { cleanText } from '../shared/sanitize.ts';
+import { AboutObservation } from '../shared/schemas.ts';
+
+export function cachedCountryBadge(raw: unknown, handle: string) {
+  const record = raw as any;
+  const parsed = AboutObservation.safeParse(record?.about);
+  if (record?.handle?.toLowerCase() !== handle.toLowerCase() || !parsed.success || !parsed.data.basedIn || parsed.data.provenance !== 'page_observed' || parsed.data.sourceUrl?.toLowerCase() !== `https://x.com/${handle.toLowerCase()}/about`) return null;
+  const a = parsed.data, country = findCountry(a.basedIn!), name = country?.name || cleanText(a.basedIn!,80);
+  return {flag:country ? flagEmoji(country.code) : '🌐',name,warning:a.accurate===false,
+    detail:`X About page: ${name}. Observed ${a.observedAt}.\n${a.sourceUrl}\nConnected via: ${a.source || 'not displayed'}.${a.accurate===false?'\nX warns the location may not be accurate.':''}\nClick to investigate @${handle}.`};
+}
 
 /** Display only the current snapshot's recorded About field, never a profile-location guess. */
 export function countryBadge(raw: unknown, handle: string) {
@@ -11,14 +21,14 @@ export function countryBadge(raw: unknown, handle: string) {
   const inv = parsed.data, snapshot = inv.snapshots.find(s => s.version === inv.currentVersion);
   if (!snapshot) return unknown;
   const current = inv.evidence.filter(e => snapshot.evidenceIds.includes(e.id) && e.subject.toLowerCase() === handle.toLowerCase());
-  const accepted = (e: typeof current[number]) => !!e.url && (e.provenance === 'user_captured' ||
+  const accepted = (e: typeof current[number]) => !!e.url && (e.provenance === 'user_captured' || e.provenance === 'page_observed' ||
     (e.provenance === 'platform_reported' && e.provider === 'XOfficialProvider'));
   const based = current.find(e => e.kind === 'about_based_in' && accepted(e));
   if (!based || typeof based.value.basedIn !== 'string' || !based.value.basedIn.trim()) return unknown;
   const name = cleanText(based.value.basedIn,80), country = findCountry(name);
   const accuracy = current.find(e => e.kind === 'about_location_accuracy' && accepted(e));
   const warning = accuracy?.value.accurate === false;
-  const label = based.provenance === 'platform_reported' ? 'X-reported About field' : 'User-captured X display';
+  const label = based.provenance === 'platform_reported' ? 'X-reported About field' : based.provenance === 'page_observed' ? 'X About page' : 'User-captured X display';
   return {
     flag: country ? flagEmoji(country.code) : '🌐', name: country?.name || name, warning,
     detail: label + ': ' + name + (country ? '' : ' (region)') + '. Observed ' + based.observedAt + '.\n' + based.url +

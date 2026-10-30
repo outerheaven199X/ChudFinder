@@ -8,8 +8,9 @@ import {countryBadge} from '../src/ext/country-badge.ts';
 import {obs,T0} from './helpers.ts';
 const require = createRequire(import.meta.url),
   fixture = require('./legacy/fixtures.cjs');
+async function until(check:()=>unknown){const start=Date.now();while(!check()){if(Date.now()-start>3000)throw new Error('DOM update timed out');await new Promise(r=>setTimeout(r,10));}}
 
-test('release excludes page bridge and all authenticated acquisition primitives', () => {
+test('release excludes page bridge, credential extraction and internal endpoint calls', () => {
   const m = JSON.parse(readFileSync('dist/manifest.json', 'utf8'));
   assert.ok(!existsSync('dist/src/page.js'));
   assert.ok(!m.content_scripts.some((c: any) => c.world === 'MAIN'));
@@ -43,18 +44,18 @@ test('country badges use current About evidence, never stale snapshots or self-d
 
 test('built feed renders stored flags on load, updates quoted/recycled authors and opens investigation on one click', async () => {
   const dom=new JSDOM(fixture.TWEET_HTML,{url:'https://x.com/home',runScripts:'outside-only',pretendToBeVisual:true});
-  const w:any=dom.window, messages:any[]=[], data:any={settings:{showName:true}};
+  const w:any=dom.window, messages:any[]=[], data:any={settings:{showName:true,lookupMode:'careful'},'cf:lookupV32':true};
   const jack=upsertInvestigation(null,obs('jack',{basedIn:'Germany'}),T0);
   data['cf:inv:'+jack.id]=jack;
   let changed:any;
   w.fetch=()=>{throw new Error('Badge rendering must not access the network');};
-  w.chrome={storage:{local:{get:async(key:string)=>({[key]:data[key]})},onChanged:{addListener:(fn:any)=>{changed=fn;}}},runtime:{sendMessage:async(m:any)=>{messages.push(m);return {ok:true};},onMessage:{addListener(){}}}};
+  w.chrome={storage:{local:{get:async(keys:any)=>Object.fromEntries((Array.isArray(keys)?keys:[keys]).map(k=>[k,data[k]]))},onChanged:{addListener:(fn:any)=>{changed=fn;}}},runtime:{sendMessage:async(m:any)=>{messages.push(m);return {ok:true};},onMessage:{addListener(){}}}};
   w.eval(readFileSync('dist/src/content.js','utf8'));
   const settle=()=>new Promise(r=>setTimeout(r,70));
-  await settle();
+  await until(()=>w.document.querySelector('.cf-badge')?.textContent.includes('Germany'));
   const blocks=w.document.querySelectorAll('[data-testid="User-Name"]');
   assert.match(blocks[0].querySelector('.cf-badge').textContent,/🇩🇪 Germany/);
-  assert.equal(blocks[1].querySelector('.cf-badge').textContent,'?');
+  assert.equal(blocks[1].querySelector('.cf-badge').textContent,'↗');
   assert.equal(messages.length,0);
   blocks[0].querySelector('.cf-badge').click();
   await settle();
@@ -63,7 +64,7 @@ test('built feed renders stored flags on load, updates quoted/recycled authors a
   assert.equal(messages[0].observation.posts[0].id,'20');
   const quote=upsertInvestigation(null,obs('quoted_person',{basedIn:'South Asia'}),T0);
   changed({['cf:inv:'+quote.id]:{newValue:quote}},'local');
-  await settle();
+  await until(()=>blocks[1].querySelector('.cf-badge').textContent.includes('South Asia'));
   assert.match(blocks[1].querySelector('.cf-badge').textContent,/🌐 South Asia/);
   blocks[1].querySelector('.cf-badge').click();
   assert.equal(messages.at(-1).observation.handle,'quoted_person');
@@ -71,16 +72,16 @@ test('built feed renders stored flags on load, updates quoted/recycled authors a
   // X recycles author containers during navigation and scrolling.
   for(const a of blocks[0].querySelectorAll('a[href="/jack"]'))a.setAttribute('href','/unknown');
   blocks[0].appendChild(w.document.createTextNode(' '));
-  await settle();
+  await until(()=>blocks[0].querySelector('.cf-badge').textContent==='↗');
   assert.equal(blocks[0].querySelectorAll('.cf-badge').length,1);
-  assert.equal(blocks[0].querySelector('.cf-badge').textContent,'?');
+  assert.equal(blocks[0].querySelector('.cf-badge').textContent,'↗');
   changed({['cf:inv:'+quote.id]:{oldValue:quote}},'local');
-  await settle();
-  assert.equal(blocks[1].querySelector('.cf-badge').textContent,'?');
+  await until(()=>blocks[1].querySelector('.cf-badge').textContent==='↗');
+  assert.equal(blocks[1].querySelector('.cf-badge').textContent,'↗');
   assert.equal(messages.length,2);
   w.close();
 });
-test('built content only captures the selected post after explicit Investigate; no requests on scroll or hover', async () => {
+test('Careful mode skips scroll lookup, reads About on hover, and saves only the selected post on click', async () => {
   const dom = new JSDOM(fixture.TWEET_HTML, {
     url: 'https://x.com/home',
     runScripts: 'outside-only',
@@ -95,7 +96,7 @@ test('built content only captures the selected post after explicit Investigate; 
   };
   w.chrome = {
     storage: {
-      local: { get: async () => ({ settings: { lookupMode: 'auto' } }) },
+      local: { get: async () => ({ settings: { lookupMode: 'careful' },'cf:lookupV32':true }) },
       onChanged: { addListener() {} },
     },
     runtime: {
@@ -110,17 +111,21 @@ test('built content only captures the selected post after explicit Investigate; 
   await new Promise((r) => setTimeout(r, 80));
   const badge = w.document.querySelector('.cf-badge');
   assert.ok(badge);
-  badge.dispatchEvent(new w.MouseEvent('mouseenter'));
   w.dispatchEvent(new w.Event('scroll'));
   await new Promise((r) => setTimeout(r, 60));
   assert.equal(requests, 0);
   assert.equal(messages.length, 0);
+  badge.dispatchEvent(new w.MouseEvent('mouseenter'));
+  await new Promise(r=>setTimeout(r,480));
+  assert.equal(messages[0].type,'lookup-country');
+  assert.equal(messages[0].reason,'hover');
   badge.click();
   await new Promise((r) => setTimeout(r, 10));
-  assert.equal(messages.length, 1);
-  assert.equal(messages[0].type, 'investigate');
-  assert.equal(messages[0].observation.about, null);
-  assert.ok(messages[0].observation.posts.length <= 1);
+  assert.equal(messages.length, 2);
+  assert.equal(messages[1].type, 'investigate');
+  assert.equal(messages[1].localOnly,true);
+  assert.equal(messages[1].observation.about, null);
+  assert.ok(messages[1].observation.posts.length <= 1);
   assert.equal(requests, 0);
   w.close();
 });

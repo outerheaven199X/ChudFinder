@@ -30,20 +30,21 @@ body{font:14px var(--cf-font-sans)!important;color:var(--cf-void-black)!importan
 <body>
 <div class="hz" aria-hidden="true"></div>
 <h1 style="display:flex;align-items:center;gap:10px"><img src="../icons/icon48.png" alt="" width="40" height="40">Chud Finder settings</h1>
-<p class="hint">Provider connections, evidence capture and request budgets are in the investigation workspace. All data collection is user-initiated. No browser-session API access.</p>
+<p class="hint">Country flags read X's rendered About pages using one temporary background tab. No API key, credits, or manual country entry is needed. Click a badge to open the investigation immediately.</p>
+<h2>Country flags</h2>
+<label class="opt"><span>Lookup mode</span><select id="lookupMode"><option value="auto">Auto: look up visible accounts</option><option value="careful">Careful: only on hover or click</option></select></label>
+<p class="hint">Auto starts as X loads and continues for visible accounts as you scroll. Lookups run one at a time, at most 10 starts per minute, and countries are cached for 24 hours. Loading, login and retry messages appear on the badge. X must be signed in in this browser.</p>
+<label class="opt"><input type="checkbox" id="showName"><span>Show the country or region name next to the flag</span></label>
+<label class="opt"><input type="checkbox" id="vpnWarnings"><span>Show X's location-accuracy warning</span></label>
+<label class="opt"><span>Daily lookup limit</span><input id="dailyCap" type="number" min="50" max="1000" step="10" style="width:90px"></label>
 <details><summary>Legacy display settings (retained for settings-file compatibility)</summary><p class="hint">These older switches do not enable automatic acquisition. Topic and location warnings are superseded by the evidence story.</p><div hidden>
 <p class="hint">Chud Finder shows the "Account based in" country X itself reports for every account. It treats every country the same; anything highlighted below is your own choice.</p>
 
-<label class="opt"><input type="checkbox" id="showName"><span>Show the country name next to the flag</span></label>
 <label class="opt"><input type="checkbox" id="popover"><span>Click a badge to open the account popover (provenance details, Investigate, Ask Grok)</span></label>
 <label class="opt"><input type="checkbox" id="askGrok"><span>Ask Grok about an account (button in the popover; when the popover is off, clicking a badge opens grok.com and copies the prompt)</span></label>
-<label class="opt"><input type="checkbox" id="vpnWarnings"><span>Warn when X says an account's location may not be accurate (possible VPN or proxy)</span></label>
 <label class="opt"><input type="checkbox" id="mismatchWarnings"><span>Warn when the profile's self-reported location, or the app-store region it connects through, differs from where X says it's based</span></label>
 
 <h2>Lookups &amp; account safety</h2>
-<p class="hint">Chud Finder asks X for "About this account" using your own session. To keep that traffic human-scale, careful mode (the default) only checks an account when you hover its name for a moment, click its badge, open the popover, or Investigate. Accounts you've already checked show instantly everywhere. No tool can guarantee X won't act on an account.</p>
-<label class="opt"><span>Lookup mode</span><select id="lookupMode"><option value="careful">Careful: only when I hover or click (recommended)</option><option value="auto">Auto: also as accounts scroll into view (paced, ~10/min)</option></select></label>
-<label class="opt"><span>Daily lookup limit</span><input id="dailyCap" type="number" min="50" max="1000" step="10" style="width:90px"><span class="hint" style="margin:0">50&ndash;1000, resets at midnight</span></label>
 
 <h2>Topic mode</h2>
 <label class="opt"><input type="checkbox" id="topicMode"><span>Give a subtle outline to accounts based outside my home country, and add a neutral, inferred note when a post&rsquo;s topic (keyword tags such as US, EU, UK, India) doesn&rsquo;t match where X reports the account is based</span></label>

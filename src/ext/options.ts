@@ -7,7 +7,7 @@ const $ = (id: string): any => document.getElementById(id);
 let settings: Record<string, any> = Object.assign({}, D);
 
 function save() {
-  chrome.storage.local.set({ settings }).then(() => {
+  chrome.storage.local.set({ settings, 'cf:lookupV32':true }).then(() => {
     $('saved').textContent = 'Saved';
     setTimeout(() => { $('saved').textContent = ''; }, 1200);
   });

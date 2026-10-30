@@ -16,6 +16,7 @@ import {
 } from '../shared/schemas.ts';
 import { investigationId, upsertInvestigation, currentSnapshot } from '../shared/engine.ts';
 import { loadInvestigation, saveInvestigation, ACTIVE_KEY } from './store.ts';
+import { CountryLookup, COUNTRY_PREFIX } from './country-lookup.ts';
 
 import {
   XOfficialProvider,
@@ -125,6 +126,8 @@ chrome.runtime.onInstalled.addListener(async () => {
     await chrome.storage.local.set({
       settings: Object.assign({}, DEFAULTS, { highlightCountries: [] }),
     });
+  const migration = await chrome.storage.local.get('cf:lookupV32');
+  if (!migration['cf:lookupV32']) await chrome.storage.local.set({settings:{...DEFAULTS,...settings,lookupMode:'auto'},'cf:lookupV32':true});
   await ensureAlarm();
   syncNow(false);
 });
@@ -212,7 +215,8 @@ function previousObservation(inv: any): AccountObservation {
             notFound: false,
             observedAt: (based || via || acc).observedAt,
             sourceUrl: (based || via || acc).url,
-            provenance: 'user_captured',
+            provenance: (based || via || acc).provenance === 'page_observed' ? 'page_observed' : 'user_captured',
+            ...((acc?.value.original) ? {displayText:acc.value.original} : {}),
           }
         : null,
     profileLocation: s.account.profileLocation
@@ -233,15 +237,15 @@ function previousObservation(inv: any): AccountObservation {
     provider: 'UserEvidenceProvider',
   });
 }
-async function save(raw: AccountObservation) {
+async function save(raw: AccountObservation, activate = true) {
   const obs = AccountObservation.parse(raw),
     id = investigationId(obs.handle),
     prev = await loadInvestigation(chrome.storage.local, id),
     inv = upsertInvestigation(prev, obs);
-  await saveInvestigation(chrome.storage.local, inv);
+  await saveInvestigation(chrome.storage.local, inv, activate);
   return { ok: true, id, version: inv.currentVersion };
 }
-async function investigate(raw: unknown) {
+async function investigate(raw: unknown, localOnly = false) {
   const obs = new UserEvidenceProvider(raw).observation,
     controller = new AbortController();
   const prior = await loadInvestigation(chrome.storage.local, investigationId(obs.handle));
@@ -251,6 +255,14 @@ async function investigate(raw: unknown) {
     obs.profileLocation ||= retained.profileLocation;
     obs.sources = retained.sources;
     obs.media = retained.media;
+    obs.searchText = retained.searchText;
+    obs.posts = [...new Map([...obs.posts,...retained.posts].map(p=>[p.id,p])).values()].slice(0,100);
+  }
+  const cached=(await chrome.storage.local.get(COUNTRY_PREFIX+obs.handle.toLowerCase()))[COUNTRY_PREFIX+obs.handle.toLowerCase()];
+  if(cached?.about?.provenance==='page_observed') {obs.about=cached.about;obs.provider='BrowserDisplayProvider';}
+  if(localOnly) {
+    obs.coverage=[...(retained?.coverage || []),coverage('BrowserDisplayProvider','Visible X page and automatic About lookup',obs.posts.length,['Only currently rendered posts; use the optional API action for a larger sample.'])].slice(-30);
+    return save(obs);
   }
   active.set(obs.handle.toLowerCase(), controller);
   const coverageList: Coverage[] = [
@@ -478,9 +490,27 @@ function openPanel(sender: any) {
       )
     : Promise.resolve(false);
 }
+const countryLookup = new CountryLookup(chrome, async (handle,about) => {
+  // Automatic cache updates must not steal the active investigation or race a click.
+  const key=handle.toLowerCase();
+  const task=(queues.get(key)||Promise.resolve()).catch(()=>{}).then(async()=>{
+    const prev=await loadInvestigation(chrome.storage.local,investigationId(handle));
+    if(prev)await save({...previousObservation(prev),about,provider:'BrowserDisplayProvider',observedAt:new Date().toISOString()},false);
+  });
+  queues.set(key,task);
+  try{await task;}finally{if(queues.get(key)===task)queues.delete(key);}
+});
+void countryLookup.recover().catch(()=>{});
 chrome.sidePanel?.setPanelBehavior?.({ openPanelOnActionClick: false }).catch(() => {});
 chrome.runtime.onMessage.addListener((msg: any, sender: any, reply: (r: any) => void) => {
   if (sender.id !== chrome.runtime.id) return false;
+  if (['lookup-country','country-result','about-observed'].includes(msg?.type)) {
+    const page=sender.url ? new URL(sender.url) : null;
+    const extensionPage=!sender.tab && sender.id===chrome.runtime.id;
+    if(!extensionPage && (!page || !['x.com','twitter.com'].includes(page.hostname))) {reply({ok:false,error:'X page required'});return false;}
+    const action=msg.type==='lookup-country'?countryLookup.request(msg.handle,msg.reason):msg.type==='country-result'?countryLookup.accept(msg,sender):countryLookup.observe(msg.handle,msg.about,sender);
+    action.then(reply,e=>reply({ok:false,error:String(e.message)}));return true;
+  }
   if (msg?.type === 'syncNow') {
     ensureAlarm();
     syncNow(true).then(reply);
@@ -530,14 +560,15 @@ chrome.runtime.onMessage.addListener((msg: any, sender: any, reply: (r: any) => 
     .then(async () => {
       const r =
         msg.type === 'investigate'
-          ? await investigate(msg.observation)
+          ? await investigate(msg.observation,!!msg.localOnly)
           : msg.type === 'start' || msg.type === 'reinvestigate'
-            ? await investigate(empty(handle))
+            ? await investigate(empty(handle),!!msg.localOnly)
             : await modify(msg);
       if (r.ok && !(await opened))
         await chrome.tabs.create({
           url: chrome.runtime.getURL('src/sidepanel.html?inv=' + (r as any).id),
         });
+      if(msg.localOnly)void countryLookup.request(handle,msg.type==='reinvestigate'?'refresh':'click').catch(()=>{});
       return r;
     });
   queues.set(key, task);

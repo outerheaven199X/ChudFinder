@@ -110,7 +110,7 @@ export function evidenceFromObservation(input: AccountObservation): Evidence[] {
         ...common,
         kind: 'about_based_in',
         displayRole: 'E-01',
-        summary: 'USER-CAPTURED X DISPLAY: ' + cleanText(a.basedIn, 80),
+        summary: (provenance === 'page_observed' ? 'X PAGE DISPLAY: ' : 'USER-CAPTURED X DISPLAY: ') + cleanText(a.basedIn, 80),
         value: {
           basedIn: cleanText(a.basedIn, 80),
           country,
@@ -125,7 +125,7 @@ export function evidenceFromObservation(input: AccountObservation): Evidence[] {
         ...common,
         kind: 'about_connected_via',
         displayRole: 'E-02',
-        summary: 'USER-CAPTURED X DISPLAY: ' + cleanText(a.source, 80),
+        summary: (provenance === 'page_observed' ? 'X PAGE DISPLAY: ' : 'USER-CAPTURED X DISPLAY: ') + cleanText(a.source, 80),
         value: {
           raw: cleanText(a.source, 80),
           country: c.country ? C.findCountry(c.country)?.code || null : null,
@@ -423,7 +423,7 @@ export function analyze(handle: string, current: Evidence[], canonicalizeStatus 
     capability: 'origin',
     title: 'Account based in',
     statement: based
-      ? `${based.provenance === 'platform_reported' ? 'Platform report' : 'USER-CAPTURED X DISPLAY'}: ${based.value.basedIn}${based.value.isRegion ? ' (region, not a country)' : ''}.`
+      ? `${based.provenance === 'platform_reported' ? 'Platform report' : based.provenance === 'page_observed' ? 'X PAGE DISPLAY' : 'USER-CAPTURED X DISPLAY'}: ${based.value.basedIn}${based.value.isRegion ? ' (region, not a country)' : ''}.`
       : 'UNAVAILABLE: no authorized source for X-reported operating region.',
     basis: based ? 'reported' : 'unknown',
     status: based ? 'info' : 'undetermined',
@@ -438,7 +438,7 @@ export function analyze(handle: string, current: Evidence[], canonicalizeStatus 
     'origin',
     'Connected via',
     via
-      ? `USER-CAPTURED X DISPLAY: ${via.value.raw}. App-store region is not physical location.`
+      ? `${via.provenance === 'page_observed' ? 'X PAGE DISPLAY' : 'USER-CAPTURED X DISPLAY'}: ${via.value.raw}. App-store region is not physical location.`
       : 'UNAVAILABLE: connection/app-store region.',
     via ? [via] : [],
   );
@@ -447,7 +447,7 @@ export function analyze(handle: string, current: Evidence[], canonicalizeStatus 
     'X location-accuracy note',
     acc
       ? acc.value.accurate === false
-        ? 'USER-CAPTURED X DISPLAY: accuracy warning present; possible VPN/proxy uncertainty.'
+        ? (acc.provenance === 'page_observed' ? 'X PAGE DISPLAY' : 'USER-CAPTURED X DISPLAY') + ': accuracy warning present; possible VPN/proxy uncertainty.'
         : 'User observed no warning. This does not prove no VPN.'
       : 'UNAVAILABLE: location-accuracy note.',
     acc ? [acc] : [],
@@ -907,7 +907,7 @@ export function validateFindings(raw: unknown[], evidence: Evidence[]) {
       !f.evidenceIds.some(
         (id) =>
           map.get(id)!.value.country === f.country &&
-          ['user_captured', 'platform_reported', 'self_described'].includes(
+          ['user_captured', 'platform_reported', 'self_described', 'page_observed'].includes(
             map.get(id)!.provenance || '',
           ),
       )
@@ -929,7 +929,7 @@ export function validateSnapshot(s: Snapshot, evidence: Evidence[]) {
   for (const e of current)
     if (e.derivedFrom?.some((id) => !map.has(id)))
       throw new Error('Derived evidence references missing inputs');
-  const expected = analyze(s.account.handle, current, s.engine === 'deterministic@3.1.2'),
+  const expected = analyze(s.account.handle, current, ['deterministic@3.1.2','deterministic@3.2.0'].includes(s.engine)),
     expectedEdges = new Map(expected.edges.map((e) => [e.id, e]));
   for (const edge of s.edges)
     if (JSON.stringify(edge) !== JSON.stringify(expectedEdges.get(edge.id)))

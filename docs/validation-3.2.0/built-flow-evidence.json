@@ -1,0 +1,1814 @@
+{
+  "scope": "Built scripts in JSDOM/VM; simulated Chrome APIs and tab navigation. About HTML captured from live X; profile/post input is a structural fixture. Not installed-browser acceptance.",
+  "at": "2026-10-30T10:34:32.131Z",
+  "fetchCalls": 0,
+  "createdTabs": [
+    {
+      "id": 100,
+      "url": "https://x.com/0xreso/about#cf-country-read=8762d770-e42d-4777-9ffc-821c71f9d899",
+      "active": false
+    }
+  ],
+  "closedTabs": [
+    100
+  ],
+  "panelOpens": [
+    {
+      "tabId": 10
+    }
+  ],
+  "messages": [
+    {
+      "type": "lookup-country",
+      "handle": "0xreso",
+      "reason": "auto"
+    },
+    {
+      "type": "investigate",
+      "observation": {
+        "handle": "0xReso",
+        "observedAt": "2026-10-30T10:34:30.803Z",
+        "pageUrl": "https://x.com/0xReso",
+        "adapterVersion": "x-dom@2026-10.1",
+        "about": null,
+        "profileLocation": {
+          "text": "New Delhi, India",
+          "observedAt": "2026-10-30T10:34:30.803Z"
+        },
+        "posts": [
+          {
+            "id": "2115756544428298642",
+            "handle": "0xReso",
+            "url": "https://x.com/0xReso/status/2115756544428298642",
+            "text": "A public post rendered on the profile.",
+            "createdAt": "2026-10-29T10:44:03.000Z",
+            "lang": "en",
+            "links": [],
+            "quotedPostId": null,
+            "quotedHandle": null,
+            "replyToHandle": null,
+            "capturedFrom": "x_page_dom"
+          }
+        ],
+        "focusPostId": null,
+        "provider": "UserEvidenceProvider"
+      },
+      "localOnly": true
+    },
+    {
+      "type": "country-result",
+      "nonce": "8762d770-e42d-4777-9ffc-821c71f9d899",
+      "about": {
+        "basedIn": "South Asia",
+        "accurate": false,
+        "source": "South Asia App Store",
+        "notFound": false,
+        "observedAt": "2026-10-30T10:34:31.879Z",
+        "sourceUrl": "https://x.com/0xreso/about",
+        "displayText": "Country or region may not be accurateOne of our partners has indicated that this account may have used a proxy — such as a VPN, which may change the country or region that is displayed on their profile.This data may not be accurate. Some internet providers may use proxies automatically without action by the user.",
+        "provenance": "page_observed"
+      }
+    },
+    {
+      "type": "lookup-country",
+      "handle": "newaccount",
+      "reason": "hover"
+    }
+  ],
+  "investigation": {
+    "schemaVersion": 1,
+    "id": "inv_8wgr6m4qtv",
+    "subject": {
+      "type": "account",
+      "handle": "0xReso"
+    },
+    "createdAt": "2026-10-30T10:34:30.812Z",
+    "updatedAt": "2026-10-30T10:34:31.883Z",
+    "currentVersion": 2,
+    "evidence": [
+      {
+        "id": "ev_b5cv0hyjhg",
+        "kind": "profile_location",
+        "source": "user_evidence",
+        "subject": "0xReso",
+        "summary": "Self-described: New Delhi, India",
+        "value": {
+          "text": "New Delhi, India",
+          "country": "IN"
+        },
+        "url": "https://x.com/0xReso",
+        "observedAt": "2026-10-30T10:34:30.803Z",
+        "firstSeenAt": "2026-10-30T10:34:30.803Z",
+        "lastSeenAt": "2026-10-30T10:34:30.803Z",
+        "provider": "UserEvidenceProvider",
+        "provenance": "self_described",
+        "displayRole": "E-04"
+      },
+      {
+        "id": "ev_x0yegogpym",
+        "kind": "post",
+        "source": "user_evidence",
+        "subject": "0xReso",
+        "summary": "A public post rendered on the profile.",
+        "value": {
+          "post": {
+            "id": "2115756544428298642",
+            "handle": "0xReso",
+            "url": "https://x.com/0xReso/status/2115756544428298642",
+            "text": "A public post rendered on the profile.",
+            "createdAt": "2026-10-29T10:44:03.000Z",
+            "lang": "en",
+            "links": [],
+            "quotedPostId": null,
+            "quotedHandle": null,
+            "replyToHandle": null,
+            "capturedFrom": "user_evidence"
+          }
+        },
+        "url": "https://x.com/0xReso/status/2115756544428298642",
+        "observedAt": "2026-10-30T10:34:30.803Z",
+        "firstSeenAt": "2026-10-30T10:34:30.803Z",
+        "lastSeenAt": "2026-10-30T10:34:30.803Z",
+        "provider": "UserEvidenceProvider",
+        "provenance": "user_captured",
+        "publishedAt": "2026-10-29T10:44:03.000Z"
+      },
+      {
+        "id": "ev_1ve74m2e5cc",
+        "kind": "activity_pattern",
+        "source": "derived",
+        "subject": "0xReso",
+        "summary": "POSTING HOURS ARE A WEAK CONTEXTUAL SIGNAL",
+        "value": {
+          "usable": false,
+          "posts": 1,
+          "histogramUtc": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "quietStartUtc": 0,
+          "estOffsetHours": null,
+          "compatibleOffsets": [],
+          "dates": [
+            "2026-10-29"
+          ],
+          "start": "2026-10-29T10:44:03.000Z",
+          "end": "2026-10-29T10:44:03.000Z",
+          "missing": 0,
+          "sensitivity": [
+            {
+              "label": "full window",
+              "posts": 1,
+              "quietStarts": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                11,
+                12,
+                13,
+                14,
+                15,
+                16,
+                17,
+                18,
+                19,
+                20,
+                21,
+                22,
+                23
+              ]
+            },
+            {
+              "label": "earlier half",
+              "posts": 1,
+              "quietStarts": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                11,
+                12,
+                13,
+                14,
+                15,
+                16,
+                17,
+                18,
+                19,
+                20,
+                21,
+                22,
+                23
+              ]
+            },
+            {
+              "label": "later half",
+              "posts": 0,
+              "quietStarts": []
+            },
+            {
+              "label": "lower activity days",
+              "posts": 1,
+              "quietStarts": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                11,
+                12,
+                13,
+                14,
+                15,
+                16,
+                17,
+                18,
+                19,
+                20,
+                21,
+                22,
+                23
+              ]
+            }
+          ],
+          "reason": "INSUFFICIENT SAMPLE: 1 posts on 1 dates; need 24 posts on 7 dates."
+        },
+        "observedAt": "2026-10-30T10:34:30.803Z",
+        "firstSeenAt": "2026-10-30T10:34:30.803Z",
+        "lastSeenAt": "2026-10-30T10:34:31.882Z",
+        "derivedFrom": [
+          "ev_x0yegogpym"
+        ],
+        "provider": "deterministic",
+        "provenance": "derived",
+        "coverage": [
+          {
+            "provider": "BrowserDisplayProvider",
+            "retrievedAt": "2026-10-30T10:34:30.810Z",
+            "query": "Visible X page and automatic About lookup",
+            "start": null,
+            "end": null,
+            "recordsExamined": 1,
+            "complete": false,
+            "nextCursor": null,
+            "fields": [],
+            "limitations": [
+              "Only currently rendered posts; use the optional API action for a larger sample."
+            ],
+            "status": "ok"
+          }
+        ],
+        "displayRole": "E-05"
+      },
+      {
+        "id": "ev_1qy0nbbdqjb",
+        "kind": "writing_pattern",
+        "source": "derived",
+        "subject": "0xReso",
+        "summary": "Within-account writing comparison",
+        "value": {
+          "examined": 1,
+          "minimum": 8,
+          "label": "INSUFFICIENT SAMPLE",
+          "changes": [],
+          "templates": [],
+          "limitations": "Within-account comparison only. Editing, translation, scheduling and multiple authorized authors can change style. No native-speaker, identity or deceptive-author score."
+        },
+        "observedAt": "2026-10-30T10:34:30.803Z",
+        "firstSeenAt": "2026-10-30T10:34:30.803Z",
+        "lastSeenAt": "2026-10-30T10:34:31.882Z",
+        "derivedFrom": [
+          "ev_x0yegogpym"
+        ],
+        "provider": "deterministic",
+        "provenance": "derived",
+        "coverage": [
+          {
+            "provider": "BrowserDisplayProvider",
+            "retrievedAt": "2026-10-30T10:34:30.810Z",
+            "query": "Visible X page and automatic About lookup",
+            "start": null,
+            "end": null,
+            "recordsExamined": 1,
+            "complete": false,
+            "nextCursor": null,
+            "fields": [],
+            "limitations": [
+              "Only currently rendered posts; use the optional API action for a larger sample."
+            ],
+            "status": "ok"
+          }
+        ]
+      },
+      {
+        "id": "ev_xntd7ihgpq",
+        "kind": "narrative_distribution",
+        "source": "derived",
+        "subject": "0xReso",
+        "summary": "Observed topic and narrative distribution",
+        "value": {
+          "total": 1,
+          "clusters": [
+            {
+              "label": "A public post rendered on the profile.",
+              "postIds": [
+                "2115756544428298642"
+              ],
+              "method": "normalized word-set Jaccard >= 0.65 against cluster representative"
+            }
+          ],
+          "regions": [],
+          "phrases": [],
+          "geographicPostIds": [],
+          "overlaps": [],
+          "method": "Keyword region lexicon; mutually exclusive representative clusters; 4–8-word normalized phrases. Similar text does not establish a shared operator."
+        },
+        "observedAt": "2026-10-30T10:34:30.803Z",
+        "firstSeenAt": "2026-10-30T10:34:30.803Z",
+        "lastSeenAt": "2026-10-30T10:34:31.882Z",
+        "derivedFrom": [
+          "ev_x0yegogpym"
+        ],
+        "provider": "deterministic",
+        "provenance": "derived",
+        "coverage": [
+          {
+            "provider": "BrowserDisplayProvider",
+            "retrievedAt": "2026-10-30T10:34:30.810Z",
+            "query": "Visible X page and automatic About lookup",
+            "start": null,
+            "end": null,
+            "recordsExamined": 1,
+            "complete": false,
+            "nextCursor": null,
+            "fields": [],
+            "limitations": [
+              "Only currently rendered posts; use the optional API action for a larger sample."
+            ],
+            "status": "ok"
+          }
+        ],
+        "displayRole": "E-06"
+      },
+      {
+        "id": "ev_ifmpimpnza",
+        "kind": "post_languages",
+        "source": "derived",
+        "subject": "0xReso",
+        "summary": "Provider language tags; no identity inference.",
+        "value": {
+          "languages": {
+            "en": 1
+          }
+        },
+        "observedAt": "2026-10-30T10:34:30.803Z",
+        "firstSeenAt": "2026-10-30T10:34:30.803Z",
+        "lastSeenAt": "2026-10-30T10:34:31.882Z",
+        "derivedFrom": [
+          "ev_x0yegogpym"
+        ],
+        "provider": "deterministic",
+        "provenance": "derived",
+        "coverage": [
+          {
+            "provider": "BrowserDisplayProvider",
+            "retrievedAt": "2026-10-30T10:34:30.810Z",
+            "query": "Visible X page and automatic About lookup",
+            "start": null,
+            "end": null,
+            "recordsExamined": 1,
+            "complete": false,
+            "nextCursor": null,
+            "fields": [],
+            "limitations": [
+              "Only currently rendered posts; use the optional API action for a larger sample."
+            ],
+            "status": "ok"
+          }
+        ]
+      },
+      {
+        "id": "ev_2d5e8a52380",
+        "kind": "propagation",
+        "source": "derived",
+        "subject": "0xReso",
+        "summary": "Matching wording within observed coverage",
+        "value": {
+          "query": "A public post rendered on the profile.",
+          "method": "jaccard@1",
+          "examinedPostIds": [
+            "2115756544428298642"
+          ],
+          "postIds": [
+            "2115756544428298642"
+          ],
+          "accounts": [
+            "0xreso"
+          ],
+          "start": "2026-10-29T10:44:03.000Z",
+          "end": "2026-10-29T10:44:03.000Z",
+          "windows": {
+            "2026-10-29T10:00:00.000Z": [
+              "2115756544428298642"
+            ]
+          },
+          "earliestPostId": "2115756544428298642",
+          "earliestEvidenceId": "ev_x0yegogpym",
+          "amplifierPostId": null,
+          "amplifierCriteria": "Earliest observed quote with >= 10,000 followers. Followers are not measured reach; causation remains undetermined.",
+          "missingDates": 0
+        },
+        "observedAt": "2026-10-30T10:34:30.803Z",
+        "firstSeenAt": "2026-10-30T10:34:30.803Z",
+        "lastSeenAt": "2026-10-30T10:34:30.803Z",
+        "derivedFrom": [
+          "ev_x0yegogpym"
+        ],
+        "provider": "deterministic",
+        "provenance": "derived",
+        "coverage": [
+          {
+            "provider": "BrowserDisplayProvider",
+            "retrievedAt": "2026-10-30T10:34:30.810Z",
+            "query": "Visible X page and automatic About lookup",
+            "start": null,
+            "end": null,
+            "recordsExamined": 1,
+            "complete": false,
+            "nextCursor": null,
+            "fields": [],
+            "limitations": [
+              "Only currently rendered posts; use the optional API action for a larger sample."
+            ],
+            "status": "ok"
+          }
+        ],
+        "displayRole": "E-07"
+      },
+      {
+        "id": "ev_vu4z3zbofu",
+        "kind": "about_based_in",
+        "source": "user_evidence",
+        "subject": "0xReso",
+        "summary": "X PAGE DISPLAY: South Asia",
+        "value": {
+          "basedIn": "South Asia",
+          "country": null,
+          "isRegion": true,
+          "original": "South Asia"
+        },
+        "url": "https://x.com/0xreso/about",
+        "observedAt": "2026-10-30T10:34:31.879Z",
+        "firstSeenAt": "2026-10-30T10:34:31.879Z",
+        "lastSeenAt": "2026-10-30T10:34:31.879Z",
+        "provider": "BrowserDisplayProvider",
+        "provenance": "page_observed",
+        "displayRole": "E-01"
+      },
+      {
+        "id": "ev_2e2h2gxfazy",
+        "kind": "about_connected_via",
+        "source": "user_evidence",
+        "subject": "0xReso",
+        "summary": "X PAGE DISPLAY: South Asia App Store",
+        "value": {
+          "raw": "South Asia App Store",
+          "country": null
+        },
+        "url": "https://x.com/0xreso/about",
+        "observedAt": "2026-10-30T10:34:31.879Z",
+        "firstSeenAt": "2026-10-30T10:34:31.879Z",
+        "lastSeenAt": "2026-10-30T10:34:31.879Z",
+        "provider": "BrowserDisplayProvider",
+        "provenance": "page_observed",
+        "displayRole": "E-02"
+      },
+      {
+        "id": "ev_o1aw7lxy0w",
+        "kind": "about_location_accuracy",
+        "source": "user_evidence",
+        "subject": "0xReso",
+        "summary": "User observed an accuracy warning.",
+        "value": {
+          "accurate": false,
+          "original": "Country or region may not be accurateOne of our partners has indicated that this account may have used a proxy — such as a VPN, which may change the country or region that is displayed on their profile.This data may not be accurate. Some internet providers may use proxies automatically without action by the user."
+        },
+        "url": "https://x.com/0xreso/about",
+        "observedAt": "2026-10-30T10:34:31.879Z",
+        "firstSeenAt": "2026-10-30T10:34:31.879Z",
+        "lastSeenAt": "2026-10-30T10:34:31.879Z",
+        "provider": "BrowserDisplayProvider",
+        "provenance": "page_observed",
+        "displayRole": "E-03"
+      },
+      {
+        "id": "ev_253a4vt5w33",
+        "kind": "profile_location",
+        "source": "user_evidence",
+        "subject": "0xReso",
+        "summary": "Self-described: New Delhi, India",
+        "value": {
+          "text": "New Delhi, India",
+          "country": "IN"
+        },
+        "url": "https://x.com/0xReso",
+        "observedAt": "2026-10-30T10:34:30.803Z",
+        "firstSeenAt": "2026-10-30T10:34:30.803Z",
+        "lastSeenAt": "2026-10-30T10:34:30.803Z",
+        "provider": "BrowserDisplayProvider",
+        "provenance": "self_described",
+        "displayRole": "E-04"
+      },
+      {
+        "id": "ev_wpw4uwzztn",
+        "kind": "post",
+        "source": "user_evidence",
+        "subject": "0xReso",
+        "summary": "A public post rendered on the profile.",
+        "value": {
+          "post": {
+            "id": "2115756544428298642",
+            "handle": "0xReso",
+            "url": "https://x.com/0xReso/status/2115756544428298642",
+            "text": "A public post rendered on the profile.",
+            "createdAt": "2026-10-29T10:44:03.000Z",
+            "lang": "en",
+            "links": [],
+            "quotedPostId": null,
+            "quotedHandle": null,
+            "replyToHandle": null,
+            "capturedFrom": "user_evidence"
+          }
+        },
+        "url": "https://x.com/0xReso/status/2115756544428298642",
+        "observedAt": "2026-10-30T10:34:31.882Z",
+        "firstSeenAt": "2026-10-30T10:34:31.882Z",
+        "lastSeenAt": "2026-10-30T10:34:31.882Z",
+        "provider": "BrowserDisplayProvider",
+        "provenance": "user_captured",
+        "publishedAt": "2026-10-29T10:44:03.000Z"
+      },
+      {
+        "id": "ev_2cgqd7dvrqw",
+        "kind": "propagation",
+        "source": "derived",
+        "subject": "0xReso",
+        "summary": "Matching wording within observed coverage",
+        "value": {
+          "query": "A public post rendered on the profile.",
+          "method": "jaccard@1",
+          "examinedPostIds": [
+            "2115756544428298642"
+          ],
+          "postIds": [
+            "2115756544428298642"
+          ],
+          "accounts": [
+            "0xreso"
+          ],
+          "start": "2026-10-29T10:44:03.000Z",
+          "end": "2026-10-29T10:44:03.000Z",
+          "windows": {
+            "2026-10-29T10:00:00.000Z": [
+              "2115756544428298642"
+            ]
+          },
+          "earliestPostId": "2115756544428298642",
+          "earliestEvidenceId": "ev_wpw4uwzztn",
+          "amplifierPostId": null,
+          "amplifierCriteria": "Earliest observed quote with >= 10,000 followers. Followers are not measured reach; causation remains undetermined.",
+          "missingDates": 0
+        },
+        "observedAt": "2026-10-30T10:34:31.882Z",
+        "firstSeenAt": "2026-10-30T10:34:31.882Z",
+        "lastSeenAt": "2026-10-30T10:34:31.882Z",
+        "derivedFrom": [
+          "ev_wpw4uwzztn"
+        ],
+        "provider": "deterministic",
+        "provenance": "derived",
+        "coverage": [
+          {
+            "provider": "BrowserDisplayProvider",
+            "retrievedAt": "2026-10-30T10:34:30.810Z",
+            "query": "Visible X page and automatic About lookup",
+            "start": null,
+            "end": null,
+            "recordsExamined": 1,
+            "complete": false,
+            "nextCursor": null,
+            "fields": [],
+            "limitations": [
+              "Only currently rendered posts; use the optional API action for a larger sample."
+            ],
+            "status": "ok"
+          }
+        ],
+        "displayRole": "E-07"
+      }
+    ],
+    "snapshots": [
+      {
+        "version": 1,
+        "createdAt": "2026-10-30T10:34:30.812Z",
+        "engine": "deterministic@3.2.0",
+        "adapterVersion": "x-dom@2026-10.1",
+        "account": {
+          "handle": "0xReso",
+          "basedIn": null,
+          "basedInCountry": null,
+          "basedInIsRegion": false,
+          "locationAccurate": null,
+          "connectedVia": null,
+          "profileLocation": "New Delhi, India",
+          "aboutObservedAt": null
+        },
+        "evidenceIds": [
+          "ev_b5cv0hyjhg",
+          "ev_x0yegogpym",
+          "ev_1ve74m2e5cc",
+          "ev_1qy0nbbdqjb",
+          "ev_xntd7ihgpq",
+          "ev_ifmpimpnza",
+          "ev_2d5e8a52380"
+        ],
+        "findings": [
+          {
+            "id": "fd_21h1nnn3chr",
+            "capability": "origin",
+            "title": "Account based in",
+            "statement": "UNAVAILABLE: no authorized source for X-reported operating region.",
+            "basis": "unknown",
+            "status": "undetermined",
+            "confidence": "none",
+            "country": null,
+            "evidenceIds": [],
+            "caveats": [
+              "An operating-region display does not establish physical location or factual accuracy."
+            ],
+            "strength": {
+              "bars": 1,
+              "reasons": [
+                "0 supporting observations; 0 direct source domains.",
+                "Source independence is not established by different domains.",
+                "Three bars require independently corroborated direct evidence; not inferred from count alone."
+              ]
+            }
+          },
+          {
+            "id": "fd_35rqoyydv2",
+            "capability": "origin",
+            "title": "Connected via",
+            "statement": "UNAVAILABLE: connection/app-store region.",
+            "basis": "unknown",
+            "status": "info",
+            "confidence": "none",
+            "country": null,
+            "evidenceIds": [],
+            "caveats": [],
+            "strength": {
+              "bars": 1,
+              "reasons": [
+                "0 supporting observations; 0 direct source domains.",
+                "Source independence is not established by different domains.",
+                "Three bars require independently corroborated direct evidence; not inferred from count alone."
+              ]
+            }
+          },
+          {
+            "id": "fd_1vfvatq0j7o",
+            "capability": "vpn",
+            "title": "X location-accuracy note",
+            "statement": "UNAVAILABLE: location-accuracy note.",
+            "basis": "unknown",
+            "status": "info",
+            "confidence": "none",
+            "country": null,
+            "evidenceIds": [],
+            "caveats": [],
+            "strength": {
+              "bars": 1,
+              "reasons": [
+                "0 supporting observations; 0 direct source domains.",
+                "Source independence is not established by different domains.",
+                "Three bars require independently corroborated direct evidence; not inferred from count alone."
+              ]
+            }
+          },
+          {
+            "id": "fd_a0s9eqbd9t",
+            "capability": "origin",
+            "title": "Profile location",
+            "statement": "Self-described: “New Delhi, India”. Conservatively normalized to India.",
+            "basis": "self-described",
+            "status": "info",
+            "confidence": "low",
+            "country": "IN",
+            "evidenceIds": [
+              "ev_b5cv0hyjhg"
+            ],
+            "caveats": [],
+            "strength": {
+              "bars": 1,
+              "reasons": [
+                "1 supporting observations; 0 direct source domains.",
+                "Source independence is not established by different domains.",
+                "Three bars require independently corroborated direct evidence; not inferred from count alone."
+              ]
+            }
+          },
+          {
+            "id": "fd_hb5nkk3k6r",
+            "capability": "origin",
+            "title": "Location comparison",
+            "statement": "Insufficient evidence to compare the fields.",
+            "basis": "inferred",
+            "status": "undetermined",
+            "confidence": "low",
+            "country": null,
+            "evidenceIds": [
+              "ev_b5cv0hyjhg"
+            ],
+            "caveats": [
+              "Travel, relocation, organizations, shared accounts, jokes and stale information can explain disagreements."
+            ],
+            "strength": {
+              "bars": 1,
+              "reasons": [
+                "1 supporting observations; 0 direct source domains.",
+                "Source independence is not established by different domains.",
+                "Three bars require independently corroborated direct evidence; not inferred from count alone."
+              ]
+            }
+          },
+          {
+            "id": "fd_g3sexnkvc1",
+            "capability": "vpn",
+            "title": "Posting-hour pattern",
+            "statement": "POSTING HOURS ARE A WEAK CONTEXTUAL SIGNAL. INSUFFICIENT SAMPLE: 1 posts on 1 dates; need 24 posts on 7 dates.",
+            "basis": "inferred",
+            "status": "undetermined",
+            "confidence": "low",
+            "country": null,
+            "evidenceIds": [
+              "ev_1ve74m2e5cc"
+            ],
+            "caveats": [
+              "Schedulers, shift work, travel and content teams can produce misleading patterns. No precise routine or location is inferred."
+            ],
+            "strength": {
+              "bars": 1,
+              "reasons": [
+                "1 supporting observations; 0 direct source domains.",
+                "Source independence is not established by different domains.",
+                "Three bars require independently corroborated direct evidence; not inferred from count alone."
+              ]
+            }
+          },
+          {
+            "id": "fd_1ds8yfzgwzh",
+            "capability": "narrative",
+            "title": "Writing pattern",
+            "statement": "INSUFFICIENT SAMPLE",
+            "basis": "inferred",
+            "status": "info",
+            "confidence": "low",
+            "country": null,
+            "evidenceIds": [
+              "ev_1qy0nbbdqjb"
+            ],
+            "caveats": [
+              "Within-account textual differences do not establish authorship or identity."
+            ],
+            "strength": {
+              "bars": 1,
+              "reasons": [
+                "1 supporting observations; 0 direct source domains.",
+                "Source independence is not established by different domains.",
+                "Three bars require independently corroborated direct evidence; not inferred from count alone."
+              ]
+            }
+          },
+          {
+            "id": "fd_cz2ofi4i6h",
+            "capability": "narrative",
+            "title": "N-1 Narrative concentration",
+            "statement": "1 of 1 observed posts in the largest wording cluster. Method: normalized word-set similarity, not a semantic verdict.",
+            "basis": "inferred",
+            "status": "info",
+            "confidence": "low",
+            "country": null,
+            "evidenceIds": [
+              "ev_xntd7ihgpq"
+            ],
+            "caveats": [],
+            "strength": {
+              "bars": 1,
+              "reasons": [
+                "1 supporting observations; 0 direct source domains.",
+                "Source independence is not established by different domains.",
+                "Three bars require independently corroborated direct evidence; not inferred from count alone."
+              ]
+            }
+          },
+          {
+            "id": "fd_261qyv0433c",
+            "capability": "narrative",
+            "title": "N-2 Geographic topic focus",
+            "statement": "0 of 1 observed posts match US/EU topic keywords. 0 posts have overlapping region classifications.",
+            "basis": "inferred",
+            "status": "info",
+            "confidence": "low",
+            "country": null,
+            "evidenceIds": [
+              "ev_xntd7ihgpq"
+            ],
+            "caveats": [
+              "Discussion of another country’s politics is not misconduct."
+            ],
+            "strength": {
+              "bars": 1,
+              "reasons": [
+                "1 supporting observations; 0 direct source domains.",
+                "Source independence is not established by different domains.",
+                "Three bars require independently corroborated direct evidence; not inferred from count alone."
+              ]
+            }
+          },
+          {
+            "id": "fd_16fwjkzhq0i",
+            "capability": "narrative",
+            "title": "N-3 Repeated phrases",
+            "statement": "No repeated phrases detected in the observed sample.",
+            "basis": "inferred",
+            "status": "info",
+            "confidence": "low",
+            "country": null,
+            "evidenceIds": [
+              "ev_xntd7ihgpq"
+            ],
+            "caveats": [],
+            "strength": {
+              "bars": 1,
+              "reasons": [
+                "1 supporting observations; 0 direct source domains.",
+                "Source independence is not established by different domains.",
+                "Three bars require independently corroborated direct evidence; not inferred from count alone."
+              ]
+            }
+          },
+          {
+            "id": "fd_1hi89semq9x",
+            "capability": "narrative",
+            "title": "Copies and amplification",
+            "statement": "1 matching posts from 1 distinct observed accounts. Observed interval: 2026-10-29T10:44:03.000Z to 2026-10-29T10:44:03.000Z. Counts cover retrieved observations only.",
+            "basis": "inferred",
+            "status": "info",
+            "confidence": "low",
+            "country": null,
+            "evidenceIds": [
+              "ev_2d5e8a52380"
+            ],
+            "caveats": [],
+            "strength": {
+              "bars": 1,
+              "reasons": [
+                "1 supporting observations; 0 direct source domains.",
+                "Source independence is not established by different domains.",
+                "Three bars require independently corroborated direct evidence; not inferred from count alone."
+              ]
+            }
+          },
+          {
+            "id": "fd_2eyr4vlqxr3",
+            "capability": "narrative",
+            "title": "EARLIEST OBSERVED COPY",
+            "statement": "https://x.com/0xReso/status/2115756544428298642 at 2026-10-29T10:44:03.000Z. Earliest within the searched sample; origin is not established.",
+            "basis": "inferred",
+            "status": "info",
+            "confidence": "low",
+            "country": null,
+            "evidenceIds": [
+              "ev_x0yegogpym"
+            ],
+            "caveats": [],
+            "strength": {
+              "bars": 1,
+              "reasons": [
+                "1 supporting observations; 0 direct source domains.",
+                "Source independence is not established by different domains.",
+                "Three bars require independently corroborated direct evidence; not inferred from count alone."
+              ]
+            }
+          },
+          {
+            "id": "fd_tvlt31zyq2",
+            "capability": "narrative",
+            "title": "Amplifier observation",
+            "statement": "AMPLIFICATION UNDETERMINED: no qualifying engagement-backed quote observation.",
+            "basis": "unknown",
+            "status": "info",
+            "confidence": "none",
+            "country": null,
+            "evidenceIds": [],
+            "caveats": [],
+            "strength": {
+              "bars": 1,
+              "reasons": [
+                "0 supporting observations; 0 direct source domains.",
+                "Source independence is not established by different domains.",
+                "Three bars require independently corroborated direct evidence; not inferred from count alone."
+              ]
+            }
+          },
+          {
+            "id": "fd_1t4si8d7lsq",
+            "capability": "narrative",
+            "title": "Synchronization",
+            "statement": "No meaningful coordination detected in the observed sample.",
+            "basis": "inferred",
+            "status": "info",
+            "confidence": "low",
+            "country": null,
+            "evidenceIds": [
+              "ev_2d5e8a52380"
+            ],
+            "caveats": [],
+            "strength": {
+              "bars": 1,
+              "reasons": [
+                "1 supporting observations; 0 direct source domains.",
+                "Source independence is not established by different domains.",
+                "Three bars require independently corroborated direct evidence; not inferred from count alone."
+              ]
+            }
+          },
+          {
+            "id": "fd_1ujx2rrs244",
+            "capability": "claims",
+            "title": "Community Notes",
+            "statement": "UNAVAILABLE: no authorized Community Notes records in this snapshot.",
+            "basis": "unknown",
+            "status": "undetermined",
+            "confidence": "none",
+            "country": null,
+            "evidenceIds": [],
+            "caveats": [],
+            "strength": {
+              "bars": 1,
+              "reasons": [
+                "0 supporting observations; 0 direct source domains.",
+                "Source independence is not established by different domains.",
+                "Three bars require independently corroborated direct evidence; not inferred from count alone."
+              ]
+            }
+          }
+        ],
+        "claims": [
+          {
+            "id": "cl_1xcfz8p1kcp",
+            "postId": "2115756544428298642",
+            "text": "A public post rendered on the profile.",
+            "status": "unverified",
+            "evidenceIds": [
+              "ev_x0yegogpym"
+            ],
+            "explanation": "No dated source passage scoped to this assertion. Source discovery and human review remain necessary."
+          }
+        ],
+        "edges": [
+          {
+            "id": "ed_1z31n3c9ua4",
+            "type": "authored",
+            "from": "account:0xreso",
+            "to": "post:2115756544428298642",
+            "evidenceIds": [
+              "ev_x0yegogpym"
+            ]
+          },
+          {
+            "id": "ed_lv1sklikzq",
+            "type": "references_claim",
+            "from": "post:2115756544428298642",
+            "to": "claim:cl_1xcfz8p1kcp",
+            "evidenceIds": [
+              "ev_x0yegogpym"
+            ]
+          }
+        ],
+        "posts": [
+          {
+            "id": "2115756544428298642",
+            "handle": "0xReso",
+            "url": "https://x.com/0xReso/status/2115756544428298642",
+            "text": "A public post rendered on the profile.",
+            "createdAt": "2026-10-29T10:44:03.000Z",
+            "lang": "en",
+            "links": [],
+            "quotedPostId": null,
+            "quotedHandle": null,
+            "replyToHandle": null,
+            "capturedFrom": "user_evidence"
+          }
+        ],
+        "focusPostId": null,
+        "headline": "Investigation of @0xReso: 1 account posts observed; location unavailable.",
+        "coverage": [
+          {
+            "provider": "BrowserDisplayProvider",
+            "retrievedAt": "2026-10-30T10:34:30.810Z",
+            "query": "Visible X page and automatic About lookup",
+            "start": null,
+            "end": null,
+            "recordsExamined": 1,
+            "complete": false,
+            "nextCursor": null,
+            "fields": [],
+            "limitations": [
+              "Only currently rendered posts; use the optional API action for a larger sample."
+            ],
+            "status": "ok"
+          }
+        ],
+        "story": [
+          {
+            "title": "01 / REPORTED ORIGIN",
+            "text": "UNAVAILABLE: no authorized source for X-reported operating region.\nUNAVAILABLE: connection/app-store region.\nUNAVAILABLE: location-accuracy note.",
+            "evidenceIds": [],
+            "findingIds": [
+              "fd_21h1nnn3chr",
+              "fd_35rqoyydv2",
+              "fd_1vfvatq0j7o"
+            ]
+          },
+          {
+            "title": "02 / SELF-DESCRIBED LOCATION",
+            "text": "Self-described: “New Delhi, India”. Conservatively normalized to India.\nInsufficient evidence to compare the fields.",
+            "evidenceIds": [
+              "ev_b5cv0hyjhg"
+            ],
+            "findingIds": [
+              "fd_a0s9eqbd9t",
+              "fd_hb5nkk3k6r"
+            ]
+          },
+          {
+            "title": "03 / POSTING PATTERN",
+            "text": "POSTING HOURS ARE A WEAK CONTEXTUAL SIGNAL. INSUFFICIENT SAMPLE: 1 posts on 1 dates; need 24 posts on 7 dates.",
+            "evidenceIds": [
+              "ev_1ve74m2e5cc"
+            ],
+            "findingIds": [
+              "fd_g3sexnkvc1"
+            ]
+          },
+          {
+            "title": "04 / WRITING PATTERN",
+            "text": "INSUFFICIENT SAMPLE",
+            "evidenceIds": [
+              "ev_1qy0nbbdqjb"
+            ],
+            "findingIds": [
+              "fd_1ds8yfzgwzh"
+            ]
+          },
+          {
+            "title": "05 / NARRATIVE FOCUS",
+            "text": "1 of 1 observed posts in the largest wording cluster. Method: normalized word-set similarity, not a semantic verdict.\n0 of 1 observed posts match US/EU topic keywords. 0 posts have overlapping region classifications.\nNo repeated phrases detected in the observed sample.",
+            "evidenceIds": [
+              "ev_xntd7ihgpq"
+            ],
+            "findingIds": [
+              "fd_cz2ofi4i6h",
+              "fd_261qyv0433c",
+              "fd_16fwjkzhq0i"
+            ]
+          },
+          {
+            "title": "06 / SOURCE & AMPLIFICATION",
+            "text": "1 matching posts from 1 distinct observed accounts. Observed interval: 2026-10-29T10:44:03.000Z to 2026-10-29T10:44:03.000Z. Counts cover retrieved observations only.\nhttps://x.com/0xReso/status/2115756544428298642 at 2026-10-29T10:44:03.000Z. Earliest within the searched sample; origin is not established.\nAMPLIFICATION UNDETERMINED: no qualifying engagement-backed quote observation.\nNo meaningful coordination detected in the observed sample.",
+            "evidenceIds": [
+              "ev_2d5e8a52380",
+              "ev_x0yegogpym"
+            ],
+            "findingIds": [
+              "fd_1hi89semq9x",
+              "fd_2eyr4vlqxr3",
+              "fd_tvlt31zyq2",
+              "fd_1t4si8d7lsq"
+            ]
+          },
+          {
+            "title": "07 / THE READ",
+            "text": "No established location contradiction.\nUNAVAILABLE: no authorized source for X-reported operating region.\nSelf-described: “New Delhi, India”. Conservatively normalized to India.\nPOSTING HOURS ARE A WEAK CONTEXTUAL SIGNAL. INSUFFICIENT SAMPLE: 1 posts on 1 dates; need 24 posts on 7 dates.\n1 of 1 observed posts in the largest wording cluster. Method: normalized word-set similarity, not a semantic verdict.\nhttps://x.com/0xReso/status/2115756544428298642 at 2026-10-29T10:44:03.000Z. Earliest within the searched sample; origin is not established.\n0 of 1 post-claim candidates have scoped source comparisons. 0 additional source-passage comparisons are recorded in Claims.\nUnresolved: completeness of search, original source, source independence and causal amplification. Physical location and common control are not established.",
+            "evidenceIds": [
+              "ev_b5cv0hyjhg",
+              "ev_1ve74m2e5cc",
+              "ev_1qy0nbbdqjb",
+              "ev_xntd7ihgpq",
+              "ev_2d5e8a52380",
+              "ev_x0yegogpym"
+            ],
+            "findingIds": [
+              "fd_21h1nnn3chr",
+              "fd_35rqoyydv2",
+              "fd_1vfvatq0j7o",
+              "fd_a0s9eqbd9t",
+              "fd_hb5nkk3k6r",
+              "fd_g3sexnkvc1",
+              "fd_1ds8yfzgwzh",
+              "fd_cz2ofi4i6h",
+              "fd_261qyv0433c",
+              "fd_16fwjkzhq0i",
+              "fd_1hi89semq9x",
+              "fd_2eyr4vlqxr3",
+              "fd_tvlt31zyq2",
+              "fd_1t4si8d7lsq",
+              "fd_1ujx2rrs244"
+            ]
+          }
+        ],
+        "displayRoles": {
+          "E-01": [],
+          "E-02": [],
+          "E-03": [],
+          "E-04": [
+            "ev_b5cv0hyjhg"
+          ],
+          "E-05": [
+            "ev_1ve74m2e5cc"
+          ],
+          "E-06": [
+            "ev_xntd7ihgpq"
+          ],
+          "E-07": [
+            "ev_2d5e8a52380"
+          ],
+          "E-08": [
+            "ev_x0yegogpym"
+          ],
+          "N-1": [
+            "ev_xntd7ihgpq"
+          ],
+          "N-2": [
+            "ev_xntd7ihgpq"
+          ],
+          "N-3": [
+            "ev_xntd7ihgpq"
+          ]
+        },
+        "correction": {
+          "previousVersion": null,
+          "reason": "New observation snapshot; prior versions remain available."
+        }
+      },
+      {
+        "version": 2,
+        "createdAt": "2026-10-30T10:34:31.883Z",
+        "engine": "deterministic@3.2.0",
+        "adapterVersion": "provider@3",
+        "account": {
+          "handle": "0xReso",
+          "basedIn": "South Asia",
+          "basedInCountry": null,
+          "basedInIsRegion": true,
+          "locationAccurate": false,
+          "connectedVia": "South Asia App Store",
+          "profileLocation": "New Delhi, India",
+          "aboutObservedAt": "2026-10-30T10:34:31.879Z"
+        },
+        "evidenceIds": [
+          "ev_vu4z3zbofu",
+          "ev_2e2h2gxfazy",
+          "ev_o1aw7lxy0w",
+          "ev_253a4vt5w33",
+          "ev_wpw4uwzztn",
+          "ev_1ve74m2e5cc",
+          "ev_1qy0nbbdqjb",
+          "ev_xntd7ihgpq",
+          "ev_ifmpimpnza",
+          "ev_2cgqd7dvrqw"
+        ],
+        "findings": [
+          {
+            "id": "fd_qjpw5rucss",
+            "capability": "origin",
+            "title": "Account based in",
+            "statement": "X PAGE DISPLAY: South Asia (region, not a country).",
+            "basis": "reported",
+            "status": "info",
+            "confidence": "low",
+            "country": null,
+            "evidenceIds": [
+              "ev_vu4z3zbofu"
+            ],
+            "caveats": [
+              "An operating-region display does not establish physical location or factual accuracy."
+            ],
+            "strength": {
+              "bars": 1,
+              "reasons": [
+                "1 supporting observations; 0 direct source domains.",
+                "Source independence is not established by different domains.",
+                "Three bars require independently corroborated direct evidence; not inferred from count alone."
+              ]
+            }
+          },
+          {
+            "id": "fd_1fjk5s8lpyu",
+            "capability": "origin",
+            "title": "Connected via",
+            "statement": "X PAGE DISPLAY: South Asia App Store. App-store region is not physical location.",
+            "basis": "inferred",
+            "status": "info",
+            "confidence": "low",
+            "country": null,
+            "evidenceIds": [
+              "ev_2e2h2gxfazy"
+            ],
+            "caveats": [],
+            "strength": {
+              "bars": 1,
+              "reasons": [
+                "1 supporting observations; 0 direct source domains.",
+                "Source independence is not established by different domains.",
+                "Three bars require independently corroborated direct evidence; not inferred from count alone."
+              ]
+            }
+          },
+          {
+            "id": "fd_10qu4yvpehk",
+            "capability": "vpn",
+            "title": "X location-accuracy note",
+            "statement": "X PAGE DISPLAY: accuracy warning present; possible VPN/proxy uncertainty.",
+            "basis": "inferred",
+            "status": "info",
+            "confidence": "low",
+            "country": null,
+            "evidenceIds": [
+              "ev_o1aw7lxy0w"
+            ],
+            "caveats": [],
+            "strength": {
+              "bars": 1,
+              "reasons": [
+                "1 supporting observations; 0 direct source domains.",
+                "Source independence is not established by different domains.",
+                "Three bars require independently corroborated direct evidence; not inferred from count alone."
+              ]
+            }
+          },
+          {
+            "id": "fd_24nrk72ocsq",
+            "capability": "origin",
+            "title": "Profile location",
+            "statement": "Self-described: “New Delhi, India”. Conservatively normalized to India.",
+            "basis": "self-described",
+            "status": "info",
+            "confidence": "low",
+            "country": "IN",
+            "evidenceIds": [
+              "ev_253a4vt5w33"
+            ],
+            "caveats": [],
+            "strength": {
+              "bars": 1,
+              "reasons": [
+                "1 supporting observations; 0 direct source domains.",
+                "Source independence is not established by different domains.",
+                "Three bars require independently corroborated direct evidence; not inferred from count alone."
+              ]
+            }
+          },
+          {
+            "id": "fd_13r1wqxga4o",
+            "capability": "origin",
+            "title": "Location comparison",
+            "statement": "Ambiguous: one or both fields cannot be normalized to a country.",
+            "basis": "inferred",
+            "status": "undetermined",
+            "confidence": "low",
+            "country": null,
+            "evidenceIds": [
+              "ev_253a4vt5w33",
+              "ev_vu4z3zbofu"
+            ],
+            "caveats": [
+              "Travel, relocation, organizations, shared accounts, jokes and stale information can explain disagreements."
+            ],
+            "strength": {
+              "bars": 1,
+              "reasons": [
+                "2 supporting observations; 0 direct source domains.",
+                "Source independence is not established by different domains.",
+                "Three bars require independently corroborated direct evidence; not inferred from count alone."
+              ]
+            }
+          },
+          {
+            "id": "fd_g3sexnkvc1",
+            "capability": "vpn",
+            "title": "Posting-hour pattern",
+            "statement": "POSTING HOURS ARE A WEAK CONTEXTUAL SIGNAL. INSUFFICIENT SAMPLE: 1 posts on 1 dates; need 24 posts on 7 dates.",
+            "basis": "inferred",
+            "status": "undetermined",
+            "confidence": "low",
+            "country": null,
+            "evidenceIds": [
+              "ev_1ve74m2e5cc"
+            ],
+            "caveats": [
+              "Schedulers, shift work, travel and content teams can produce misleading patterns. No precise routine or location is inferred."
+            ],
+            "strength": {
+              "bars": 1,
+              "reasons": [
+                "1 supporting observations; 0 direct source domains.",
+                "Source independence is not established by different domains.",
+                "Three bars require independently corroborated direct evidence; not inferred from count alone."
+              ]
+            }
+          },
+          {
+            "id": "fd_1ds8yfzgwzh",
+            "capability": "narrative",
+            "title": "Writing pattern",
+            "statement": "INSUFFICIENT SAMPLE",
+            "basis": "inferred",
+            "status": "info",
+            "confidence": "low",
+            "country": null,
+            "evidenceIds": [
+              "ev_1qy0nbbdqjb"
+            ],
+            "caveats": [
+              "Within-account textual differences do not establish authorship or identity."
+            ],
+            "strength": {
+              "bars": 1,
+              "reasons": [
+                "1 supporting observations; 0 direct source domains.",
+                "Source independence is not established by different domains.",
+                "Three bars require independently corroborated direct evidence; not inferred from count alone."
+              ]
+            }
+          },
+          {
+            "id": "fd_cz2ofi4i6h",
+            "capability": "narrative",
+            "title": "N-1 Narrative concentration",
+            "statement": "1 of 1 observed posts in the largest wording cluster. Method: normalized word-set similarity, not a semantic verdict.",
+            "basis": "inferred",
+            "status": "info",
+            "confidence": "low",
+            "country": null,
+            "evidenceIds": [
+              "ev_xntd7ihgpq"
+            ],
+            "caveats": [],
+            "strength": {
+              "bars": 1,
+              "reasons": [
+                "1 supporting observations; 0 direct source domains.",
+                "Source independence is not established by different domains.",
+                "Three bars require independently corroborated direct evidence; not inferred from count alone."
+              ]
+            }
+          },
+          {
+            "id": "fd_261qyv0433c",
+            "capability": "narrative",
+            "title": "N-2 Geographic topic focus",
+            "statement": "0 of 1 observed posts match US/EU topic keywords. 0 posts have overlapping region classifications.",
+            "basis": "inferred",
+            "status": "info",
+            "confidence": "low",
+            "country": null,
+            "evidenceIds": [
+              "ev_xntd7ihgpq"
+            ],
+            "caveats": [
+              "Discussion of another country’s politics is not misconduct."
+            ],
+            "strength": {
+              "bars": 1,
+              "reasons": [
+                "1 supporting observations; 0 direct source domains.",
+                "Source independence is not established by different domains.",
+                "Three bars require independently corroborated direct evidence; not inferred from count alone."
+              ]
+            }
+          },
+          {
+            "id": "fd_16fwjkzhq0i",
+            "capability": "narrative",
+            "title": "N-3 Repeated phrases",
+            "statement": "No repeated phrases detected in the observed sample.",
+            "basis": "inferred",
+            "status": "info",
+            "confidence": "low",
+            "country": null,
+            "evidenceIds": [
+              "ev_xntd7ihgpq"
+            ],
+            "caveats": [],
+            "strength": {
+              "bars": 1,
+              "reasons": [
+                "1 supporting observations; 0 direct source domains.",
+                "Source independence is not established by different domains.",
+                "Three bars require independently corroborated direct evidence; not inferred from count alone."
+              ]
+            }
+          },
+          {
+            "id": "fd_qoe9ei9tnx",
+            "capability": "narrative",
+            "title": "Copies and amplification",
+            "statement": "1 matching posts from 1 distinct observed accounts. Observed interval: 2026-10-29T10:44:03.000Z to 2026-10-29T10:44:03.000Z. Counts cover retrieved observations only.",
+            "basis": "inferred",
+            "status": "info",
+            "confidence": "low",
+            "country": null,
+            "evidenceIds": [
+              "ev_2cgqd7dvrqw"
+            ],
+            "caveats": [],
+            "strength": {
+              "bars": 1,
+              "reasons": [
+                "1 supporting observations; 0 direct source domains.",
+                "Source independence is not established by different domains.",
+                "Three bars require independently corroborated direct evidence; not inferred from count alone."
+              ]
+            }
+          },
+          {
+            "id": "fd_11kupdhfhtw",
+            "capability": "narrative",
+            "title": "EARLIEST OBSERVED COPY",
+            "statement": "https://x.com/0xReso/status/2115756544428298642 at 2026-10-29T10:44:03.000Z. Earliest within the searched sample; origin is not established.",
+            "basis": "inferred",
+            "status": "info",
+            "confidence": "low",
+            "country": null,
+            "evidenceIds": [
+              "ev_wpw4uwzztn"
+            ],
+            "caveats": [],
+            "strength": {
+              "bars": 1,
+              "reasons": [
+                "1 supporting observations; 0 direct source domains.",
+                "Source independence is not established by different domains.",
+                "Three bars require independently corroborated direct evidence; not inferred from count alone."
+              ]
+            }
+          },
+          {
+            "id": "fd_tvlt31zyq2",
+            "capability": "narrative",
+            "title": "Amplifier observation",
+            "statement": "AMPLIFICATION UNDETERMINED: no qualifying engagement-backed quote observation.",
+            "basis": "unknown",
+            "status": "info",
+            "confidence": "none",
+            "country": null,
+            "evidenceIds": [],
+            "caveats": [],
+            "strength": {
+              "bars": 1,
+              "reasons": [
+                "0 supporting observations; 0 direct source domains.",
+                "Source independence is not established by different domains.",
+                "Three bars require independently corroborated direct evidence; not inferred from count alone."
+              ]
+            }
+          },
+          {
+            "id": "fd_zth6s7uulz",
+            "capability": "narrative",
+            "title": "Synchronization",
+            "statement": "No meaningful coordination detected in the observed sample.",
+            "basis": "inferred",
+            "status": "info",
+            "confidence": "low",
+            "country": null,
+            "evidenceIds": [
+              "ev_2cgqd7dvrqw"
+            ],
+            "caveats": [],
+            "strength": {
+              "bars": 1,
+              "reasons": [
+                "1 supporting observations; 0 direct source domains.",
+                "Source independence is not established by different domains.",
+                "Three bars require independently corroborated direct evidence; not inferred from count alone."
+              ]
+            }
+          },
+          {
+            "id": "fd_1ujx2rrs244",
+            "capability": "claims",
+            "title": "Community Notes",
+            "statement": "UNAVAILABLE: no authorized Community Notes records in this snapshot.",
+            "basis": "unknown",
+            "status": "undetermined",
+            "confidence": "none",
+            "country": null,
+            "evidenceIds": [],
+            "caveats": [],
+            "strength": {
+              "bars": 1,
+              "reasons": [
+                "0 supporting observations; 0 direct source domains.",
+                "Source independence is not established by different domains.",
+                "Three bars require independently corroborated direct evidence; not inferred from count alone."
+              ]
+            }
+          }
+        ],
+        "claims": [
+          {
+            "id": "cl_1xcfz8p1kcp",
+            "postId": "2115756544428298642",
+            "text": "A public post rendered on the profile.",
+            "status": "unverified",
+            "evidenceIds": [
+              "ev_wpw4uwzztn"
+            ],
+            "explanation": "No dated source passage scoped to this assertion. Source discovery and human review remain necessary."
+          }
+        ],
+        "edges": [
+          {
+            "id": "ed_1z31n3c9ua4",
+            "type": "authored",
+            "from": "account:0xreso",
+            "to": "post:2115756544428298642",
+            "evidenceIds": [
+              "ev_wpw4uwzztn"
+            ]
+          },
+          {
+            "id": "ed_lv1sklikzq",
+            "type": "references_claim",
+            "from": "post:2115756544428298642",
+            "to": "claim:cl_1xcfz8p1kcp",
+            "evidenceIds": [
+              "ev_wpw4uwzztn"
+            ]
+          }
+        ],
+        "posts": [
+          {
+            "id": "2115756544428298642",
+            "handle": "0xReso",
+            "url": "https://x.com/0xReso/status/2115756544428298642",
+            "text": "A public post rendered on the profile.",
+            "createdAt": "2026-10-29T10:44:03.000Z",
+            "lang": "en",
+            "links": [],
+            "quotedPostId": null,
+            "quotedHandle": null,
+            "replyToHandle": null,
+            "capturedFrom": "user_evidence"
+          }
+        ],
+        "focusPostId": null,
+        "headline": "Investigation of @0xReso: 1 account posts observed; location display captured.",
+        "coverage": [
+          {
+            "provider": "BrowserDisplayProvider",
+            "retrievedAt": "2026-10-30T10:34:30.810Z",
+            "query": "Visible X page and automatic About lookup",
+            "start": null,
+            "end": null,
+            "recordsExamined": 1,
+            "complete": false,
+            "nextCursor": null,
+            "fields": [],
+            "limitations": [
+              "Only currently rendered posts; use the optional API action for a larger sample."
+            ],
+            "status": "ok"
+          }
+        ],
+        "story": [
+          {
+            "title": "01 / REPORTED ORIGIN",
+            "text": "X PAGE DISPLAY: South Asia (region, not a country).\nX PAGE DISPLAY: South Asia App Store. App-store region is not physical location.\nX PAGE DISPLAY: accuracy warning present; possible VPN/proxy uncertainty.",
+            "evidenceIds": [
+              "ev_vu4z3zbofu",
+              "ev_2e2h2gxfazy",
+              "ev_o1aw7lxy0w"
+            ],
+            "findingIds": [
+              "fd_qjpw5rucss",
+              "fd_1fjk5s8lpyu",
+              "fd_10qu4yvpehk"
+            ]
+          },
+          {
+            "title": "02 / SELF-DESCRIBED LOCATION",
+            "text": "Self-described: “New Delhi, India”. Conservatively normalized to India.\nAmbiguous: one or both fields cannot be normalized to a country.",
+            "evidenceIds": [
+              "ev_253a4vt5w33",
+              "ev_vu4z3zbofu"
+            ],
+            "findingIds": [
+              "fd_24nrk72ocsq",
+              "fd_13r1wqxga4o"
+            ]
+          },
+          {
+            "title": "03 / POSTING PATTERN",
+            "text": "POSTING HOURS ARE A WEAK CONTEXTUAL SIGNAL. INSUFFICIENT SAMPLE: 1 posts on 1 dates; need 24 posts on 7 dates.",
+            "evidenceIds": [
+              "ev_1ve74m2e5cc"
+            ],
+            "findingIds": [
+              "fd_g3sexnkvc1"
+            ]
+          },
+          {
+            "title": "04 / WRITING PATTERN",
+            "text": "INSUFFICIENT SAMPLE",
+            "evidenceIds": [
+              "ev_1qy0nbbdqjb"
+            ],
+            "findingIds": [
+              "fd_1ds8yfzgwzh"
+            ]
+          },
+          {
+            "title": "05 / NARRATIVE FOCUS",
+            "text": "1 of 1 observed posts in the largest wording cluster. Method: normalized word-set similarity, not a semantic verdict.\n0 of 1 observed posts match US/EU topic keywords. 0 posts have overlapping region classifications.\nNo repeated phrases detected in the observed sample.",
+            "evidenceIds": [
+              "ev_xntd7ihgpq"
+            ],
+            "findingIds": [
+              "fd_cz2ofi4i6h",
+              "fd_261qyv0433c",
+              "fd_16fwjkzhq0i"
+            ]
+          },
+          {
+            "title": "06 / SOURCE & AMPLIFICATION",
+            "text": "1 matching posts from 1 distinct observed accounts. Observed interval: 2026-10-29T10:44:03.000Z to 2026-10-29T10:44:03.000Z. Counts cover retrieved observations only.\nhttps://x.com/0xReso/status/2115756544428298642 at 2026-10-29T10:44:03.000Z. Earliest within the searched sample; origin is not established.\nAMPLIFICATION UNDETERMINED: no qualifying engagement-backed quote observation.\nNo meaningful coordination detected in the observed sample.",
+            "evidenceIds": [
+              "ev_2cgqd7dvrqw",
+              "ev_wpw4uwzztn"
+            ],
+            "findingIds": [
+              "fd_qoe9ei9tnx",
+              "fd_11kupdhfhtw",
+              "fd_tvlt31zyq2",
+              "fd_zth6s7uulz"
+            ]
+          },
+          {
+            "title": "07 / THE READ",
+            "text": "No established location contradiction.\nX PAGE DISPLAY: South Asia (region, not a country).\nSelf-described: “New Delhi, India”. Conservatively normalized to India.\nPOSTING HOURS ARE A WEAK CONTEXTUAL SIGNAL. INSUFFICIENT SAMPLE: 1 posts on 1 dates; need 24 posts on 7 dates.\n1 of 1 observed posts in the largest wording cluster. Method: normalized word-set similarity, not a semantic verdict.\nhttps://x.com/0xReso/status/2115756544428298642 at 2026-10-29T10:44:03.000Z. Earliest within the searched sample; origin is not established.\n0 of 1 post-claim candidates have scoped source comparisons. 0 additional source-passage comparisons are recorded in Claims.\nUnresolved: completeness of search, original source, source independence and causal amplification. Physical location and common control are not established.",
+            "evidenceIds": [
+              "ev_vu4z3zbofu",
+              "ev_2e2h2gxfazy",
+              "ev_o1aw7lxy0w",
+              "ev_253a4vt5w33",
+              "ev_1ve74m2e5cc",
+              "ev_1qy0nbbdqjb",
+              "ev_xntd7ihgpq",
+              "ev_2cgqd7dvrqw",
+              "ev_wpw4uwzztn"
+            ],
+            "findingIds": [
+              "fd_qjpw5rucss",
+              "fd_1fjk5s8lpyu",
+              "fd_10qu4yvpehk",
+              "fd_24nrk72ocsq",
+              "fd_13r1wqxga4o",
+              "fd_g3sexnkvc1",
+              "fd_1ds8yfzgwzh",
+              "fd_cz2ofi4i6h",
+              "fd_261qyv0433c",
+              "fd_16fwjkzhq0i",
+              "fd_qoe9ei9tnx",
+              "fd_11kupdhfhtw",
+              "fd_tvlt31zyq2",
+              "fd_zth6s7uulz",
+              "fd_1ujx2rrs244"
+            ]
+          }
+        ],
+        "displayRoles": {
+          "E-01": [
+            "ev_vu4z3zbofu"
+          ],
+          "E-02": [
+            "ev_2e2h2gxfazy"
+          ],
+          "E-03": [
+            "ev_o1aw7lxy0w"
+          ],
+          "E-04": [
+            "ev_253a4vt5w33"
+          ],
+          "E-05": [
+            "ev_1ve74m2e5cc"
+          ],
+          "E-06": [
+            "ev_xntd7ihgpq"
+          ],
+          "E-07": [
+            "ev_2cgqd7dvrqw"
+          ],
+          "E-08": [
+            "ev_wpw4uwzztn"
+          ],
+          "N-1": [
+            "ev_xntd7ihgpq"
+          ],
+          "N-2": [
+            "ev_xntd7ihgpq"
+          ],
+          "N-3": [
+            "ev_xntd7ihgpq"
+          ]
+        },
+        "correction": {
+          "previousVersion": 1,
+          "reason": "New observation snapshot; prior versions remain available."
+        }
+      }
+    ],
+    "events": [
+      {
+        "at": "2026-10-30T10:34:30.812Z",
+        "type": "created",
+        "version": 1,
+        "detail": "1 submitted posts; 7 evidence records."
+      },
+      {
+        "at": "2026-10-30T10:34:30.812Z",
+        "type": "analyzed",
+        "version": 1,
+        "detail": "15 deterministic findings."
+      },
+      {
+        "at": "2026-10-30T10:34:31.883Z",
+        "type": "refreshed",
+        "version": 2,
+        "detail": "1 submitted posts; 10 evidence records."
+      },
+      {
+        "at": "2026-10-30T10:34:31.883Z",
+        "type": "analyzed",
+        "version": 2,
+        "detail": "15 deterministic findings."
+      }
+    ]
+  },
+  "country": {
+    "handle": "0xreso",
+    "status": "ready",
+    "message": "X About read automatically.",
+    "about": {
+      "basedIn": "South Asia",
+      "accurate": false,
+      "source": "South Asia App Store",
+      "notFound": false,
+      "observedAt": "2026-10-30T10:34:31.879Z",
+      "sourceUrl": "https://x.com/0xreso/about",
+      "displayText": "Country or region may not be accurateOne of our partners has indicated that this account may have used a proxy — such as a VPN, which may change the country or region that is displayed on their profile.This data may not be accurate. Some internet providers may use proxies automatically without action by the user.",
+      "provenance": "page_observed"
+    },
+    "updatedAt": 1793356471881,
+    "expiresAt": 1793442871881
+  },
+  "panelText": "Investigation of @0xReso: 1 account posts observed; location display captured.01 / REPORTED ORIGINAccount based inreportedX PAGE DISPLAY: South Asia (region, not a country).EVIDENCE STRENGTH An operating-region display does not establish physical location or factual accuracy.ev_vu4z3zbofuConnected viainferredX PAGE DISPLAY: South Asia App Store. App-store region is not physical location.EVIDENCE STRENGTH ev_2e2h2gxfazyX location-accuracy noteinferredX PAGE DISPLAY: accuracy warning present; possible VPN/proxy uncertainty.EVIDENCE STRENGTH ev_o1aw7lxy0wE-01E-02E-0302 / SELF-DESCRIBED LOCATIONProfile locationself-describedSelf-described: “New Delhi, India”. Conservatively normalized to India.EVIDENCE STRENGTH  · country: INev_253a4vt5w33Location comparisoninferred · undeterminedAmbiguous: one or both fields cannot be normalized to a country.EVIDENCE STRENGTH Travel, relocation, organizations, shared accounts, jokes and stale information can explain disagreements.ev_253a4vt5w33ev_vu4z3zbofuE-01E-0403 / POSTING PATTERNPosting-hour patterninferred · undeterminedPOSTING HOURS ARE A WEAK CONTEXTUAL SIGNAL. INSUFFICIENT SAMPLE: 1 posts on 1 dates; need 24 posts on 7 dates.EVIDENCE STRENGTH Schedulers, shift work, travel and content teams can produce misleading patterns. No precise routine or location is inferred.ev_1ve74m2e5cc01234567891011121314151617181920212223Dates: 2026-10-29. Missing timestamps: 0.[\n  {\n    \"label\": \"full window\",\n    \"posts\": 1,\n    \"quietStarts\": [\n      0,\n      1,\n      2,\n      3,\n      4,\n      11,\n      12,\n      13,\n      14,\n      15,\n      16,\n      17,\n      18,\n      19,\n      20,\n      21,\n      22,\n      23\n    ]\n  },\n  {\n    \"label\": \"earlier half\",\n    \"posts\": 1,\n    \"quietStarts\": [\n      0,\n      1,\n      2,\n      3,\n      4,\n      11,\n      12,\n      13,\n      14,\n      15,\n      16,\n      17,\n      18,\n      19,\n      20,\n      21,\n      22,\n      23\n    ]\n  },\n  {\n    \"label\": \"later half\",\n    \"posts\": 0,\n    \"quietStarts\": []\n  },\n  {\n    \"label\": \"lower activity days\",\n    \"posts\": 1,\n    \"quietStarts\": [\n      0,\n      1,\n      2,\n      3,\n      4,\n      11,\n      12,\n      13,\n      14,\n      15,\n      16,\n      17,\n      18,\n      19,\n      20,\n      21,\n      22,\n      23\n    ]\n  }\n]E-0504 / WRITING PATTERNWriting patterninferredINSUFFICIENT SAMPLEEVIDENCE STRENGTH Within-account textual differences do not establish authorship or identity.ev_1qy0nbbdqjb05 / NARRATIVE FOCUSN-1 Narrative concentrationinferred1 of 1 observed posts in the largest wording cluster. Method: normalized word-set similarity, not a semantic verdict.EVIDENCE STRENGTH ev_xntd7ihgpqN-2 Geographic topic focusinferred0 of 1 observed posts match US/EU topic keywords. 0 posts have overlapping region classifications.EVIDENCE STRENGTH Discussion of another country’s politics is not misconduct.ev_xntd7ihgpqN-3 Repeated phrasesinferredNo repeated phrases detected in the observed sample.EVIDENCE STRENGTH ev_xntd7ihgpqKeyword region lexicon; mutually exclusive representative clusters; 4–8-word normalized phrases. Similar text does not establish a shared operator.Cluster: A public post rendered on the profile. (1 / 1)@0xReso10/29/2026, 6:44:03 AMA public post rendered on the profile.open post · lang en · User-provided observationE-06N-1N-2N-306 / SOURCE & AMPLIFICATIONCopies and amplificationinferred1 matching posts from 1 distinct observed accounts. Observed interval: 2026-10-29T10:44:03.000Z to 2026-10-29T10:44:03.000Z. Counts cover retrieved observations only.EVIDENCE STRENGTH ev_2cgqd7dvrqwEARLIEST OBSERVED COPYinferredhttps://x.com/0xReso/status/2115756544428298642 at 2026-10-29T10:44:03.000Z. Earliest within the searched sample; origin is not established.EVIDENCE STRENGTH ev_wpw4uwzztnAmplifier observationunknownAMPLIFICATION UNDETERMINED: no qualifying engagement-backed quote observation.EVIDENCE STRENGTH SynchronizationinferredNo meaningful coordination detected in the observed sample.EVIDENCE STRENGTH ev_2cgqd7dvrqwOBSERVED RELATIONSHIPSaccount:0xresoaccount:0xresopost:2115756544428298642post:2115756544428298642claim:cl_1xcfz8p1kcpclaim:cl_1xcfz8p1kcpGraph shows 3 nodes and up to 100 edges. Complete relationship list: 2. Every edge is derived from cited observations.Inspect all relationshipsauthored / account:0xreso → post:2115756544428298642references_claim / post:2115756544428298642 → claim:cl_1xcfz8p1kcpE-07E-0807 / THE READNo established location contradiction.\nX PAGE DISPLAY: South Asia (region, not a country).\nSelf-described: “New Delhi, India”. Conservatively normalized to India.\nPOSTING HOURS ARE A WEAK CONTEXTUAL SIGNAL. INSUFFICIENT SAMPLE: 1 posts on 1 dates; need 24 posts on 7 dates.\n1 of 1 observed posts in the largest wording cluster. Method: normalized word-set similarity, not a semantic verdict.\nhttps://x.com/0xReso/status/2115756544428298642 at 2026-10-29T10:44:03.000Z. Earliest within the searched sample; origin is not established.\n0 of 1 post-claim candidates have scoped source comparisons. 0 additional source-passage comparisons are recorded in Claims.\nUnresolved: completeness of search, original source, source independence and causal amplification. Physical location and common control are not established.E-01E-02E-03E-04E-05E-06E-07E-08N-1N-2N-3BrowserDisplayProvider: ok; 1 records; Visible X page and automatic About lookup. Only currently rendered posts; use the optional API action for a larger sample. Coverage is bounded.Snapshot v2. New observation snapshot; prior versions remain available. Previous version: 1.ReceiptsVersioned local receipts include source URLs, dates, coverage and correction history. No auto-posting or public hosting.PNG cardJSONX thread draft"
+}

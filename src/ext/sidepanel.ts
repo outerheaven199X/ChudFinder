@@ -27,6 +27,7 @@ let version: number | undefined;
 let tab: Tab = 'Overview';
 let evidenceAll = false;
 let botUrl = GROK_BOT_TEMPLATE_URL;
+let showGeneration = 0;
 
 function download(name: string, blob: Blob) {
   const u = URL.createObjectURL(blob);
@@ -177,15 +178,21 @@ async function renderRecent() {
 }
 
 async function show(id: string | null) {
-  inv = id ? await loadInvestigation(store, id) : null;
+  const generation=++showGeneration;
+  const loaded=id ? await loadInvestigation(store, id) : null;
+  if(generation!==showGeneration)return;
+  inv=loaded;
   version = undefined;
   evidenceAll = false;
   await renderRecent();
+  if(generation!==showGeneration)return;
   render();
   if (inv) status('Updated ' + new Date(inv.updatedAt).toLocaleString());
 }
 
 async function init() {
+  watchUpdates();
+  const initialGeneration=showGeneration;
   const q = new URLSearchParams(location.search).get('inv');
   const got = await store.get([ACTIVE_KEY, 'settings']);
   if (
@@ -194,7 +201,7 @@ async function init() {
     got.settings.grokBotTemplateUrl
   )
     botUrl = got.settings.grokBotTemplateUrl;
-  await show(q || got[ACTIVE_KEY] || null);
+  if(initialGeneration===showGeneration)await show(q || got[ACTIVE_KEY] || null);
   await initControls();
   ($('recent') as HTMLSelectElement).addEventListener('change', (e) =>
     show((e.target as HTMLSelectElement).value || null),
@@ -205,10 +212,11 @@ async function init() {
   });
   $('refresh').addEventListener('click', async () => {
     if (!inv) return;
-    status('Refreshing authorized provider data; prior versions are retained\u2026');
+    status('Refreshing X About; prior versions are retained\u2026');
     const r = await chrome.runtime.sendMessage({
       type: 'reinvestigate',
       handle: inv.subject.handle,
+      localOnly: true,
     });
     if (!r || !r.ok) status((r && r.error) || 'Refresh failed', 'amber');
   });
@@ -232,6 +240,8 @@ async function init() {
   $('closeThread').addEventListener('click', () => {
     $('threadWrap').hidden = true;
   });
+}
+function watchUpdates() {
   chrome.storage.onChanged.addListener((ch: any, area: string) => {
     if (area !== 'local') return;
     if (ch[ACTIVE_KEY] && ch[ACTIVE_KEY].newValue) {
@@ -256,7 +266,7 @@ async function init() {
     }
   });
 }
-init();
+init().catch(e=>status('Could not load the investigation: '+e.message,'amber'));
 function value(id: string) {
   return ($(id) as HTMLInputElement).value.trim();
 }
@@ -316,8 +326,9 @@ async function initControls() {
   const bind = (id: string, fn: () => Promise<any>) =>
     $(id).addEventListener('click', () => void fn().catch((e) => status(e.message, 'amber')));
   bind('startInvestigation', () =>
-    run('start', { handle: value('accountHandle').replace(/^@/, '') }),
+    run('start', { handle: value('accountHandle').replace(/^@/, ''), localOnly:true }),
   );
+  bind('loadApiPosts',()=>run('reinvestigate'));
   bind('cancelInvestigation', () => run('cancel'));
   const capabilities = async () => {
     const r = await chrome.runtime.sendMessage({ type: 'provider-capabilities' });
@@ -484,5 +495,5 @@ async function initControls() {
       'UNVERIFIED QUESTIONS (excluded from findings and receipts): ' +
       r.suggestions.map((s: any) => s.question + ' [' + s.evidenceIds.join(', ') + ']').join('\n');
   });
-  if (config.providerSettings?.url) await capabilities();
+  if (config.providerSettings?.url) void capabilities().catch(e=>{$('providerState').textContent=e.message;});
 }

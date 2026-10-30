@@ -1,21 +1,23 @@
-# Chud Finder 3.1.3
+# Chud Finder 3.2.0
 
-Chud Finder is a Manifest V3 extension for explicit, evidence-backed investigations of public X accounts and claims. The seven-stage workspace runs locally without Grok. It retains the ANTIMEME design, five tabs, versioned evidence store and PNG/JSON/thread receipts.
+Chud Finder is a Manifest V3 extension with automatic country badges and evidence-backed investigations of public X accounts and claims. Click a badge to open the seven-stage workspace with visible profile/post data. The core runs locally without Grok or API credits.
 
-This is a release candidate. Approved X API access is required for live post collection and recent-search propagation. The adapter never uses browser cookies, internal GraphQL endpoints, intercepted tokens or feed crawling. X's self-described profile location is never substituted for its operating-region display. See the [completion report and acceptance artifacts](docs/COMPLETION.md) for the tested scope and remaining limitations.
+Country lookup reads rendered public X About pages using one temporary inactive tab in your signed-in browser. No credentials or traffic are extracted and no internal API endpoint is called. Approved X API access is needed only for optional larger post samples and recent-search propagation. Self-described profile location is shown separately from X's country/region display. See [3.2.0 validation](docs/release-3.2.0.md) for the tested scope and remaining limitations.
 
 ## Install
 
 1. Run `npm ci`, `npm run typecheck`, and `npm test` with Node 22.22.2+, 24.15.0+, or 26+ and Python 3 (`python` on PATH).
-2. Open `brave://extensions`, enable developer mode, and load `dist/` unpacked. The build also writes `chud-finder-3.1.3.zip` with the manifest at its root.
-3. Open **Investigations** from the toolbar, or click the country badge beside an X username to open its investigation directly. Saved About observations show a flag and country on load; regions show a globe and missing observations show `?`. Hover exposes the recorded source and date. Profile location is never used as an operating-country flag. Nothing is collected when you scroll or hover.
-4. User observations and JSON imports work immediately. For programmatic sources, configure the optional local adapter below.
+2. Open `brave://extensions`, enable developer mode, and load `dist/` unpacked. The build also writes `chud-finder-3.2.0.zip` with the manifest at its root. After updating, reload the extension and your X tabs.
+3. **Auto** reads About pages for visible accounts on load and scroll. **Careful** reads them on hover or click. Switch modes directly on X, in the popup, or in settings. Updating from 3.1 enables Auto once because the old mode control was inert. Existing evidence remains local.
+4. Flags show countries; a globe shows a broader region. Click either to investigate. Source/date and X accuracy warnings remain available. `…` means queued/loading; `!` means a lookup error; `Ⅱ` means paused; `?` means no country was displayed. Tooltips explain each state. No manual country entry is required.
+5. About lookups use one temporary inactive X tab, at most ten starts per minute, a default daily cap of 300 (settings: 50–1000), and a 24-hour country cache. They pause after login/access prompts. English X About labels are currently supported; unsupported markup produces a visible error. No API credits are used. Configure the optional adapter below for broader searches.
 
 ## Authorized providers
 
 `src/shared/providers.ts` defines the shared typed acquisition boundary. All responses include provider identity, retrieval time, scope, actual fields, pagination and limitations.
 
 - `UserEvidenceProvider`: explicitly selected or imported observations. Imports cannot impersonate official API provenance. About fields are labeled **USER-CAPTURED X DISPLAY**.
+- `BrowserDisplayProvider`: rendered X About fields, tagged `page_observed` with a source URL and observation time. These describe what X displayed and do not establish nationality, physical location or identity.
 - `XOfficialProvider`: documented X API v2 user lookup, post lookup, user timeline and recent search. No full archive or About fields are claimed. Requires approved access and sufficient provider entitlement.
 - `PublicEvidenceProvider`: retrieves allowlisted public HTML sources, dates and explicit citations. Wikipedia search provides optional source discovery. A search hit is not a factual verdict.
 - `OptionalGrokProvider`: one opt-in request for evidence-referenced questions, excluded from findings and receipts. No autonomous loops. The core does not call it.

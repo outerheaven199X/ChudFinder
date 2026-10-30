@@ -6,7 +6,9 @@ Chud Finder builds a seven-stage evidence story from explicitly selected observa
 
 Includes a five-tab workspace, source passage and quote comparison, local media fingerprints, Content Credentials validation, exact-file Commons search, source-dependency relationships, version history and JSON/PNG/thread-draft receipts. The core works without a language model. Grok is optional and its questions remain unverified suggestions.
 
-Approved X API access is required for programmatic posts and recent search. X operating-region displays can be supplied by the user with a source and date; they are not independently API-verified. No cookies, intercepted X traffic or undocumented endpoint calls are used. No automatic X posting or feed investigation occurs.
+Auto mode reads public X About pages for visible accounts using one temporary inactive tab in your signed-in browser. Careful mode reads on hover/click. Country flags or region globes link to an investigation; source/date and X accuracy warnings remain visible. No manual country entry or API credits are needed. Reads are paced, capped and cached. English About labels are currently supported. The extension does not extract cookies or tokens, intercept traffic, or call undocumented endpoints.
+
+Approved X API access is needed for optional larger post samples and recent search. Investigations start on click with visible profile/post data. No automatic X posting occurs.
 
 Known limits: no general Community Notes retrieval or hosted report permalink. Commons lookup is exact-byte and repository-limited. Optional Google Vision image search requires a separate provider key and has not been live-qualified. C2PA verification is offline and keeps signature validity separate from signer trust. Source passage agreement does not establish universal truth. Location and wording patterns do not establish deception or common control.
 

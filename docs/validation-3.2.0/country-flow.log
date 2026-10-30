@@ -1,0 +1,13 @@
+✔ live 0xReso About markup preserves region, store region and the displayed accuracy warning (83.3032ms)
+✔ lookup serializes tabs, deduplicates, caches, validates ownership, and obeys Auto/Careful and daily limits (46.7948ms)
+✔ timeout and X sign-in are visible errors; a user-navigated worker tab is never closed (109.4722ms)
+✔ empty cache -> automatic About worker -> badge -> immediate panel with profile/posts; Careful and live updates work (1476.7155ms)
+✔ panel does not miss an active investigation written while its initial storage read is pending (91.5599ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2425.8047

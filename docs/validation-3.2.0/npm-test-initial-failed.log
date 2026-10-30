@@ -1,0 +1,103 @@
+
+> chud-finder@3.2.0 test
+> npm run build && node --test test/*.test.ts && node test/legacy/settings.test.cjs && node test/legacy/test.cjs && python bot/test_lookup.py
+
+
+> chud-finder@3.2.0 build
+> node tools/build.mjs
+
+built dist/ (24 files) and chud-finder-3.2.0.zip
+✔ built background preserves propagation query on edits and replaces a full sample on new search (641.1027ms)
+✔ live 0xReso About markup preserves region, store region and the displayed accuracy warning (190.8436ms)
+✔ lookup serializes tabs, deduplicates, caches, validates ownership, and obeys Auto/Careful and daily limits (71.9695ms)
+✔ timeout and X sign-in are visible errors; a user-navigated worker tab is never closed (108.2219ms)
+✔ empty cache -> automatic About worker -> badge -> immediate panel with profile/posts; Careful and live updates work (1529.6769ms)
+✔ panel does not miss an active investigation written while its initial storage read is pending (92.3311ms)
+✔ X status aliases share an evidence edge without collapsing unrelated paths or parameters (34.3667ms)
+✔ quoted search phrases count occurrences inside longer posts and preserve earliest evidence (5.4346ms)
+✔ three X fields remain independent with user provenance, original values, dates and sources (2.7268ms)
+✔ partial, unavailable, regional, traveler and organizational cases never infer intent or location (6.1157ms)
+✔ activity describes UTC, preserves simultaneous posts, compares windows and never returns a location estimate (4.729ms)
+✔ writing compares own chronological sample; multilingual data does not predict identity (1.1616ms)
+✔ synthetic mandate statistics are computed from 62 source records, never hard-coded (199.794ms)
+✔ same event/shared URL does not prove duplication or common ownership; missing dates stay unknown (2.7087ms)
+✔ dated exact, numerical, qualifier and negation comparisons; semantic ambiguity and missing sources remain unverified (1.1804ms)
+✔ quote reconstruction, organizational ledger, fact-check disagreements and source dependencies share evidence (3.2041ms)
+✔ claim comparison preserves numeric signs, percentages, currency and ratio scope (0.2267ms)
+✔ media pairs report distance and observed date conflicts without synthetic/AI claims (0.2799ms)
+✔ stable IDs, changed values and corrections retain old snapshots without orphan evidence (2.4684ms)
+✔ adversarial references, statistics, graph edges, future dates, controls and spoofed origins are rejected (147.0712ms)
+✔ release excludes page bridge, credential extraction and internal endpoint calls (15.1057ms)
+✔ country badges use current About evidence, never stale snapshots or self-described location (26.486ms)
+✖ built feed renders stored flags on load, updates quoted/recycled authors and opens investigation on one click (264.3793ms)
+✔ Careful mode skips scroll lookup, reads About on hover, and saves only the selected post on click (684.0374ms)
+✖ test\media.test.ts (1861.7921ms)
+✔ jitter: passive gaps stay within 4-9 s and vary (1.3519ms)
+✔ pacing: intent >= 2 s apart; passive capped at 10 per rolling minute (1.2046ms)
+✔ daily cap: counts, enforces, resets at local midnight (1.9968ms)
+✔ settings schema: lookupMode/dailyCap optional, bounded; old documents still valid (0.7762ms)
+Chud Finder adapter listening on loopback port 18877; 1 authorized extension origins.
+✔ source publication date recognizes NASA metadata without substituting last-updated time (99.1514ms)
+✔ user import cannot impersonate official provenance (15.0275ms)
+✔ official provider rejects malformed API shapes and propagates auth, rate and outage errors without retries (2.877ms)
+✔ unconfigured X is unavailable with explicit coverage, without fabricated metadata (0.3956ms)
+✔ source provider validates URLs, timestamps and response schemas (3.365ms)
+✔ Grok questions with forged evidence refs are discarded and do not become facts (1.6765ms)
+✔ SSRF rejects private, metadata, reserved addresses, credentials, ports and non-approved hosts (5.4442ms)
+✔ loopback service refuses web origins and DNS-rebinding host headers (43.0616ms)
+✔ pixel fingerprint is deterministic and rejects the wrong geometry (0.5081ms)
+✔ official response maps actual fields, preserves partial coverage and never substitutes profile location for Based in (2.086ms)
+✔ timeline and search send the same date bounds reported in coverage with endpoint-specific cursors (0.9226ms)
+✔ request budgets, cancellation, caching and bounded retries are enforced before network work (0.6761ms)
+✔ official provider requests long-post text and preserves its links with explicit size limits (1.5197ms)
+✔ concurrent investigation saves retain both index entries (21.2427ms)
+✔ JSON export contains the complete snapshot evidence and the limitations (3.0338ms)
+✔ X thread draft: numbered, <= 280 chars each, labeled, sourced (0.4795ms)
+✔ all five tabs render; untrusted text never becomes markup (XSS) (219.0121ms)
+✔ panel shows labels, conflicts in amber, unknown states and no emoji (37.2193ms)
+✔ Narrative graph exposes supporting observations without a model call (22.0015ms)
+✔ evidence chips jump to stored evidence; every chip id exists (13.4987ms)
+✔ observation schema accepts a valid observation (4.4138ms)
+✔ observation schema rejects bad handles, http URLs, unknown keys and wrong types (2.7861ms)
+✔ finding / evidence schemas enforce id prefixes and closed enums (2.6708ms)
+✔ investigation and export round-trip through their schemas (23.0998ms)
+✔ settings schemaVersion 1: 1.2.0 documents stay valid; new popover / grokBotTemplateUrl keys validated (0.8875ms)
+✔ side panel: loads the active investigation, five tabs, Grok Bot link from settings, receipts (403.4589ms)
+✔ PNG receipt draws handle, headline and labeled findings onto a 1200x675 canvas (1.1982ms)
+✔ topic tags: deterministic keyword regions, acronyms case-sensitive (2.9058ms)
+✔ topic signal: exact neutral wording, inferred basis, mismatch only (0.5374ms)
+✔ topic note + popover row render with textContent only and stay neutral (145.4113ms)
+✔ DOM adapter: main post, quoted author, time, text (quoted text excluded) (100.9525ms)
+✔ DOM adapter: links are https only, lang tag, reply target (16.3988ms)
+✔ SPA routes (0.4951ms)
+ℹ tests 62
+ℹ suites 0
+ℹ pass 60
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2920.9744
+
+✖ failing tests:
+
+test at test\extension.test.ts:44:1
+✖ built feed renders stored flags on load, updates quoted/recycled authors and opens investigation on one click (264.3793ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /🇩🇪 Germany/. Input:
+
+  '↗'
+
+      at TestContext.<anonymous> (file:///C:/Users/npitt/Documents/Codex/2026-10-29/files-pasted-by-the-user-chud/work/ChudFinder/test/extension.test.ts:56:10)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '↗',
+    expected: /🇩🇪 Germany/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at test\media.test.ts:1:1
+✖ test\media.test.ts (1861.7921ms)
+  'test failed'
