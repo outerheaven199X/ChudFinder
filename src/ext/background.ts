@@ -18,6 +18,7 @@ import { investigationId, upsertInvestigation, currentSnapshot } from '../shared
 import { loadInvestigation, saveInvestigation, ACTIVE_KEY } from './store.ts';
 import { CountryLookup, COUNTRY_PREFIX } from './country-lookup.ts';
 import { activateOpenXTabs } from './installation.ts';
+import { initializeLookupSettings } from './lookup-settings.ts';
 
 import {
   XOfficialProvider,
@@ -128,8 +129,7 @@ chrome.runtime.onInstalled.addListener(async () => {
     await chrome.storage.local.set({
       settings: Object.assign({}, DEFAULTS, { highlightCountries: [] }),
     });
-  const migration = await chrome.storage.local.get('cf:lookupV32');
-  if (!migration['cf:lookupV32']) await chrome.storage.local.set({settings:{...DEFAULTS,...settings,lookupMode:'auto'},'cf:lookupV32':true});
+  await initializeLookupSettings(chrome);
   await activateOpenXTabs(chrome);
   await ensureAlarm();
   syncNow(false);
@@ -264,7 +264,7 @@ async function investigate(raw: unknown, localOnly = false) {
   const cached=(await chrome.storage.local.get(COUNTRY_PREFIX+obs.handle.toLowerCase()))[COUNTRY_PREFIX+obs.handle.toLowerCase()];
   if(cached?.about?.provenance==='page_observed') {obs.about=cached.about;obs.provider='BrowserDisplayProvider';}
   if(localOnly) {
-    obs.coverage=[...(retained?.coverage || []),coverage('BrowserDisplayProvider','Visible X page and automatic About lookup',obs.posts.length,['Only currently rendered posts; use the optional API action for a larger sample.'])].slice(-30);
+    obs.coverage=[...(retained?.coverage || []),coverage('BrowserDisplayProvider','Visible X page and saved About observations',obs.posts.length,['Only currently rendered posts; use the optional API action for a larger sample.'])].slice(-30);
     return save(obs);
   }
   active.set(obs.handle.toLowerCase(), controller);

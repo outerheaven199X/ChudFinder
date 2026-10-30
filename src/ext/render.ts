@@ -162,6 +162,9 @@ function overview(ctx: RenderCtx, s: Snapshot): HTMLElement {
       el(d, 'p', 'card-title amber', 'SYNTHETIC ACCEPTANCE FIXTURE / NOT A LIVE INVESTIGATION'),
     );
   root.appendChild(el(d, 'p', 'headline', s.headline));
+  const about=el(d,'p','caveat');
+  about.append(link(d,'https://x.com/'+encodeURIComponent(ctx.inv.subject.handle)+'/about','Open X About'),d.createTextNode(' to capture or update the displayed country. Saved flags then appear automatically.'));
+  root.appendChild(about);
   const ev = evidenceMap(ctx.inv);
   for (const section of s.story || []) {
     const details = el(d, 'details', 'card story-section');

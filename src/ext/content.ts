@@ -9,8 +9,9 @@ import { readAbout, aboutFailure, locationWarning, workerToken } from './about-d
 import { COUNTRY_PREFIX } from './country-lookup.ts';
 import type { CountryRecord } from './country-lookup.ts';
 import { mountLookupHelp } from './lookup-help.ts';
+import { readLookupSettings, setLookupMode, PASSIVE_MIGRATION, BACKGROUND_OPT_IN } from './lookup-settings.ts';
 declare const chrome:any;
-const version=chrome.runtime.getManifest?.().version || '3.2.1';
+const version=chrome.runtime.getManifest?.().version || '3.3.0';
 const instanceKey='__cfContent_'+(chrome.runtime.id || 'test');
 const restartEvent='cf-content-restart-'+(chrome.runtime.id || 'test');
 const instances=globalThis as any;
@@ -23,7 +24,7 @@ function startContent(){
 let alive=true,observer:MutationObserver|undefined,workerTimer:ReturnType<typeof setInterval>|undefined,workerDeadline:ReturnType<typeof setTimeout>|undefined;
 const events=new AbortController();
 document.documentElement.dataset.cfContentVersion=version;
-let settings={...DEFAULT_SETTINGS,lookupMode:'auto' as 'auto'|'careful'};
+let settings={...DEFAULT_SETTINGS,lookupMode:'careful' as 'auto'|'careful'},settingsGeneration=0;
 const mounted=new WeakMap<Element,{handle:string;button:HTMLButtonElement}>();
 const badges=new Map<string,ReturnType<typeof countryBadge>>(),records=new Map<string,CountryRecord>();
 const pending=new Set<string>(),requests=new Map<string,number>();
@@ -35,7 +36,7 @@ function toast(message:string){
   e.textContent=message;
 }
 async function request(handle:string,reason:string){
-  if(!alive)return;
+  if(!alive||settings.lookupMode!=='auto')return;
   const h=handle.toLowerCase(),r=records.get(h);
   if(reason==='auto' && (settings.lookupMode!=='auto'||document.visibilityState==='hidden'))return;
   if(r?.status==='ready'&&r.expiresAt>Date.now())return;
@@ -54,12 +55,26 @@ function loadBadge(handle:string){
 }
 function paint(button:HTMLButtonElement,handle:string,profile=false){
   const h=handle.toLowerCase(),r=records.get(h),value=cachedCountryBadge(r,h)||badges.get(h)||countryBadge(null,h),state=r?.status;
-  const symbol=value.name?value.flag:state==='queued'||state==='loading'?'…':state==='error'?'!':state==='paused'?'Ⅱ':!r?(settings.lookupMode==='careful'?'↗':'…'):'?';
+  const symbol=value.name?value.flag:settings.lookupMode==='careful'?'?':state==='queued'||state==='loading'?'…':state==='error'?'!':state==='paused'?'Ⅱ':!r?'…':'?';
   const label=symbol+(value.name&&settings.showName?' '+value.name:'')+(value.warning&&settings.vpnWarnings?' ⚠':'')+(profile?' / @'+handle:'');
-  const detail=value.name?value.detail:(r?.message|| (settings.lookupMode==='careful'?'Careful mode: hover or click to read X About.':'Country lookup will start when this account is visible.'))+' Click to investigate @'+handle+'.';
+  const detail=value.name?value.detail:(settings.lookupMode==='careful'?'Country not captured yet. Open About ↗ once to save what X displays.':r?.message||'Country lookup will start when this account is visible.')+' Click to investigate @'+handle+'.';
   const signature=JSON.stringify([label,detail]);if(button.dataset.cfDisplay===signature)return;
   button.dataset.cfDisplay=signature;button.className='cf-badge cf-ask'+(value.name?'':' cf-unknown');button.textContent=label;button.title=detail;
   button.setAttribute('aria-label','Investigate @'+handle+': '+(value.name||detail));
+}
+function aboutLink(button:HTMLButtonElement,handle:string){
+  const h=handle.toLowerCase(),known=(cachedCountryBadge(records.get(h),h)||badges.get(h))?.name;
+  let a=button.nextElementSibling as HTMLAnchorElement|null;
+  if(!a?.classList.contains('cf-about-link'))a=null;
+  if(settings.lookupMode!=='careful'||known){a?.remove();return;}
+  if(!a){a=document.createElement('a');a.className='cf-about-link';a.target='_blank';a.rel='noopener noreferrer';a.textContent='About ↗';
+    a.style.cssText='display:inline-block;margin-left:5px;color:inherit;font:12px system-ui;text-decoration:underline;white-space:nowrap';
+    // A normal link activated by the user, never a scripted/background navigation.
+    a.addEventListener('click',e=>e.stopPropagation(),{signal:events.signal});button.after(a);}
+  if(a.dataset.cfHandle===handle)return;a.dataset.cfHandle=handle;
+  a.href='https://x.com/'+encodeURIComponent(handle)+'/about';
+  a.title='Open @'+handle+'’s X About page. Chud Finder saves the displayed country automatically.';
+  a.setAttribute('aria-label','Open X About for @'+handle+' and capture its displayed country');
 }
 function observation(handle:string,article:Element|null){
   const now=new Date().toISOString(),route=parseRoute(location.href),onProfile=route.handle?.toLowerCase()===handle.toLowerCase();
@@ -89,7 +104,7 @@ function controls(){
   if(!root){root=document.createElement('div');root.id='cf-mode-control';root.style.cssText='position:fixed;left:16px;bottom:16px;z-index:1000;display:flex;align-items:center;gap:8px;background:#101014;color:#fff;padding:7px;border:1px solid #888;font:12px system-ui';
     const label=document.createElement('label');label.textContent='Chud Finder ';const mode=document.createElement('select');mode.id='cf-lookup-mode';mode.setAttribute('aria-label','Chud Finder lookup mode');
     for(const [v,t]of [['auto','Auto'],['careful','Careful']]){const o=document.createElement('option');o.value=v;o.textContent=t;mode.appendChild(o);}
-    mode.addEventListener('change',async()=>{const g=await chrome.storage.local.get('settings');await chrome.storage.local.set({settings:{...g.settings,lookupMode:mode.value},'cf:lookupV32':true});});
+    mode.addEventListener('change',()=>void setLookupMode(chrome,mode.value));
     label.appendChild(mode);root.appendChild(label);mountLookupHelp(root,true,events.signal);document.body.appendChild(root);
   }
   const mode=root.querySelector('select')!;if(mode.value!==settings.lookupMode)mode.value=settings.lookupMode;
@@ -107,18 +122,20 @@ function scan(){
   for(const block of document.querySelectorAll(SEL.userName)){
     const handle=handleFromUserName(block);if(!handle)continue;loadBadge(handle);const old=mounted.get(block);
     if(old?.handle===handle&&old.button.isConnected)paint(old.button,handle);
-    else{old?.button.remove();const b=document.createElement('button');b.type='button';paint(b,handle);bind(b,handle,block.closest(SEL.article));block.appendChild(b);mounted.set(block,{handle,button:b});
+    else{if(old?.button.nextElementSibling?.classList.contains('cf-about-link'))old.button.nextElementSibling.remove();old?.button.remove();const b=document.createElement('button');b.type='button';paint(b,handle);bind(b,handle,block.closest(SEL.article));block.appendChild(b);mounted.set(block,{handle,button:b});
       if(!old)block.addEventListener('mouseenter',()=>{const current=handleFromUserName(block);if(current)void request(current,'hover');},{signal:events.signal});}
+    aboutLink(mounted.get(block)!.button,handle);
     if(visible(block))void request(handle,'auto');
   }
   const route=parseRoute(location.href);let button=document.getElementById('cf-profile-select') as HTMLButtonElement|null;
-  if(route.handle){if(!button){button=document.createElement('button');button.id='cf-profile-select';button.style.cssText='position:fixed;right:18px;bottom:24px;z-index:1000';document.body.appendChild(button);}
-    loadBadge(route.handle);paint(button,route.handle,true);const h=route.handle;button.onclick=()=>select(h,null);
+  if(route.handle){if(!button){const root=document.createElement('div');root.id='cf-profile-control';root.style.cssText='position:fixed;right:18px;bottom:24px;z-index:1000';button=document.createElement('button');button.id='cf-profile-select';root.appendChild(button);document.body.appendChild(root);}
+    loadBadge(route.handle);paint(button,route.handle,true);aboutLink(button,route.handle);const h=route.handle;button.onclick=()=>select(h,null);
     if(!/\/about\/?$/.test(location.pathname))void request(h,'auto');
-  }else button?.remove();
+  }else document.getElementById('cf-profile-control')?.remove();
 }
 function schedule(){if(!alive||scheduled)return;scheduled=true;requestAnimationFrame(()=>{scheduled=false;scan();});}
 async function runWorker(token:string){
+  if((await readLookupSettings(chrome)).lookupMode!=='auto'||!alive)return;
   let captured:ReturnType<typeof readAbout>=null,warningTried=false,warningAt=0;
   const timer=setInterval(async()=>{if(!alive||workerDone)return;const error=aboutFailure(document);captured=readAbout(document,location.href)||captured;
     if(captured&&!warningTried){warningTried=true;const row=[...document.querySelectorAll<HTMLElement>('[data-testid="pivot"]')].find(e=>e.textContent?.startsWith('Account based in'));
@@ -143,11 +160,17 @@ function onStorage(changes:any,area:string){
       if(key.startsWith(COUNTRY_PREFIX)){const h=key.slice(COUNTRY_PREFIX.length);if(change.newValue)records.set(h,change.newValue);else{records.delete(h);requests.delete(h);}schedule();}
       if(key.startsWith('cf:inv:')){const h=change.newValue?.subject?.handle||change.oldValue?.subject?.handle;if(h){badges.set(h.toLowerCase(),countryBadge(change.newValue,h));schedule();}}
     }
-    if(changes.settings){settings={...settings,...changes.settings.newValue};if(!settings.enabled){for(const b of document.querySelectorAll('.cf-badge,#cf-mode-control'))b.remove();}else{requests.clear();scan();}}
+    if(changes.settings||changes[PASSIVE_MIGRATION]||changes[BACKGROUND_OPT_IN])void updateSettings();
+}
+async function updateSettings(){
+  const generation=++settingsGeneration,s=await readLookupSettings(chrome);if(!alive||generation!==settingsGeneration)return;
+  settings=s;requests.clear();
+  if(!settings.enabled){for(const b of document.querySelectorAll('.cf-badge,.cf-about-link,#cf-mode-control,#cf-profile-control'))b.remove();}
+  else scan();
 }
 if(nonce)void runWorker(nonce);
 else{
-  chrome.storage.local.get(['settings','cf:lookupV32']).then(g=>{if(!alive)return;settings={...settings,...g.settings,lookupMode:g['cf:lookupV32']?(g.settings?.lookupMode||'auto'):'auto'};scan();observer=new MutationObserver(schedule);observer.observe(document.body,{childList:true,subtree:true});}).catch(e=>{if(alive)toast('Chud Finder could not start: '+e.message);});
+  updateSettings().then(()=>{if(!alive)return;observer=new MutationObserver(schedule);observer.observe(document.body,{childList:true,subtree:true});}).catch(e=>{if(alive)toast('Chud Finder could not start: '+e.message);});
   addEventListener('scroll',schedule,{passive:true,signal:events.signal});addEventListener('popstate',schedule,{signal:events.signal});document.addEventListener('visibilitychange',schedule,{signal:events.signal});
   chrome.storage.onChanged.addListener(onStorage);
 }
@@ -155,7 +178,7 @@ function stop(){
   if(!alive)return;alive=false;events.abort();observer?.disconnect();
   if(workerTimer)clearInterval(workerTimer);if(workerDeadline)clearTimeout(workerDeadline);
   try{chrome.runtime.onMessage.removeListener?.(onMessage);chrome.storage.onChanged.removeListener?.(onStorage);}catch{}
-  for(const node of document.querySelectorAll('.cf-badge,#cf-mode-control,#cf-message'))node.remove();
+  for(const node of document.querySelectorAll('.cf-badge,.cf-about-link,#cf-mode-control,#cf-profile-control,#cf-message'))node.remove();
   delete document.documentElement.dataset.cfContentVersion;
 }
 document.addEventListener(restartEvent,stop,{signal:events.signal});

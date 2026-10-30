@@ -212,7 +212,7 @@ async function init() {
   });
   $('refresh').addEventListener('click', async () => {
     if (!inv) return;
-    status('Refreshing X About; prior versions are retained\u2026');
+    status('Refreshing saved evidence; use Open X About to update the country in Careful mode.');
     const r = await chrome.runtime.sendMessage({
       type: 'reinvestigate',
       handle: inv.subject.handle,

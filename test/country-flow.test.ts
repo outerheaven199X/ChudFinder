@@ -8,11 +8,13 @@ import {readAbout,aboutFailure} from '../src/ext/about-dom.ts';
 import {cachedCountryBadge} from '../src/ext/country-badge.ts';
 import {CountryLookup} from '../src/ext/country-lookup.ts';
 import {activateOpenXTabs,X_PAGES} from '../src/ext/installation.ts';
+import {readLookupSettings,setLookupMode,initializeLookupSettings,PASSIVE_MIGRATION,BACKGROUND_OPT_IN} from '../src/ext/lookup-settings.ts';
 import {currentSnapshot,investigationId,upsertInvestigation} from '../src/shared/engine.ts';
 import {obs,T0} from './helpers.ts';
 
 const captured=JSON.parse(readFileSync('test/fixtures/0xReso-about.json','utf8'));
 const aboutHTML=captured.rows.map((r:any)=>r.html).join('');
+const autoOptIn={[PASSIVE_MIGRATION]:true,[BACKGROUND_OPT_IN]:true};
 const wait=(ms:number)=>new Promise(r=>setTimeout(r,ms));
 async function until(check:()=>unknown,timeout=5000){const start=Date.now();while(!check()){if(Date.now()-start>timeout)throw new Error('Timed out waiting for assertion state');await wait(10);}}
 function storage(initial:any={}){
@@ -25,9 +27,9 @@ function storage(initial:any={}){
   return {data,area,listeners};
 }
 
-test('installation starts flags on an already-open X feed without opening the popup, clicking, or reloading',async t=>{
+test('passive install makes no background visits; a user-opened About page populates flags across existing and future tabs',async t=>{
   const s=storage(),session=storage(),windows:any[]=[],listeners=new Map<number,Function>(),messages:any[]=[],injections:any[]=[],reloads:number[]=[];
-  let backgroundMessage:any,onInstalled:any,panelOpens=0,workerCount=0,version='3.2.1';
+  let backgroundMessage:any,onInstalled:any,panelOpens=0,workerCount=0,version='3.3.0';
   const html='<article data-testid="tweet"><div data-testid="User-Name"><a href="/0xReso">Reso</a></div></article>';
   const page:any=new JSDOM(html,{url:'https://x.com/home',runScripts:'outside-only',pretendToBeVisual:true}).window;
   windows.push(page);page.HTMLElement.prototype.getBoundingClientRect=()=>({top:10,bottom:30,left:0,right:100,height:20,width:100});
@@ -47,33 +49,51 @@ test('installation starts flags on an already-open X feed without opening the po
   runInNewContext(readFileSync('dist/src/background.js','utf8'),{chrome:background,fetch:()=>{throw new Error('Installation must not call a provider');},URL,URLSearchParams,AbortSignal,AbortController,crypto,TextEncoder,console,setTimeout,clearTimeout,structuredClone});
   assert.equal(page.document.querySelector('.cf-badge'),null);
   await onInstalled({reason:'install'});
+  await until(()=>page.document.querySelector('.cf-about-link'));
+  assert.equal(s.data.settings.lookupMode,'careful');assert.equal(workerCount,0);
+  const aboutLink=page.document.querySelector('.cf-about-link');assert.equal(aboutLink.href,'https://x.com/0xReso/about');assert.equal(aboutLink.target,'_blank');
+  page.document.querySelector('.cf-badge').focus();page.document.querySelector('[data-testid="User-Name"]').dispatchEvent(new page.MouseEvent('mouseenter'));page.dispatchEvent(new page.Event('scroll'));
+  page.document.querySelector('.cf-badge').click();await until(()=>s.data['cf:activeInv']);await wait(500);
+  assert.equal(panelOpens,1);assert.equal(workerCount,0);assert.equal(messages.filter(m=>m.type==='lookup-country').length,0);
+  assert.equal(s.data['cf:country:0xreso'],undefined);
+  // Simulate the normal page opened by the user's link, not a worker created by the extension.
+  const aboutPage:any=new JSDOM(aboutHTML+'<div>'+captured.warning+'</div>',{url:'https://x.com/0xReso/about',runScripts:'outside-only',pretendToBeVisual:true}).window;
+  windows.push(aboutPage);wire(aboutPage,2);aboutPage.eval(readFileSync('dist/src/content.js','utf8'));
   await until(()=>page.document.querySelector('.cf-badge')?.textContent.includes('South Asia'));
-  assert.equal(s.data.settings.enabled,true);assert.equal(s.data.settings.lookupMode,'auto');
-  assert.equal(panelOpens,0);assert.equal(reloads.length,0);assert.equal(workerCount,1);
-  assert.equal(messages.filter(m=>m.type==='investigate').length,0);assert.equal(injections.length,2);
+  assert.equal(s.data.settings.enabled,true);assert.equal(s.data.settings.lookupMode,'careful');
+  assert.equal(panelOpens,1);assert.equal(reloads.length,0);assert.equal(workerCount,0);assert.equal(page.document.querySelector('.cf-about-link'),null);
+  assert.equal(messages.filter(m=>m.type==='investigate').length,1);assert.equal(injections.length,2);
+  const future:any=new JSDOM(html,{url:'https://x.com/home',runScripts:'outside-only',pretendToBeVisual:true}).window;
+  windows.push(future);wire(future,3);future.eval(readFileSync('dist/src/content.js','utf8'));
+  await until(()=>future.document.querySelector('.cf-badge')?.textContent.includes('South Asia'));
+  const savedCountry=(await s.area.get('cf:country:0xreso'))['cf:country:0xreso'];
+  await s.area.set({'cf:country:0xreso':{...savedCountry,expiresAt:1}});
+  page.dispatchEvent(new page.Event('scroll'));await wait(50);assert.match(page.document.querySelector('.cf-badge').textContent,/South Asia/);assert.equal(workerCount,0);
+  // Close extra fixture contexts before lifecycle listener-count checks.
+  aboutPage.document.dispatchEvent(new aboutPage.Event('cf-content-restart-'+runtime.id));future.document.dispatchEvent(new future.Event('cf-content-restart-'+runtime.id));
   const help=page.document.querySelector('.cf-lookup-help'),helpButton=help.querySelector('button'),tip=help.querySelector('[role="tooltip"]');
   assert.equal(helpButton.getAttribute('aria-describedby'),tip.id);assert.equal(tip.hidden,true);
   help.dispatchEvent(new page.MouseEvent('mouseenter'));assert.equal(tip.hidden,false);
-  assert.match(tip.textContent,/permanent account suspension/);assert.match(tip.textContent,/neither mode is ban-safe/);
+  assert.match(tip.textContent,/permanent account suspension/);assert.match(tip.textContent,/Careful is passive/);
   page.document.dispatchEvent(new page.KeyboardEvent('keydown',{key:'Escape',bubbles:true}));assert.equal(tip.hidden,true);
   help.dispatchEvent(new page.MouseEvent('mouseleave'));helpButton.focus();assert.equal(tip.hidden,false);
   helpButton.blur();assert.equal(tip.hidden,true);helpButton.click();assert.equal(tip.hidden,false);helpButton.click();assert.equal(tip.hidden,true);
-  assert.equal(panelOpens,0);assert.equal(workerCount,1);
+  assert.equal(panelOpens,1);assert.equal(workerCount,0);
   // A coincident static injection and repeated installation activation are no-ops.
   page.eval(readFileSync('dist/src/content.js','utf8'));await onInstalled({reason:'update'});
   assert.equal(injections.length,2);assert.equal(page.document.querySelectorAll('.cf-badge').length,1);
   assert.equal(s.listeners.length,1);assert.equal(s.data['cf:activation'].results[0].status,'already_active');
   // Future replacement disposes old observers/listeners and preserves preferences.
-  await s.area.set({settings:{...s.data.settings,lookupMode:'careful'}});version='3.2.2';
+  await s.area.set({settings:{...s.data.settings,lookupMode:'careful'}});version='3.3.1';
   page.eval(readFileSync('dist/src/content.js','utf8'));
   await until(()=>page.document.querySelector('.cf-badge'));
   assert.equal(page.document.querySelectorAll('#cf-mode-control').length,1);assert.equal(s.listeners.length,1);
   assert.equal(page.document.querySelector('#cf-lookup-mode').value,'careful');
-  assert.equal(page.document.documentElement.dataset.cfContentVersion,'3.2.2');
+  assert.equal(page.document.documentElement.dataset.cfContentVersion,'3.3.1');
 });
 
 test('popup and settings expose risk help and immediately synchronize Auto/Careful changes',async t=>{
-  const s=storage({settings:{enabled:true,lookupMode:'auto'},'cf:lookupV32':true});
+  const s=storage({settings:{enabled:true,lookupMode:'auto'},'cf:lookupV32':true,...autoOptIn});
   const pages=['popup','options'].map(name=>{
     const w:any=new JSDOM(readFileSync(`dist/src/${name}.html`,'utf8'),{url:'https://fixture.test/',runScripts:'outside-only'}).window;
     w.chrome={storage:{local:s.area,onChanged:{addListener:(f:Function)=>s.listeners.push(f)}}};
@@ -83,7 +103,7 @@ test('popup and settings expose risk help and immediately synchronize Auto/Caref
   await until(()=>pages[1].document.querySelector('#homeCountry').options.length>1);
   for(const w of pages){
     const button=w.document.querySelector('.cf-lookup-help button'),tip=w.document.querySelector('[role="tooltip"]');
-    assert(button);button.focus();assert.equal(tip.hidden,false);assert.match(tip.textContent,/Both modes make scripted visits/);
+    assert(button);button.focus();assert.equal(tip.hidden,false);assert.match(tip.textContent,/Careful is passive/);
     w.document.dispatchEvent(new w.KeyboardEvent('keydown',{key:'Escape',bubbles:true}));assert.equal(tip.hidden,true);
   }
   const popupMode=pages[0].document.querySelector('#lookupMode'),optionsMode=pages[1].document.querySelector('#lookupMode');
@@ -92,12 +112,12 @@ test('popup and settings expose risk help and immediately synchronize Auto/Caref
   assert.match(pages[0].document.querySelector('#status').textContent,/Careful:/);
   optionsMode.value='auto';optionsMode.dispatchEvent(new pages[1].Event('change'));
   await until(()=>popupMode.value==='auto');
-  assert.match(pages[0].document.querySelector('#status').textContent,/Automatic flags are on/);
+  assert.match(pages[0].document.querySelector('#status').textContent,/background X lookups are on/);
   assert.equal(s.data['cf:lookupV32'],true);
 });
 
 test('switching to Careful cancels queued automatic visits while allowing the active lookup to finish',async()=>{
-  const s=storage({settings:{lookupMode:'auto'},'cf:lookupV32':true}),created:any[]=[];
+  const s=storage({settings:{lookupMode:'auto'},'cf:lookupV32':true,...autoOptIn}),created:any[]=[];
   const chrome={storage:{local:s.area},tabs:{create:async(args:any)=>{const t={id:created.length+1,...args};created.push(t);return t;},sendMessage:async()=>({owned:true}),remove:async()=>{}}};
   const lookup=new CountryLookup(chrome,async()=>{},1,500);
   await lookup.request('first','auto');await until(()=>created.length===1);
@@ -106,6 +126,21 @@ test('switching to Careful cancels queued automatic visits while allowing the ac
   await lookup.accept({nonce:new URL(created[0].url).hash.split('=')[1],about},{tab:{id:1},url:created[0].url});
   await until(()=>s.data['cf:country:second']?.status==='paused');
   assert.equal(created.length,1);assert.equal(s.data['cf:country:first'].status,'ready');
+});
+
+test('old Auto, synchronized settings and click/hover/refresh messages cannot enable background visits without explicit opt-in',async()=>{
+  const s=storage({settings:{enabled:true,lookupMode:'auto',showName:false},'cf:lookupV32':true,'cf:country:kept':{about:'retained'}});
+  const chrome={storage:{local:s.area},tabs:{create:async()=>{throw new Error('Passive must never create an X tab');}}};
+  assert.equal((await readLookupSettings(chrome)).lookupMode,'careful');
+  await initializeLookupSettings(chrome);assert.equal(s.data.settings.lookupMode,'careful');assert.equal(s.data.settings.showName,false);assert.deepEqual(s.data['cf:country:kept'],{about:'retained'});
+  const lookup=new CountryLookup(chrome,async()=>{});
+  for(const reason of ['auto','hover','click','refresh'])assert.equal((await lookup.request('unseen',reason)).passive,true);
+  assert.equal(s.data['cf:country:unseen'],undefined);
+  await setLookupMode(chrome,'auto');assert.equal((await readLookupSettings(chrome)).lookupMode,'auto');
+  await initializeLookupSettings(chrome);assert.equal((await readLookupSettings(chrome)).lookupMode,'auto');
+  await setLookupMode(chrome,'careful');await s.area.set({settings:{...s.data.settings,lookupMode:'auto'}});
+  assert.equal((await readLookupSettings(chrome)).lookupMode,'careful');
+  assert.equal((await lookup.request('unseen','refresh')).passive,true);
 });
 
 test('activation handles legacy tabs without losing draft text, confines injection to X, and isolates failed tabs',async t=>{
@@ -146,9 +181,11 @@ test('lookup serializes tabs, deduplicates, caches, validates ownership, and obe
   const chrome={storage:{local:s.area,session:session.area},tabs:{async create(t:any){const tab={...t,id:created.length+1};created.push(tab);return tab;},async sendMessage(){return{owned:true};},async remove(id:number){closed.push(id);}}};
   const lookup=new CountryLookup(chrome,async h=>{results.push(h);},1,500);
   await lookup.request('jack','auto');assert.equal(created.length,0);
+  await lookup.request('jack','click');assert.equal(created.length,0);
+  await setLookupMode(chrome,'auto');
   await Promise.all([lookup.request('jack','click'),lookup.request('jack','click')]);
   await until(()=>created.length===1);
-  await lookup.request('next','auto');assert.equal(created.length,1);
+  await lookup.request('jack','auto');assert.equal(created.length,1);
   const job=created[0],nonce=new URL(job.url).hash.split('=')[1];
   const a=readAbout(new JSDOM(aboutHTML.replaceAll('South Asia','Germany')).window.document,'https://x.com/jack/about')!;
   assert.equal((await lookup.accept({nonce,about:a},{tab:{id:99},url:'https://x.com/jack/about'})).ok,false);
@@ -161,7 +198,7 @@ test('lookup serializes tabs, deduplicates, caches, validates ownership, and obe
 });
 
 test('timeout and X sign-in are visible errors; a user-navigated worker tab is never closed',async()=>{
-  const s=storage({'cf:lookupV32':true,settings:{lookupMode:'auto'}}),created:any[]=[],closed:number[]=[];
+  const s=storage({'cf:lookupV32':true,settings:{lookupMode:'auto'},...autoOptIn}),created:any[]=[],closed:number[]=[];
   const chrome={storage:{local:s.area},tabs:{async create(t:any){const tab={...t,id:created.length+1};created.push(tab);return tab;},async sendMessage(){return{owned:false};},async remove(id:number){closed.push(id);}}};
   const lookup=new CountryLookup(chrome,async()=>{},1,35);
   await lookup.request('timeout');await until(()=>s.data['cf:country:timeout']?.status==='error');
@@ -177,7 +214,7 @@ test('timeout and X sign-in are visible errors; a user-navigated worker tab is n
 // Uses the actual built content, worker, background and panel scripts. Browser APIs
 // are simulated; this does not assert installed-extension or live navigation acceptance.
 test('empty cache -> automatic About worker -> badge -> immediate panel with profile/posts; Careful and live updates work',async t=>{
-  const s=storage({settings:{enabled:true,lookupMode:'auto',showName:true,vpnWarnings:true},'cf:lookupV32':true,providerSettings:{url:'http://127.0.0.1:18883'}});
+  const s=storage({settings:{enabled:true,lookupMode:'auto',showName:true,vpnWarnings:true},'cf:lookupV32':true,...autoOptIn,providerSettings:{url:'http://127.0.0.1:18883'}});
   const session=storage(),windows:any[]=[],workers=new Map<number,any>(),messages:any[]=[],opened:any[]=[],closed:number[]=[],created:any[]=[];
   let listener:any,fetches=0;
   const runtime={id:'a'.repeat(32),getURL:(p:string)=>'chrome-extension://'+'a'.repeat(32)+'/'+p,onMessage:{addListener:(fn:any)=>{listener=fn;}},onInstalled:{addListener(){}},onStartup:{addListener(){}}};
@@ -213,8 +250,9 @@ test('empty cache -> automatic About worker -> badge -> immediate panel with pro
   const selector=page.document.querySelector('#cf-lookup-mode');selector.value='careful';selector.dispatchEvent(new page.Event('change'));
   await until(()=>s.data.settings.lookupMode==='careful');
   const block=page.document.createElement('div');block.dataset.testid='User-Name';block.innerHTML='<a href="/newaccount">New account</a>';page.document.body.appendChild(block);
-  await until(()=>block.querySelector('.cf-badge'));await wait(80);assert.equal(created.length,1);assert.equal(block.querySelector('.cf-badge').textContent,'↗');
-  block.dispatchEvent(new page.MouseEvent('mouseenter'));await until(()=>messages.some(m=>m.type==='lookup-country'&&m.handle==='newaccount'&&m.reason==='hover'));
+  await until(()=>block.querySelector('.cf-badge'));await wait(80);assert.equal(created.length,1);assert.equal(block.querySelector('.cf-badge').textContent,'?');
+  assert.equal(block.querySelector('.cf-about-link').href,'https://x.com/newaccount/about');
+  block.dispatchEvent(new page.MouseEvent('mouseenter'));await wait(80);assert.equal(messages.some(m=>m.type==='lookup-country'&&m.handle==='newaccount'),false);
   // Disable queued work before the six-second pacing delay elapses.
   await s.area.set({settings:{...s.data.settings,enabled:false}});
   const another=upsertInvestigation(null,obs('other',{basedIn:'Germany'}),T0);await s.area.set({['cf:inv:'+another.id]:another});

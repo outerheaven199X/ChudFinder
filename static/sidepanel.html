@@ -73,7 +73,7 @@ label{display:block;margin:7px 0;color:var(--dim)}details{margin:8px 0}summary{c
 </header>
 <details id="controls" class="card"><summary class="mono">INVESTIGATION &amp; SOURCE CONTROLS</summary>
 <label>Account handle <input id="accountHandle" placeholder="NASA" maxlength="15"></label><button id="startInvestigation" class="btn">Investigate account</button><button id="cancelInvestigation" class="btn">Cancel collection</button>
-<p class="caveat">Flags and visible account data load from X automatically. API access is optional. Change Auto/Careful on X or in the extension popup.</p>
+<p class="caveat">Saved flags appear automatically. Careful mode captures About pages you open; optional Auto makes background visits. API access is optional. Change modes on X or in the extension popup.</p>
 <details><summary>Optional API data</summary><p class="caveat">An API adapter can retrieve more posts. Flags and the basic investigation work without it. API requests may cost credits.</p>
 <label>Adapter origin <input id="adapterUrl" placeholder="http://127.0.0.1:8787"></label><label>Request budget per action <input id="requestBudget" type="number" min="1" max="20" value="8"></label>
 <button id="saveProvider" class="btn">Connect provider</button><button id="loadApiPosts" class="btn">Fetch more posts via API</button><p id="providerState" class="meta"></p></details>

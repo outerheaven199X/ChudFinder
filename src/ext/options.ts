@@ -2,13 +2,15 @@ import * as C from '../shared/countries.ts';
 import * as S from '../shared/settings-schema.ts';
 import { DEFAULT_SETTINGS as D } from './lib.ts';
 import { mountLookupHelp } from './lookup-help.ts';
+import { readLookupSettings, setLookupMode, PASSIVE_MIGRATION, BACKGROUND_OPT_IN } from './lookup-settings.ts';
 
 declare const chrome: any;
 const $ = (id: string): any => document.getElementById(id);
 let settings: Record<string, any> = Object.assign({}, D);
 
 function save() {
-  chrome.storage.local.set({ settings, 'cf:lookupV32':true }).then(() => {
+  chrome.storage.local.set({ settings, 'cf:lookupV32':true }).then(async () => {
+    loadSettings(await readLookupSettings(chrome));fillForm();
     $('saved').textContent = 'Saved';
     setTimeout(() => { $('saved').textContent = ''; }, 1200);
   });
@@ -82,7 +84,7 @@ $('saveUrl').addEventListener('click', () => {
     const r = await chrome.runtime.sendMessage({ type: 'syncNow' });
     const { syncState } = await chrome.storage.local.get('syncState');
     renderSyncState(syncState, u.href);
-    if (r && r.ok) { const got = await chrome.storage.local.get('settings'); loadSettings(got.settings); fillForm(); }
+    if (r && r.ok) { loadSettings(await readLookupSettings(chrome)); fillForm(); }
   });
 });
 
@@ -113,7 +115,7 @@ $('exportCode').addEventListener('click', async () => {
 
 async function init() {
   const got = await chrome.storage.local.get(['settings', 'syncUrl', 'syncState']);
-  loadSettings(got.settings);
+  loadSettings(await readLookupSettings(chrome));
 
   for (const id of ['showName', 'popover', 'askGrok', 'vpnWarnings', 'mismatchWarnings', 'topicMode']) {
     $(id).addEventListener('change', (e: any) => { settings[id] = e.target.checked; save(); });
@@ -121,7 +123,7 @@ async function init() {
   const sel = $('homeCountry');
   for (const c of C.COUNTRIES) sel.add(new Option(C.flagEmoji(c.code) + ' ' + c.name, c.code));
   sel.addEventListener('change', () => { settings.homeCountry = sel.value; save(); });
-  $('lookupMode').addEventListener('change', () => { settings.lookupMode = $('lookupMode').value === 'auto' ? 'auto' : 'careful'; save(); });
+  $('lookupMode').addEventListener('change', async () => { await setLookupMode(chrome,$('lookupMode').value); $('saved').textContent='Saved'; });
   $('dailyCap').addEventListener('change', () => {
     const n = Math.round(Number($('dailyCap').value));
     settings.dailyCap = Number.isFinite(n) ? Math.min(1000, Math.max(50, n)) : 300;
@@ -136,7 +138,7 @@ async function init() {
   // Reflect background syncs while the page is open.
   chrome.storage.onChanged.addListener(async (ch: any, area: string) => {
     if (area !== 'local') return;
-    if (ch.settings && JSON.stringify(ch.settings.newValue) !== JSON.stringify(settings)) { loadSettings(ch.settings.newValue); fillForm(); }
+    if(ch.settings||ch[PASSIVE_MIGRATION]||ch[BACKGROUND_OPT_IN]) { loadSettings(await readLookupSettings(chrome)); fillForm(); }
     if (ch.syncState) { const { syncUrl } = await chrome.storage.local.get('syncUrl'); renderSyncState(ch.syncState.newValue, syncUrl); }
   });
 }

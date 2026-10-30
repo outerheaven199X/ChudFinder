@@ -1,4 +1,4 @@
-# Chrome Web Store data-use disclosures for 3.1
+# Chrome Web Store data-use disclosures for 3.3
 
 These are submission materials, not evidence of a submitted or approved store release.
 
@@ -8,11 +8,11 @@ Data processed: selected public account handles/post content/URLs/timestamps; us
 
 Authentication information: no X browser cookies, authorization tokens or passwords are collected. Provider API credentials reside in a separate operator-controlled service, never extension storage.
 
-Browsing activity: no broad browsing history or feed crawl. The selected X post/account URL is part of the requested investigation. Public content may itself include personal information; the operator must respect source access and provider terms.
+Browsing activity: no broad browsing-history inventory. Default Careful mode reads the About fields on pages the user opens and displays locally cached flags without additional X visits. Explicit optional Auto opens rendered About pages for visible accounts in a temporary background tab. The selected X post/account URL is part of the requested investigation. Public content may itself include personal information; the operator must respect source access and provider terms.
 
-No sale, advertising use, automatic publication, automated X interaction, private-message collection or precise-location inference. Local deletion and bounded retention are described in the [privacy policy](privacy-policy.md).
+No sale, advertising use, automatic publication, private-message collection or precise-location inference. Auto performs automated X page visits and carries account risk; Careful does not perform those visits. Local deletion and bounded retention are described in the [privacy policy](privacy-policy.md).
 
-Permissions: storage, alarms and sidePanel. Content scripts run only on X/Twitter matches. HTTPS host grants are optional and requested for user-configured origins. No default host grants, cookies, webRequest or debugger permissions. Any final store-form selections must describe these actual flows, including website content and user-provided data processed by optional providers.
+Permissions: storage, alarms, sidePanel and scripting. Content scripts and default host grants cover X/Twitter only. Other HTTPS grants are optional and requested for user-configured origins. No cookies, webRequest or debugger permissions. Any final store-form selections must describe these actual flows, including website content and user-provided data processed by optional providers.
 
 Release qualification still requires approved X access, any configured provider's data-use review, and store review. Browser/session-safety guarantees are not claimed.
 

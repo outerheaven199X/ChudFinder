@@ -1,14 +1,15 @@
 import { mountLookupHelp } from './lookup-help.ts';
+import { readLookupSettings, setLookupMode } from './lookup-settings.ts';
 declare const chrome: any;
 const $ = (id: string): any => document.getElementById(id);
 export {};
 
 async function refresh() {
   const all = await chrome.storage.local.get(null);
-  const s = all.settings || {};
+  const s = await readLookupSettings(chrome);
   $('enabled').checked = s.enabled !== false;
-  $('lookupMode').value = all['cf:lookupV32'] ? s.lookupMode || 'auto' : 'auto';
-  const msg = s.enabled === false ? 'Flags are switched off.' : $('lookupMode').value === 'careful' ? 'Careful: hover or click a username to look up its country.' : 'Automatic flags are on. You can close this menu.';
+  $('lookupMode').value = s.lookupMode;
+  const msg = s.enabled === false ? 'Flags are switched off.' : s.lookupMode === 'careful' ? 'Careful: saved flags appear automatically. Use About ↗ for an unknown account. No background X visits.' : 'Auto: background X lookups are on. See (?) for account risks.';
   $('status').textContent = msg;
   const sync = $('sync');
   if (!all.syncUrl) { sync.textContent = ''; }
@@ -23,8 +24,7 @@ $('enabled').addEventListener('change', async (e: any) => {
   await chrome.storage.local.set({ settings });
 });
 $('lookupMode').addEventListener('change',async(e:any)=>{
-  const {settings={}}=await chrome.storage.local.get('settings');
-  await chrome.storage.local.set({settings:{...settings,lookupMode:e.target.value},'cf:lookupV32':true});
+  await setLookupMode(chrome,e.target.value);
 });
 
 $('clear').addEventListener('click', async () => {

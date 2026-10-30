@@ -56,7 +56,8 @@ test('built feed renders stored flags on load, updates quoted/recycled authors a
   await until(()=>w.document.querySelector('.cf-badge')?.textContent.includes('Germany'));
   const blocks=w.document.querySelectorAll('[data-testid="User-Name"]');
   assert.match(blocks[0].querySelector('.cf-badge').textContent,/🇩🇪 Germany/);
-  assert.equal(blocks[1].querySelector('.cf-badge').textContent,'↗');
+  assert.equal(blocks[1].querySelector('.cf-badge').textContent,'?');
+  assert.equal(blocks[1].querySelector('.cf-about-link').href,'https://x.com/quoted_person/about');
   assert.equal(messages.length,0);
   blocks[0].querySelector('.cf-badge').click();
   await settle();
@@ -73,16 +74,18 @@ test('built feed renders stored flags on load, updates quoted/recycled authors a
   // X recycles author containers during navigation and scrolling.
   for(const a of blocks[0].querySelectorAll('a[href="/jack"]'))a.setAttribute('href','/unknown');
   blocks[0].appendChild(w.document.createTextNode(' '));
-  await until(()=>blocks[0].querySelector('.cf-badge').textContent==='↗');
+  await until(()=>blocks[0].querySelector('.cf-badge').textContent==='?');
   assert.equal(blocks[0].querySelectorAll('.cf-badge').length,1);
-  assert.equal(blocks[0].querySelector('.cf-badge').textContent,'↗');
+  assert.equal(blocks[0].querySelector('.cf-badge').textContent,'?');
+  assert.equal(blocks[0].querySelectorAll('.cf-about-link').length,1);
+  assert.equal(blocks[0].querySelector('.cf-about-link').href,'https://x.com/unknown/about');
   changed({['cf:inv:'+quote.id]:{oldValue:quote}},'local');
-  await until(()=>blocks[1].querySelector('.cf-badge').textContent==='↗');
-  assert.equal(blocks[1].querySelector('.cf-badge').textContent,'↗');
+  await until(()=>blocks[1].querySelector('.cf-badge').textContent==='?');
+  assert.equal(blocks[1].querySelector('.cf-badge').textContent,'?');
   assert.equal(messages.length,2);
   w.close();
 });
-test('Careful mode skips scroll lookup, reads About on hover, and saves only the selected post on click', async () => {
+test('Careful mode never looks up on load, scroll or hover; clicking investigates only the selected post', async () => {
   const dom = new JSDOM(fixture.TWEET_HTML, {
     url: 'https://x.com/home',
     runScripts: 'outside-only',
@@ -118,15 +121,14 @@ test('Careful mode skips scroll lookup, reads About on hover, and saves only the
   assert.equal(messages.length, 0);
   badge.dispatchEvent(new w.MouseEvent('mouseenter'));
   await new Promise(r=>setTimeout(r,480));
-  assert.equal(messages[0].type,'lookup-country');
-  assert.equal(messages[0].reason,'hover');
+  assert.equal(messages.length,0);
   badge.click();
   await new Promise((r) => setTimeout(r, 10));
-  assert.equal(messages.length, 2);
-  assert.equal(messages[1].type, 'investigate');
-  assert.equal(messages[1].localOnly,true);
-  assert.equal(messages[1].observation.about, null);
-  assert.ok(messages[1].observation.posts.length <= 1);
+  assert.equal(messages.length, 1);
+  assert.equal(messages[0].type, 'investigate');
+  assert.equal(messages[0].localOnly,true);
+  assert.equal(messages[0].observation.about, null);
+  assert.ok(messages[0].observation.posts.length <= 1);
   assert.equal(requests, 0);
   w.close();
 });

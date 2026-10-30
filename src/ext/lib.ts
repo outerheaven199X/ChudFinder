@@ -24,7 +24,7 @@ export interface AboutInfo { basedIn?: string | null; accurate?: boolean | null;
     homeCountry: 'US',
     askGrok: true,             // Ask Grok action (badge click when popover is off, button in the popover)
     popover: true,             // clicking a badge opens the provenance popover (Investigate / Ask Grok)
-    lookupMode: 'auto',        // visible accounts read in one temporary X About tab; Careful uses hover/click
+    lookupMode: 'careful',     // passive capture; background About visits require an explicit Auto selection
     dailyCap: 300,             // lookups per local day across all tabs (50-1000)
     grokBotTemplateUrl: ''     // optional link to the Chud Finder Grok Bot template; empty = hidden
   });

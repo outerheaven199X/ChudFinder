@@ -1,6 +1,7 @@
 import { AboutObservation } from '../shared/schemas.ts';
 import type { AboutObservation as About } from '../shared/schemas.ts';
 import { cleanHandle } from './xdom.ts';
+import { readLookupSettings } from './lookup-settings.ts';
 
 export const COUNTRY_PREFIX = 'cf:country:';
 export type CountryRecord = {handle:string;status:'queued'|'loading'|'ready'|'unavailable'|'error'|'paused';about:About|null;message:string;updatedAt:number;expiresAt:number};
@@ -20,7 +21,7 @@ export class CountryLookup {
   constructor(chrome:any,onResult:(h:string,a:About)=>Promise<void>,interval=6000,timeout=20000) {
     this.chrome=chrome;this.onResult=onResult;this.interval=interval;this.timeout=timeout;
   }
-  async settings() {const g=await this.chrome.storage.local.get(['settings','cf:lookupV32']);return {...g.settings,lookupMode:g['cf:lookupV32']?g.settings?.lookupMode || 'auto':'auto'};}
+  async settings() {return readLookupSettings(this.chrome);}
   async write(record:CountryRecord) {
     await this.chrome.storage.local.set({[COUNTRY_PREFIX+record.handle.toLowerCase()]:record});
     if(++this.writes%25===0){const all=await this.chrome.storage.local.get(null);const keys=Object.keys(all).filter(k=>k.startsWith(COUNTRY_PREFIX)).sort((a,b)=>(all[b]?.updatedAt||0)-(all[a]?.updatedAt||0));if(keys.length>1500)await this.chrome.storage.local.remove(keys.slice(1500));}
@@ -30,7 +31,7 @@ export class CountryLookup {
   async request(handle:string,reason='auto') {
     const h=cleanHandle(handle)?.toLowerCase();if(!h)throw new Error('Invalid handle');
     const s=await this.settings();
-    if(s.enabled===false || (reason==='auto'&&s.lookupMode!=='auto'))return {ok:true,skipped:true};
+    if(s.enabled===false || s.lookupMode!=='auto')return {ok:true,skipped:true,passive:true};
     const cached=(await this.chrome.storage.local.get(COUNTRY_PREFIX+h))[COUNTRY_PREFIX+h] as CountryRecord|undefined;
     if(reason!=='refresh' && cached && cached.expiresAt>Date.now() && ['ready','unavailable'].includes(cached.status))return {ok:true,record:cached};
     if(cached?.status==='error'&&cached.expiresAt>Date.now()&&reason==='auto')return {ok:true,record:cached};
@@ -57,7 +58,7 @@ export class CountryLookup {
       const job=this.jobs.shift()!;
       try {
       const s=await this.settings();
-      if(s.enabled===false || (job.reason==='auto'&&s.lookupMode!=='auto')){await this.write(this.record(job.handle,'paused','Careful mode: hover or click to look up this account.'));continue;}
+      if(s.enabled===false || s.lookupMode!=='auto'){await this.write(this.record(job.handle,'paused','Passive capture: open this account’s X About page to save its country.'));continue;}
       const pacing=(await this.chrome.storage.local.get('cf:countryPacing'))['cf:countryPacing'] || {};
       const day=new Date().toLocaleDateString('en-CA'),count=pacing.day===day?Number(pacing.count)||0:0;
       if(pacing.pausedUntil>Date.now()) {await this.write(this.record(job.handle,'paused',pacing.message || 'X lookups paused. Try later.'));continue;}
@@ -65,7 +66,7 @@ export class CountryLookup {
       const wait=Math.max(0,this.nextAt-Date.now(),(pacing.nextAt||0)-Date.now());
       if(wait)await new Promise(r=>setTimeout(r,Math.min(wait,this.interval)));
       const current=await this.settings();
-      if(current.enabled===false || (job.reason==='auto'&&current.lookupMode!=='auto')){await this.write(this.record(job.handle,'paused','Automatic lookup stopped by your setting.'));continue;}
+      if(current.enabled===false || current.lookupMode!=='auto'){await this.write(this.record(job.handle,'paused','Background lookup stopped by your setting.'));continue;}
       this.active=job;await this.write(this.record(job.handle,'loading','Reading X About…',null,this.timeout+5000));
       this.nextAt=Date.now()+this.interval;
       await this.chrome.storage.local.set({'cf:countryPacing':{day,count:count+1,nextAt:this.nextAt}});

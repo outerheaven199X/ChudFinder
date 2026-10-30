@@ -1,0 +1,117 @@
+
+> chud-finder@3.3.0 test
+> npm run build && node --test test/*.test.ts && node test/legacy/settings.test.cjs && node test/legacy/test.cjs && python bot/test_lookup.py
+
+
+> chud-finder@3.3.0 build
+> node tools/build.mjs
+
+built dist/ (24 files) and chud-finder-3.3.0.zip
+✔ built background preserves propagation query on edits and replaces a full sample on new search (735.9571ms)
+✔ passive install makes no background visits; a user-opened About page populates flags across existing and future tabs (1073.6731ms)
+✔ popup and settings expose risk help and immediately synchronize Auto/Careful changes (99.9955ms)
+✔ switching to Careful cancels queued automatic visits while allowing the active lookup to finish (46.1553ms)
+✔ old Auto, synchronized settings and click/hover/refresh messages cannot enable background visits without explicit opt-in (0.583ms)
+✔ activation handles legacy tabs without losing draft text, confines injection to X, and isolates failed tabs (22.81ms)
+✔ live 0xReso About markup preserves region, store region and the displayed accuracy warning (20.2646ms)
+✔ lookup serializes tabs, deduplicates, caches, validates ownership, and obeys Auto/Careful and daily limits (67.9368ms)
+✔ timeout and X sign-in are visible errors; a user-navigated worker tab is never closed (111.499ms)
+✔ empty cache -> automatic About worker -> badge -> immediate panel with profile/posts; Careful and live updates work (1565.8678ms)
+✔ panel does not miss an active investigation written while its initial storage read is pending (109.9495ms)
+✔ X status aliases share an evidence edge without collapsing unrelated paths or parameters (85.5306ms)
+✔ quoted search phrases count occurrences inside longer posts and preserve earliest evidence (5.7622ms)
+✔ three X fields remain independent with user provenance, original values, dates and sources (2.8423ms)
+✔ partial, unavailable, regional, traveler and organizational cases never infer intent or location (7.4375ms)
+✔ activity describes UTC, preserves simultaneous posts, compares windows and never returns a location estimate (4.4659ms)
+✔ writing compares own chronological sample; multilingual data does not predict identity (4.2468ms)
+✔ synthetic mandate statistics are computed from 62 source records, never hard-coded (246.625ms)
+✔ same event/shared URL does not prove duplication or common ownership; missing dates stay unknown (2.2979ms)
+✔ dated exact, numerical, qualifier and negation comparisons; semantic ambiguity and missing sources remain unverified (1.2731ms)
+✔ quote reconstruction, organizational ledger, fact-check disagreements and source dependencies share evidence (3.4063ms)
+✔ claim comparison preserves numeric signs, percentages, currency and ratio scope (0.2228ms)
+✔ media pairs report distance and observed date conflicts without synthetic/AI claims (0.304ms)
+✔ stable IDs, changed values and corrections retain old snapshots without orphan evidence (2.3095ms)
+✔ adversarial references, statistics, graph edges, future dates, controls and spoofed origins are rejected (165.0571ms)
+✔ release excludes page bridge, credential extraction and internal endpoint calls (15.7348ms)
+✔ country badges use current About evidence, never stale snapshots or self-described location (21.2823ms)
+✖ built feed renders stored flags on load, updates quoted/recycled authors and opens investigation on one click (236.7039ms)
+✖ Careful mode skips scroll lookup, reads About on hover, and saves only the selected post on click (676.6462ms)
+✔ native C2PA checks file binding, signature and trust separately; tampering is detected (268.2926ms)
+✔ Commons lookup verifies exact SHA-1 and preserves repository date scope (6.46ms)
+✔ chronology compares actual instants across explicit UTC offsets (12.8283ms)
+✔ passage candidates retain source context and do not invent originals (0.9087ms)
+✔ three bars require reviewed independent direct agreement; shared origins, conflicting sources and imports block upgrades (6.6839ms)
+✔ Google candidates retain unknown dates and reject private image URLs before any provider call (1.7738ms)
+✔ EXIF date extraction excludes artist, camera and GPS identifiers (3.0666ms)
+✔ jitter: passive gaps stay within 4-9 s and vary (1.7731ms)
+✔ pacing: intent >= 2 s apart; passive capped at 10 per rolling minute (18.4419ms)
+✔ daily cap: counts, enforces, resets at local midnight (2.1648ms)
+✔ settings schema: lookupMode/dailyCap optional, bounded; old documents still valid (0.8579ms)
+Chud Finder adapter listening on loopback port 18877; 1 authorized extension origins.
+✔ source publication date recognizes NASA metadata without substituting last-updated time (79.662ms)
+✔ user import cannot impersonate official provenance (5.0797ms)
+✔ official provider rejects malformed API shapes and propagates auth, rate and outage errors without retries (2.772ms)
+✔ unconfigured X is unavailable with explicit coverage, without fabricated metadata (0.4288ms)
+✔ source provider validates URLs, timestamps and response schemas (1.4623ms)
+✔ Grok questions with forged evidence refs are discarded and do not become facts (0.8987ms)
+✔ SSRF rejects private, metadata, reserved addresses, credentials, ports and non-approved hosts (3.8655ms)
+✔ loopback service refuses web origins and DNS-rebinding host headers (39.5801ms)
+✔ pixel fingerprint is deterministic and rejects the wrong geometry (0.42ms)
+✔ official response maps actual fields, preserves partial coverage and never substitutes profile location for Based in (2.0482ms)
+✔ timeline and search send the same date bounds reported in coverage with endpoint-specific cursors (0.9953ms)
+✔ request budgets, cancellation, caching and bounded retries are enforced before network work (0.7717ms)
+✔ official provider requests long-post text and preserves its links with explicit size limits (1.0629ms)
+✔ concurrent investigation saves retain both index entries (19.4196ms)
+✔ JSON export contains the complete snapshot evidence and the limitations (2.9695ms)
+✔ X thread draft: numbered, <= 280 chars each, labeled, sourced (0.4374ms)
+✔ all five tabs render; untrusted text never becomes markup (XSS) (158.8929ms)
+✔ panel shows labels, conflicts in amber, unknown states and no emoji (39.5561ms)
+✔ Narrative graph exposes supporting observations without a model call (20.4887ms)
+✔ evidence chips jump to stored evidence; every chip id exists (14.6556ms)
+✔ observation schema accepts a valid observation (16.3706ms)
+✔ observation schema rejects bad handles, http URLs, unknown keys and wrong types (1.9196ms)
+✔ finding / evidence schemas enforce id prefixes and closed enums (2.2024ms)
+✔ investigation and export round-trip through their schemas (40.0448ms)
+✔ settings schemaVersion 1: 1.2.0 documents stay valid; new popover / grokBotTemplateUrl keys validated (1.3036ms)
+✔ side panel: loads the active investigation, five tabs, Grok Bot link from settings, receipts (340.4153ms)
+✔ PNG receipt draws handle, headline and labeled findings onto a 1200x675 canvas (0.7509ms)
+✔ topic tags: deterministic keyword regions, acronyms case-sensitive (2.4315ms)
+✔ topic signal: exact neutral wording, inferred basis, mismatch only (0.4072ms)
+✔ topic note + popover row render with textContent only and stay neutral (149.1799ms)
+✔ DOM adapter: main post, quoted author, time, text (quoted text excluded) (96.0534ms)
+✔ DOM adapter: links are https only, lang tag, reply target (17.1385ms)
+✔ SPA routes (0.3509ms)
+ℹ tests 73
+ℹ suites 0
+ℹ pass 71
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4368.8097
+
+✖ failing tests:
+
+test at test\extension.test.ts:46:1
+✖ built feed renders stored flags on load, updates quoted/recycled authors and opens investigation on one click (236.7039ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  '?' !== '↗'
+  
+      at TestContext.<anonymous> (file:///C:/Users/npitt/Documents/Codex/2026-10-29/files-pasted-by-the-user-chud/work/ChudFinder/test/extension.test.ts:59:10)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '?',
+    expected: '↗',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at test\extension.test.ts:85:1
+✖ Careful mode skips scroll lookup, reads About on hover, and saves only the selected post on click (676.6462ms)
+  TypeError [Error]: Cannot read properties of undefined (reading 'type')
+      at TestContext.<anonymous> (file:///C:/Users/npitt/Documents/Codex/2026-10-29/files-pasted-by-the-user-chud/work/ChudFinder/test/extension.test.ts:121:28)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7)

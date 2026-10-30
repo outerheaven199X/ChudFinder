@@ -1,6 +1,6 @@
 # Country lookup: traffic and account risk
 
-The current country lookup makes additional X About page visits using the signed-in browser. Both Auto and Careful use this mechanism. Careful limits the trigger to hover, keyboard focus or click; it does not replace browser automation with an approved API.
+Version 3.3 defaults to passive Careful mode. It observes About pages the user opens and displays cached results automatically. It makes no background X visits on load, scroll, hover or investigation click. Auto remains an explicit optional choice that makes additional scripted About visits using the signed-in browser.
 
 [X's automation rules](https://help.x.com/en/rules-and-policies/x-automation), checked October 30, 2026, prohibit scripting its website and warn of possible permanent suspension. The policy does not establish a permitted rate for these visits. An absence of reported bans would not establish approval or a measured probability of enforcement. No suspension probability has been measured for Chud Finder.
 
@@ -10,4 +10,4 @@ The documented [User fields](https://docs.x.com/x-api/fundamentals/data-dictiona
 
 [Pangram's extension description](https://www.pangram.com/solutions/chrome-extension) says it classifies content users browse with its own detector. The technical distinction is that classifying text already rendered in the feed does not inherently require additional X requests. This is an architectural inference from the description, not a network audit of Pangram or proof that no Pangram user has been restricted.
 
-A passive implementation could display cached results and observe About fields only when the user opens those pages. It would remove Chud Finder's extra automated page visits, but would leave previously unseen countries unresolved. It is not implemented as a new mode in this update. The existing pacing, daily cap, cache and pause on recognized login/access prompts remain traffic controls, not a guarantee against restrictions.
+The implemented passive flow removes Chud Finder's extra automated page visits, but leaves unseen countries unresolved until the user opens About ↗. The extension then captures the displayed fields without manual entry. Auto's existing pacing, daily cap, cache and pause on recognized login/access prompts remain traffic controls, not a guarantee against restrictions. Optional approved API investigation actions remain separate and user-triggered; no country field is substituted or inferred to fill the coverage gap.

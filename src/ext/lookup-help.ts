@@ -1,7 +1,7 @@
 export const LOOKUP_HELP = [
-  'Auto looks up visible accounts on load and scroll. Careful looks up on hover, keyboard focus or click. Switching stops new automatic lookups; a running lookup may finish.',
-  'Both modes make scripted visits to X About pages in your signed-in browser. X prohibits this and warns of permanent account suspension. Rate limits and access challenges are possible.',
-  'Caching and pacing reduce traffic, but neither mode is ban-safe. Turn Enabled off in the extension menu to stop new lookups.'
+  'Careful is passive: saved flags appear automatically. For an unknown account, use About ↗ to open X normally; its displayed country is saved without typing. Loading, scrolling, hovering and investigating start no background X visits.',
+  'Auto optionally opens extra X About pages in the background. X prohibits website scripting and warns of permanent account suspension. Pacing does not remove that risk.',
+  'Switching to Careful stops new background lookups; one already running may finish. Passive capture removes these extra visits, but cannot guarantee how X will enforce its rules.'
 ];
 
 /** Shared hover/focus help. No network calls or setting changes. */

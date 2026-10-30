@@ -1,0 +1,5 @@
+
+> chud-finder@3.3.0 typecheck
+> tsc --noEmit -p tsconfig.json
+
+test/country-flow.test.ts(69,42): error TS2698: Spread types may only be created from object types.
