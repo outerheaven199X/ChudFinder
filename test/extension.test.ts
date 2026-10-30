@@ -14,7 +14,8 @@ test('release excludes page bridge, credential extraction and internal endpoint 
   const m = JSON.parse(readFileSync('dist/manifest.json', 'utf8'));
   assert.ok(!existsSync('dist/src/page.js'));
   assert.ok(!m.content_scripts.some((c: any) => c.world === 'MAIN'));
-  assert.deepEqual(m.host_permissions, []);
+  assert.deepEqual(m.host_permissions, ['https://x.com/*','https://twitter.com/*']);
+  assert(m.permissions.includes('scripting'));
   assert.ok(!m.permissions.some((p: string) => ['cookies', 'webRequest', 'debugger'].includes(p)));
   for (const file of readdirSync('dist/src').filter(f => f.endsWith('.js'))) {
     const text = readFileSync('dist/src/' + file, 'utf8');

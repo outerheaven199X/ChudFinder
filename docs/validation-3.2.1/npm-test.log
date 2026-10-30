@@ -1,0 +1,130 @@
+
+> chud-finder@3.2.1 test
+> npm run build && node --test test/*.test.ts && node test/legacy/settings.test.cjs && node test/legacy/test.cjs && python bot/test_lookup.py
+
+
+> chud-finder@3.2.1 build
+> node tools/build.mjs
+
+built dist/ (24 files) and chud-finder-3.2.1.zip
+✔ built background preserves propagation query on edits and replaces a full sample on new search (719.638ms)
+✔ installation starts flags on an already-open X feed without opening the popup, clicking, or reloading (1442.1891ms)
+✔ activation handles legacy tabs without losing draft text, confines injection to X, and isolates failed tabs (22.9472ms)
+✔ live 0xReso About markup preserves region, store region and the displayed accuracy warning (23.5494ms)
+✔ lookup serializes tabs, deduplicates, caches, validates ownership, and obeys Auto/Careful and daily limits (61.2385ms)
+✔ timeout and X sign-in are visible errors; a user-navigated worker tab is never closed (109.5362ms)
+✔ empty cache -> automatic About worker -> badge -> immediate panel with profile/posts; Careful and live updates work (1439.0568ms)
+✔ panel does not miss an active investigation written while its initial storage read is pending (108.9928ms)
+✔ X status aliases share an evidence edge without collapsing unrelated paths or parameters (31.4153ms)
+✔ quoted search phrases count occurrences inside longer posts and preserve earliest evidence (16.3477ms)
+✔ three X fields remain independent with user provenance, original values, dates and sources (6.1226ms)
+✔ partial, unavailable, regional, traveler and organizational cases never infer intent or location (10.6743ms)
+✔ activity describes UTC, preserves simultaneous posts, compares windows and never returns a location estimate (9.5975ms)
+✔ writing compares own chronological sample; multilingual data does not predict identity (2.8954ms)
+✔ synthetic mandate statistics are computed from 62 source records, never hard-coded (215.7707ms)
+✔ same event/shared URL does not prove duplication or common ownership; missing dates stay unknown (2.324ms)
+✔ dated exact, numerical, qualifier and negation comparisons; semantic ambiguity and missing sources remain unverified (1.1159ms)
+✔ quote reconstruction, organizational ledger, fact-check disagreements and source dependencies share evidence (3.8415ms)
+✔ claim comparison preserves numeric signs, percentages, currency and ratio scope (0.2058ms)
+✔ media pairs report distance and observed date conflicts without synthetic/AI claims (0.2451ms)
+✔ stable IDs, changed values and corrections retain old snapshots without orphan evidence (2.311ms)
+✔ adversarial references, statistics, graph edges, future dates, controls and spoofed origins are rejected (154.4157ms)
+✔ release excludes page bridge, credential extraction and internal endpoint calls (13.7507ms)
+✔ country badges use current About evidence, never stale snapshots or self-described location (23.8184ms)
+✔ built feed renders stored flags on load, updates quoted/recycled authors and opens investigation on one click (418.0667ms)
+✔ Careful mode skips scroll lookup, reads About on hover, and saves only the selected post on click (682.4411ms)
+✔ native C2PA checks file binding, signature and trust separately; tampering is detected (261.3832ms)
+✔ Commons lookup verifies exact SHA-1 and preserves repository date scope (2.4181ms)
+✔ chronology compares actual instants across explicit UTC offsets (7.6509ms)
+✔ passage candidates retain source context and do not invent originals (0.6039ms)
+✔ three bars require reviewed independent direct agreement; shared origins, conflicting sources and imports block upgrades (6.4332ms)
+✔ Google candidates retain unknown dates and reject private image URLs before any provider call (1.8459ms)
+✔ EXIF date extraction excludes artist, camera and GPS identifiers (3.347ms)
+✔ jitter: passive gaps stay within 4-9 s and vary (1.34ms)
+✔ pacing: intent >= 2 s apart; passive capped at 10 per rolling minute (1.1603ms)
+✔ daily cap: counts, enforces, resets at local midnight (1.6521ms)
+✔ settings schema: lookupMode/dailyCap optional, bounded; old documents still valid (1.3706ms)
+Chud Finder adapter listening on loopback port 18877; 1 authorized extension origins.
+✔ source publication date recognizes NASA metadata without substituting last-updated time (93.053ms)
+✔ user import cannot impersonate official provenance (5.9343ms)
+✔ official provider rejects malformed API shapes and propagates auth, rate and outage errors without retries (2.9011ms)
+✔ unconfigured X is unavailable with explicit coverage, without fabricated metadata (0.4862ms)
+✔ source provider validates URLs, timestamps and response schemas (1.6385ms)
+✔ Grok questions with forged evidence refs are discarded and do not become facts (2.0141ms)
+✔ SSRF rejects private, metadata, reserved addresses, credentials, ports and non-approved hosts (4.7421ms)
+✔ loopback service refuses web origins and DNS-rebinding host headers (41.5733ms)
+✔ pixel fingerprint is deterministic and rejects the wrong geometry (0.4726ms)
+✔ official response maps actual fields, preserves partial coverage and never substitutes profile location for Based in (1.7518ms)
+✔ timeline and search send the same date bounds reported in coverage with endpoint-specific cursors (0.9277ms)
+✔ request budgets, cancellation, caching and bounded retries are enforced before network work (0.6942ms)
+✔ official provider requests long-post text and preserves its links with explicit size limits (1.3658ms)
+✔ concurrent investigation saves retain both index entries (19.1319ms)
+✔ JSON export contains the complete snapshot evidence and the limitations (2.8081ms)
+✔ X thread draft: numbered, <= 280 chars each, labeled, sourced (0.4953ms)
+✔ all five tabs render; untrusted text never becomes markup (XSS) (166.5347ms)
+✔ panel shows labels, conflicts in amber, unknown states and no emoji (41.0868ms)
+✔ Narrative graph exposes supporting observations without a model call (15.3917ms)
+✔ evidence chips jump to stored evidence; every chip id exists (11.0974ms)
+✔ observation schema accepts a valid observation (6.1551ms)
+✔ observation schema rejects bad handles, http URLs, unknown keys and wrong types (1.5593ms)
+✔ finding / evidence schemas enforce id prefixes and closed enums (1.93ms)
+✔ investigation and export round-trip through their schemas (29.888ms)
+✔ settings schemaVersion 1: 1.2.0 documents stay valid; new popover / grokBotTemplateUrl keys validated (2.5453ms)
+✔ side panel: loads the active investigation, five tabs, Grok Bot link from settings, receipts (337.794ms)
+✔ PNG receipt draws handle, headline and labeled findings onto a 1200x675 canvas (0.7657ms)
+✔ topic tags: deterministic keyword regions, acronyms case-sensitive (2.6075ms)
+✔ topic signal: exact neutral wording, inferred basis, mismatch only (0.5374ms)
+✔ topic note + popover row render with textContent only and stay neutral (146.2848ms)
+✔ DOM adapter: main post, quoted author, time, text (quoted text excluded) (98.9297ms)
+✔ DOM adapter: links are https only, lang tag, reply target (18.6258ms)
+✔ SPA routes (0.4138ms)
+ℹ tests 70
+ℹ suites 0
+ℹ pass 70
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4180.8548
+ok   valid full document; names resolve to ISO codes; dupes removed
+ok   schemaVersion required and must be 1
+ok   wrong types reject the whole document
+ok   unknown countries rejected; too many rejected
+ok   unknown keys ignored with a warning, never copied
+ok   prototype pollution attempt has no effect
+ok   parseAndValidate: bad JSON and oversize
+ok   merge keeps keys not in the document and copies arrays
+ok   export/import code round trip (incl. URL-safe base64 and raw JSON)
+ok   source URL must be plain https
+ok   background: applies remote settings, records "synced" state, creates 10-min alarm
+ok   background: same remote doc does not overwrite local edits; changed doc does
+ok   background: invalid doc rejected, settings untouched, error shown
+ok   background: no permission / http URL / HTTP error -> error, no fetch
+ok   askGrok: validated as strict boolean, round-trips through codes
+ok   background: ignores messages from other extensions
+
+16 passed
+ok   extracts main author from profile link and quoted author from @text
+ok   rejects reserved paths and bad handles
+ok   parseAbout reads based-in, VPN flag and source
+ok   classifySource handles iOS / Android / Web
+ok   stated location parsing
+ok   renders a neutral country badge
+ok   unknown -> grey ? badge
+ok   VPN warning when location_accurate is false, suppressible
+ok   mismatch warning: stated location and app-store region
+ok   highlight is purely user-chosen; topic mode outlines outside home country
+ok   regions get a globe, not a flag
+ok   every country has a valid flag
+ok   Ask Grok prompt: VPN + source + stated location
+ok   Ask Grok prompt: no VPN, unknown parts omitted
+ok   Ask Grok URL is grok.com/?q= with encoding
+ok   badge click asks Grok and prevents X navigation
+ok   askGrok=false leaves badges as before
+
+17 passed
+.
+----------------------------------------------------------------------
+Ran 1 test in 0.045s
+
+OK

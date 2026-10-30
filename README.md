@@ -1,16 +1,18 @@
-# Chud Finder 3.2.0
+# Chud Finder 3.2.1
 
 Chud Finder is a Manifest V3 extension with automatic country badges and evidence-backed investigations of public X accounts and claims. Click a badge to open the seven-stage workspace with visible profile/post data. The core runs locally without Grok or API credits.
 
-Country lookup reads rendered public X About pages using one temporary inactive tab in your signed-in browser. No credentials or traffic are extracted and no internal API endpoint is called. Approved X API access is needed only for optional larger post samples and recent-search propagation. Self-described profile location is shown separately from X's country/region display. See [3.2.0 validation](docs/release-3.2.0.md) for the tested scope and remaining limitations.
+Country lookup reads rendered public X About pages using one temporary inactive tab in your signed-in browser. No credentials or traffic are extracted and no internal API endpoint is called. Approved X API access is needed only for optional larger post samples and recent-search propagation. Self-described profile location is shown separately from X's country/region display. See [3.2.1 validation](docs/release-3.2.1.md) for the tested scope and remaining limitations.
 
 ## Install
 
 1. Run `npm ci`, `npm run typecheck`, and `npm test` with Node 22.22.2+, 24.15.0+, or 26+ and Python 3 (`python` on PATH).
-2. Open `brave://extensions`, enable developer mode, and load `dist/` unpacked. The build also writes `chud-finder-3.2.0.zip` with the manifest at its root. After updating, reload the extension and your X tabs.
+2. Open `brave://extensions`, enable developer mode, and load `dist/` unpacked. The build also writes `chud-finder-3.2.1.zip` with the manifest at its root. Installing activates existing X tabs automatically. Reload the extension when replacing an unpacked build; no popup or investigation setup is needed for flags.
 3. **Auto** reads About pages for visible accounts on load and scroll. **Careful** reads them on hover or click. Switch modes directly on X, in the popup, or in settings. Updating from 3.1 enables Auto once because the old mode control was inert. Existing evidence remains local.
 4. Flags show countries; a globe shows a broader region. Click either to investigate. Source/date and X accuracy warnings remain available. `…` means queued/loading; `!` means a lookup error; `Ⅱ` means paused; `?` means no country was displayed. Tooltips explain each state. No manual country entry is required.
 5. About lookups use one temporary inactive X tab, at most ten starts per minute, a default daily cap of 300 (settings: 50–1000), and a 24-hour country cache. They pause after login/access prompts. English X About labels are currently supported; unsupported markup produces a visible error. No API credits are used. Configure the optional adapter below for broader searches.
+
+Upgrading a tab that still contains pre-3.2.1 badges refreshes that X tab once to clear stale scripts. Tabs containing unsent text are left alone until their next navigation. New installations inject into existing X pages without a refresh; later activations reuse or replace their own running script without duplicate badges.
 
 ## Authorized providers
 

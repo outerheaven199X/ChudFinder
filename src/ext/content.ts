@@ -9,6 +9,19 @@ import { readAbout, aboutFailure, locationWarning, workerToken } from './about-d
 import { COUNTRY_PREFIX } from './country-lookup.ts';
 import type { CountryRecord } from './country-lookup.ts';
 declare const chrome:any;
+const version=chrome.runtime.getManifest?.().version || '3.2.1';
+const instanceKey='__cfContent_'+(chrome.runtime.id || 'test');
+const restartEvent='cf-content-restart-'+(chrome.runtime.id || 'test');
+const instances=globalThis as any;
+if(instances[instanceKey]?.version!==version || !instances[instanceKey]?.active()){
+  instances[instanceKey]?.stop();
+  document.dispatchEvent(new Event(restartEvent));
+  instances[instanceKey]=startContent();
+}
+function startContent(){
+let alive=true,observer:MutationObserver|undefined,workerTimer:ReturnType<typeof setInterval>|undefined,workerDeadline:ReturnType<typeof setTimeout>|undefined;
+const events=new AbortController();
+document.documentElement.dataset.cfContentVersion=version;
 let settings={...DEFAULT_SETTINGS,lookupMode:'auto' as 'auto'|'careful'};
 const mounted=new WeakMap<Element,{handle:string;button:HTMLButtonElement}>();
 const badges=new Map<string,ReturnType<typeof countryBadge>>(),records=new Map<string,CountryRecord>();
@@ -21,6 +34,7 @@ function toast(message:string){
   e.textContent=message;
 }
 async function request(handle:string,reason:string){
+  if(!alive)return;
   const h=handle.toLowerCase(),r=records.get(h);
   if(reason==='auto' && (settings.lookupMode!=='auto'||document.visibilityState==='hidden'))return;
   if(r?.status==='ready'&&r.expiresAt>Date.now())return;
@@ -33,6 +47,7 @@ function loadBadge(handle:string){
   const h=handle.toLowerCase();if(badges.has(h)||pending.has(h))return;pending.add(h);
   const key='cf:inv:'+investigationId(h);
   chrome.storage.local.get([key,COUNTRY_PREFIX+h]).then(g=>{
+    if(!alive)return;
     badges.set(h,countryBadge(g[key],h));if(g[COUNTRY_PREFIX+h])records.set(h,g[COUNTRY_PREFIX+h]);
   }).catch(()=>badges.set(h,countryBadge(null,h))).finally(()=>{pending.delete(h);schedule();});
 }
@@ -54,17 +69,18 @@ function observation(handle:string,article:Element|null){
     posts:post?[post]:onProfile?postsOnPage(document,handle,50):[],focusPostId:post?.id||null,provider:'UserEvidenceProvider'});
 }
 function select(handle:string,article:Element|null){
+  if(!alive)return;
   try{const obs=observation(handle,article);
     chrome.runtime.sendMessage({type:'investigate',observation:obs,localOnly:true}).then(r=>{if(!r?.ok)throw new Error(r?.error||'Investigation did not respond');})
       .catch(e=>toast('Could not open investigation: '+e.message+'. Reload X if you just updated Chud Finder.'));
   }catch(e:any){toast('Cannot read this account: '+e.message);}
 }
 function bind(button:HTMLButtonElement,handle:string,article:Element|null){
-  button.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();select(handle,article);});
+  button.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();select(handle,article);},{signal:events.signal});
   let timer:ReturnType<typeof setTimeout>|undefined;
-  button.addEventListener('mouseenter',()=>{timer=setTimeout(()=>void request(handle,'hover'),450);});
-  button.addEventListener('mouseleave',()=>{if(timer)clearTimeout(timer);});
-  button.addEventListener('focus',()=>void request(handle,'hover'));
+  button.addEventListener('mouseenter',()=>{timer=setTimeout(()=>void request(handle,'hover'),450);},{signal:events.signal});
+  button.addEventListener('mouseleave',()=>{if(timer)clearTimeout(timer);},{signal:events.signal});
+  button.addEventListener('focus',()=>void request(handle,'hover'),{signal:events.signal});
 }
 function visible(e:Element){const r=e.getBoundingClientRect();return r.height>0&&r.bottom>0&&r.top<innerHeight;}
 function controls(){
@@ -87,12 +103,12 @@ function captureOpenAbout(){
   chrome.runtime.sendMessage({type:'about-observed',handle,about}).then(r=>{if(!r?.ok)lastAbout='';}).catch(()=>{lastAbout='';});
 }
 function scan(){
-  if(!settings.enabled)return;controls();captureOpenAbout();
+  if(!alive||!settings.enabled)return;controls();captureOpenAbout();
   for(const block of document.querySelectorAll(SEL.userName)){
     const handle=handleFromUserName(block);if(!handle)continue;loadBadge(handle);const old=mounted.get(block);
     if(old?.handle===handle&&old.button.isConnected)paint(old.button,handle);
     else{old?.button.remove();const b=document.createElement('button');b.type='button';paint(b,handle);bind(b,handle,block.closest(SEL.article));block.appendChild(b);mounted.set(block,{handle,button:b});
-      if(!old)block.addEventListener('mouseenter',()=>{const current=handleFromUserName(block);if(current)void request(current,'hover');});}
+      if(!old)block.addEventListener('mouseenter',()=>{const current=handleFromUserName(block);if(current)void request(current,'hover');},{signal:events.signal});}
     if(visible(block))void request(handle,'auto');
   }
   const route=parseRoute(location.href);let button=document.getElementById('cf-profile-select') as HTMLButtonElement|null;
@@ -101,32 +117,47 @@ function scan(){
     if(!/\/about\/?$/.test(location.pathname))void request(h,'auto');
   }else button?.remove();
 }
-function schedule(){if(scheduled)return;scheduled=true;requestAnimationFrame(()=>{scheduled=false;scan();});}
+function schedule(){if(!alive||scheduled)return;scheduled=true;requestAnimationFrame(()=>{scheduled=false;scan();});}
 async function runWorker(token:string){
   let captured:ReturnType<typeof readAbout>=null,warningTried=false,warningAt=0;
-  const timer=setInterval(async()=>{if(workerDone)return;const error=aboutFailure(document);captured=readAbout(document,location.href)||captured;
+  const timer=setInterval(async()=>{if(!alive||workerDone)return;const error=aboutFailure(document);captured=readAbout(document,location.href)||captured;
     if(captured&&!warningTried){warningTried=true;const row=[...document.querySelectorAll<HTMLElement>('[data-testid="pivot"]')].find(e=>e.textContent?.startsWith('Account based in'));
       if(row&&row.querySelectorAll('svg').length>1){row.click();warningAt=Date.now();return;}}
     if(warningAt&&Date.now()-warningAt<700)return;if(!captured&&!error)return;
     workerDone=true;clearInterval(timer);const warning=locationWarning(document);if(captured&&warning){captured.accurate=false;captured.displayText=warning;}
     await chrome.runtime.sendMessage({type:'country-result',nonce:token,...(captured?{about:captured}:{error})}).catch(()=>{});
-  },350);setTimeout(()=>clearInterval(timer),22000);
+  },350);workerTimer=timer;workerDeadline=setTimeout(()=>clearInterval(timer),22000);
 }
-chrome.runtime.onMessage.addListener((msg,_sender,reply)=>{
+function onMessage(msg:any,_sender:any,reply:any){
+  if(!alive)return false;
+  if(msg.type==='cf-content-ready'){reply({version,active:true});return false;}
   if(msg.type==='country-worker-check'){reply({owned:!!nonce&&nonce===msg.nonce&&workerToken(location.href)===nonce});return false;}
   if(msg.type!=='observe')return false;
   if(parseRoute(location.href).handle?.toLowerCase()!==String(msg.handle).toLowerCase()){reply({ok:false,error:'Open this X profile to refresh its visible data.'});return false;}
   reply({ok:true,observation:observation(msg.handle,null)});return false;
-});
-if(nonce)void runWorker(nonce);
-else{
-  chrome.storage.local.get(['settings','cf:lookupV32']).then(g=>{settings={...settings,...g.settings,lookupMode:g['cf:lookupV32']?(g.settings?.lookupMode||'auto'):'auto'};scan();new MutationObserver(schedule).observe(document.body,{childList:true,subtree:true});});
-  addEventListener('scroll',schedule,{passive:true});addEventListener('popstate',schedule);document.addEventListener('visibilitychange',schedule);
-  chrome.storage.onChanged.addListener((changes,area)=>{if(area!=='local')return;
+}
+chrome.runtime.onMessage.addListener(onMessage);
+function onStorage(changes:any,area:string){
+    if(!alive||area!=='local')return;
     for(const [key,change]of Object.entries(changes) as [string,any][]){
       if(key.startsWith(COUNTRY_PREFIX)){const h=key.slice(COUNTRY_PREFIX.length);if(change.newValue)records.set(h,change.newValue);else{records.delete(h);requests.delete(h);}schedule();}
       if(key.startsWith('cf:inv:')){const h=change.newValue?.subject?.handle||change.oldValue?.subject?.handle;if(h){badges.set(h.toLowerCase(),countryBadge(change.newValue,h));schedule();}}
     }
     if(changes.settings){settings={...settings,...changes.settings.newValue};if(!settings.enabled){for(const b of document.querySelectorAll('.cf-badge,#cf-mode-control'))b.remove();}else{requests.clear();scan();}}
-  });
+}
+if(nonce)void runWorker(nonce);
+else{
+  chrome.storage.local.get(['settings','cf:lookupV32']).then(g=>{if(!alive)return;settings={...settings,...g.settings,lookupMode:g['cf:lookupV32']?(g.settings?.lookupMode||'auto'):'auto'};scan();observer=new MutationObserver(schedule);observer.observe(document.body,{childList:true,subtree:true});}).catch(e=>{if(alive)toast('Chud Finder could not start: '+e.message);});
+  addEventListener('scroll',schedule,{passive:true,signal:events.signal});addEventListener('popstate',schedule,{signal:events.signal});document.addEventListener('visibilitychange',schedule,{signal:events.signal});
+  chrome.storage.onChanged.addListener(onStorage);
+}
+function stop(){
+  if(!alive)return;alive=false;events.abort();observer?.disconnect();
+  if(workerTimer)clearInterval(workerTimer);if(workerDeadline)clearTimeout(workerDeadline);
+  try{chrome.runtime.onMessage.removeListener?.(onMessage);chrome.storage.onChanged.removeListener?.(onStorage);}catch{}
+  for(const node of document.querySelectorAll('.cf-badge,#cf-mode-control,#cf-message'))node.remove();
+  delete document.documentElement.dataset.cfContentVersion;
+}
+document.addEventListener(restartEvent,stop,{signal:events.signal});
+return {version,stop,active:()=>alive};
 }

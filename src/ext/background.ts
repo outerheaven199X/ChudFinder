@@ -17,6 +17,7 @@ import {
 import { investigationId, upsertInvestigation, currentSnapshot } from '../shared/engine.ts';
 import { loadInvestigation, saveInvestigation, ACTIVE_KEY } from './store.ts';
 import { CountryLookup, COUNTRY_PREFIX } from './country-lookup.ts';
+import { activateOpenXTabs } from './installation.ts';
 
 import {
   XOfficialProvider,
@@ -118,6 +119,7 @@ chrome.alarms.onAlarm.addListener((a: any) => {
 chrome.runtime.onStartup.addListener(() => {
   ensureAlarm();
   syncNow(false);
+  void activateOpenXTabs(chrome).catch(console.error);
 });
 
 chrome.runtime.onInstalled.addListener(async () => {
@@ -128,6 +130,7 @@ chrome.runtime.onInstalled.addListener(async () => {
     });
   const migration = await chrome.storage.local.get('cf:lookupV32');
   if (!migration['cf:lookupV32']) await chrome.storage.local.set({settings:{...DEFAULTS,...settings,lookupMode:'auto'},'cf:lookupV32':true});
+  await activateOpenXTabs(chrome);
   await ensureAlarm();
   syncNow(false);
 });

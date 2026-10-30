@@ -6,9 +6,8 @@ async function refresh() {
   const all = await chrome.storage.local.get(null);
   const s = all.settings || {};
   $('enabled').checked = s.enabled !== false;
-  const n = (all['cf:invIndex'] || []).length;
   $('lookupMode').value = all['cf:lookupV32'] ? s.lookupMode || 'auto' : 'auto';
-  const msg = n + ' investigations. Auto reads visible accounts; Careful reads on hover/click. One temporary X tab, no API credits.';
+  const msg = s.enabled === false ? 'Flags are switched off.' : s.lookupMode === 'careful' ? 'Careful: hover or click a username to look up its country.' : 'Automatic flags are on. You can close this menu.';
   $('status').textContent = msg;
   const sync = $('sync');
   if (!all.syncUrl) { sync.textContent = ''; }

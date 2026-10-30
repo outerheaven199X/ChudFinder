@@ -7,6 +7,7 @@ import {JSDOM} from 'jsdom';
 import {readAbout,aboutFailure} from '../src/ext/about-dom.ts';
 import {cachedCountryBadge} from '../src/ext/country-badge.ts';
 import {CountryLookup} from '../src/ext/country-lookup.ts';
+import {activateOpenXTabs,X_PAGES} from '../src/ext/installation.ts';
 import {currentSnapshot,investigationId,upsertInvestigation} from '../src/shared/engine.ts';
 import {obs,T0} from './helpers.ts';
 
@@ -23,6 +24,63 @@ function storage(initial:any={}){
   };
   return {data,area,listeners};
 }
+
+test('installation starts flags on an already-open X feed without opening the popup, clicking, or reloading',async t=>{
+  const s=storage(),session=storage(),windows:any[]=[],listeners=new Map<number,Function>(),messages:any[]=[],injections:any[]=[],reloads:number[]=[];
+  let backgroundMessage:any,onInstalled:any,panelOpens=0,workerCount=0,version='3.2.1';
+  const html='<article data-testid="tweet"><div data-testid="User-Name"><a href="/0xReso">Reso</a></div></article>';
+  const page:any=new JSDOM(html,{url:'https://x.com/home',runScripts:'outside-only',pretendToBeVisual:true}).window;
+  windows.push(page);page.HTMLElement.prototype.getBoundingClientRect=()=>({top:10,bottom:30,left:0,right:100,height:20,width:100});
+  const runtime={id:'b'.repeat(32),getManifest:()=>({version}),getURL:(p:string)=>'chrome-extension://'+'b'.repeat(32)+'/'+p,onMessage:{addListener:(f:any)=>{backgroundMessage=f;}},onInstalled:{addListener:(f:any)=>{onInstalled=f;}},onStartup:{addListener(){}}};
+  const wire=(w:any,id:number)=>{w.chrome={runtime:{...runtime,onMessage:{addListener:(f:any)=>listeners.set(id,f),removeListener:(f:any)=>{if(listeners.get(id)===f)listeners.delete(id);}},sendMessage:(m:any)=>new Promise(resolve=>{messages.push(m);backgroundMessage(m,{id:runtime.id,url:w.location.href,tab:{id}},resolve);})},storage:{local:s.area,onChanged:{addListener:(f:any)=>s.listeners.push(f),removeListener:(f:any)=>{const at=s.listeners.indexOf(f);if(at>=0)s.listeners.splice(at,1);}}}};};
+  wire(page,1);
+  const background={runtime,storage:{local:s.area,session:session.area},permissions:{contains:async()=>false},alarms:{get:async()=>null,create(){},onAlarm:{addListener(){}}},sidePanel:{setPanelBehavior:async()=>{},open:async()=>{panelOpens++;}},tabs:{
+    async query(query:any){assert.deepEqual(JSON.parse(JSON.stringify(query.url)),X_PAGES);return[{id:1,url:page.location.href}];},
+    async sendMessage(id:number,m:any){if(!listeners.has(id))throw new Error('No receiver');return new Promise(r=>listeners.get(id)!(m,{},r));},
+    async create(args:any){workerCount++;const id=100+workerCount,w:any=new JSDOM(aboutHTML+'<div>'+captured.warning+'</div>',{url:args.url,runScripts:'outside-only',pretendToBeVisual:true}).window;windows.push(w);wire(w,id);w.eval(readFileSync('dist/src/content.js','utf8'));return{id};},
+    async remove(){},async reload(id:number){reloads.push(id);}
+  },scripting:{
+    async insertCSS(args:any){injections.push({kind:'css',...args});},
+    async executeScript(args:any){if(args.func)return[{result:page.eval('('+args.func.toString()+')()')}];injections.push({kind:'js',...args});page.eval(readFileSync('dist/src/content.js','utf8'));return[{result:undefined}];}
+  }};
+  t.after(()=>windows.forEach(w=>w.close()));
+  runInNewContext(readFileSync('dist/src/background.js','utf8'),{chrome:background,fetch:()=>{throw new Error('Installation must not call a provider');},URL,URLSearchParams,AbortSignal,AbortController,crypto,TextEncoder,console,setTimeout,clearTimeout,structuredClone});
+  assert.equal(page.document.querySelector('.cf-badge'),null);
+  await onInstalled({reason:'install'});
+  await until(()=>page.document.querySelector('.cf-badge')?.textContent.includes('South Asia'));
+  assert.equal(s.data.settings.enabled,true);assert.equal(s.data.settings.lookupMode,'auto');
+  assert.equal(panelOpens,0);assert.equal(reloads.length,0);assert.equal(workerCount,1);
+  assert.equal(messages.filter(m=>m.type==='investigate').length,0);assert.equal(injections.length,2);
+  // A coincident static injection and repeated installation activation are no-ops.
+  page.eval(readFileSync('dist/src/content.js','utf8'));await onInstalled({reason:'update'});
+  assert.equal(injections.length,2);assert.equal(page.document.querySelectorAll('.cf-badge').length,1);
+  assert.equal(s.listeners.length,1);assert.equal(s.data['cf:activation'].results[0].status,'already_active');
+  // Future replacement disposes old observers/listeners and preserves preferences.
+  await s.area.set({settings:{...s.data.settings,lookupMode:'careful'}});version='3.2.2';
+  page.eval(readFileSync('dist/src/content.js','utf8'));
+  await until(()=>page.document.querySelector('.cf-badge'));
+  assert.equal(page.document.querySelectorAll('#cf-mode-control').length,1);assert.equal(s.listeners.length,1);
+  assert.equal(page.document.querySelector('#cf-lookup-mode').value,'careful');
+  assert.equal(page.document.documentElement.dataset.cfContentVersion,'3.2.2');
+});
+
+test('activation handles legacy tabs without losing draft text, confines injection to X, and isolates failed tabs',async t=>{
+  const views=new Map([[1,'<button class="cf-badge">?</button>'],[2,'<button class="cf-badge">?</button><textarea>Unsent draft</textarea>'],[3,'<p>Closed tab</p>'],[4,'<p>Open X page</p>']]);
+  const pages=new Map([...views].map(([id,html])=>[id,new JSDOM(html,{runScripts:'outside-only'}).window]));
+  t.after(()=>pages.forEach(w=>w.close()));
+  const injected:number[]=[],reloaded:number[]=[],s=storage();
+  const chrome={runtime:{getManifest:()=>({version:'3.2.1'})},storage:{local:s.area},tabs:{
+    query:async()=>[...[1,2,3,4].map(id=>({id,url:'https://x.com/home'})),{id:5,url:'https://example.org/'},{id:6,url:'https://x.com/jack/about#cf-country-read=test'}],
+    sendMessage:async()=>{throw new Error('Old script unavailable');},reload:async(id:number)=>{reloaded.push(id);}
+  },scripting:{
+    executeScript:async(args:any)=>{const id=args.target.tabId;if(id===3)throw new Error('Tab closed');if(args.func)return[{result:pages.get(id)!.eval('('+args.func.toString()+')()')}];injected.push(id);return[];},
+    insertCSS:async()=>{}
+  }};
+  const results=await activateOpenXTabs(chrome);
+  assert.deepEqual(reloaded,[1]);assert.deepEqual(injected,[4]);
+  assert.equal(results.find(r=>r.tabId===2)?.status,'deferred_edit_in_progress');assert.equal(pages.get(2)!.document.querySelector('textarea')!.value,'Unsent draft');
+  assert.equal(results.find(r=>r.tabId===3)?.status,'failed');assert.equal(results.length,4);
+});
 
 test('live 0xReso About markup preserves region, store region and the displayed accuracy warning',()=>{
   const dom=new JSDOM(aboutHTML+'<div role="dialog">'+captured.warning+'<button>OK</button></div>',{url:captured.url});
