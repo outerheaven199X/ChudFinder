@@ -231,6 +231,31 @@ test('official response maps actual fields, preserves partial coverage and never
     else delete process.env.X_API_BEARER_TOKEN;
   }
 });
+test('timeline and search send the same date bounds reported in coverage with endpoint-specific cursors', async () => {
+  const old = process.env.X_API_BEARER_TOKEN;
+  process.env.X_API_BEARER_TOKEN = 'synthetic-test-only';
+  try {
+    for (const selector of [{handle:'NASA'}, {text:'Dragonfly'}]) {
+      const calls: URL[] = [];
+      const api = async (url: string) => {
+        calls.push(new URL(url));
+        return url.includes('/users/by/username/') ? {data:{id:'123'}} : {data:[],meta:{}};
+      };
+      const start = '2026-10-28T00:00:00.000Z', end = '2026-10-29T00:00:00.000Z';
+      const result = await xOperation('posts', {...selector,start,end,cursor:'page2',limit:10}, session(), api as any) as any;
+      const url = calls.at(-1)!;
+      assert.equal(url.searchParams.get('start_time'), start);
+      assert.equal(url.searchParams.get('end_time'), end);
+      assert.equal(url.searchParams.get('handle' in selector ? 'pagination_token' : 'next_token'), 'page2');
+      assert.equal(result.coverage.start, start);
+      assert.equal(result.coverage.end, end);
+    }
+  } finally {
+    if (old) process.env.X_API_BEARER_TOKEN = old;
+    else delete process.env.X_API_BEARER_TOKEN;
+  }
+});
+
 test('request budgets, cancellation, caching and bounded retries are enforced before network work', async () => {
   const response = (status: number, text = '{}') => ({
     status,

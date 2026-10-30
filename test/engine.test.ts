@@ -6,6 +6,7 @@ import {
   validateFindings,
   validateSnapshot,
   evidenceFromObservation,
+  analyze,
 } from '../src/shared/engine.ts';
 import { activityPattern, countryFromStatedLocation } from '../src/shared/geo.ts';
 import {
@@ -15,6 +16,7 @@ import {
   writingAnalysis,
   similarity,
   matchesWording,
+  normalizedUrl,
 } from '../src/shared/analysis.ts';
 import { obs, post, timedPosts, T0 } from './helpers.ts';
 import { syntheticMandate, propagationText } from './synthetic.ts';
@@ -29,6 +31,28 @@ const source = (text: string, url = 'https://example.org/record'): SourceDocumen
   retrievedAt: T0,
   publishedAt: '2026-09-01T00:00:00.000Z',
   citations: [],
+});
+
+test('X status aliases share an evidence edge without collapsing unrelated paths or parameters', () => {
+  const a = 'https://twitter.com/KakedUpKat/status/2115228277291794480?s=20';
+  const b = 'https://x.com/kakedupkat/status/2115228277291794480?t=share#fragment';
+  assert.equal(normalizedUrl(a), normalizedUrl(b));
+  assert.equal(normalizedUrl(a), normalizedUrl('https://mobile.twitter.com/KAkedUPKat/status/2115228277291794480'));
+  assert.notEqual(normalizedUrl(a), normalizedUrl(b.replace('4480', '4481')));
+  assert.notEqual(normalizedUrl(a), normalizedUrl('https://x.com/kakedupkat/status/2115228277291794480/photo/1'));
+  assert.notEqual(normalizedUrl('https://example.org/A?s=20'), normalizedUrl('https://example.org/a?s=21'));
+  assert.notEqual(normalizedUrl(a), normalizedUrl(a + '&meaningful=value'));
+  const inv = run(obs('first', null, {posts: [
+    post('1', 'first', 'First unrelated wording.', T0, {links:[a]}),
+    post('2', 'second', 'Other contextual commentary.', T0, {links:[b]}),
+  ]}));
+  assert.equal(currentSnapshot(inv).edges.filter(e => e.type === 'shares_url').length, 1);
+  validateSnapshot(currentSnapshot(inv), inv.evidence);
+  const legacy = structuredClone(currentSnapshot(inv));
+  const oldAnalysis = analyze('first', inv.evidence, false);
+  Object.assign(legacy, {engine:'deterministic@3.1.1',findings:oldAnalysis.findings,claims:oldAnalysis.claims,edges:oldAnalysis.edges});
+  assert.equal(legacy.edges.filter(e => e.type === 'shares_url').length, 0);
+  validateSnapshot(legacy, inv.evidence);
 });
 
 test('quoted search phrases count occurrences inside longer posts and preserve earliest evidence', () => {

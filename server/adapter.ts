@@ -259,11 +259,11 @@ export async function xOperation(
   else {
     const q = querySchema.parse(payload);
     params.set('max_results', String(q.limit || 50));
+    if (q.start) params.set('start_time', q.start);
+    if (q.end) params.set('end_time', q.end);
     if (q.text) {
       path = '/2/tweets/search/recent';
       params.set('query', q.text);
-      if (q.start) params.set('start_time', q.start);
-      if (q.end) params.set('end_time', q.end);
       if (q.cursor) params.set('next_token', q.cursor);
     } else if (q.handle) {
       const user = await api('https://api.x.com/2/users/by/username/' + q.handle, s, headers);

@@ -374,7 +374,8 @@ export interface Analysis {
   story: NonNullable<Snapshot['story']>;
   displayRoles: Record<string, string[]>;
 }
-export function analyze(handle: string, current: Evidence[]): Analysis {
+export function analyze(handle: string, current: Evidence[], canonicalizeStatus = true): Analysis {
+  const normalize = (url: string) => normalizedUrl(url, canonicalizeStatus);
   const h = handle.toLowerCase(),
     mine = current.filter((e) => e.subject.toLowerCase() === h);
   const one = (kind: Evidence['kind']) =>
@@ -597,7 +598,7 @@ export function analyze(handle: string, current: Evidence[]): Analysis {
       edge('replies_to', from, 'account:' + p.replyToHandle.toLowerCase(), [e.id]);
     if (p.repostOfId) edge('reposts', from, 'post:' + p.repostOfId, [e.id]);
     for (const l of p.links) {
-      const u = normalizedUrl(l);
+      const u = normalize(l);
       if (u) {
         edge('links_to', from, u, [e.id]);
         edge('links_to', u, 'source-domain:' + new URL(u).hostname, [e.id]);
@@ -644,17 +645,17 @@ export function analyze(handle: string, current: Evidence[]): Analysis {
           [a.id, b.id],
         );
       const common = p.links
-        .map(normalizedUrl)
-        .find((u) => u && q.links.map(normalizedUrl).includes(u));
+        .map(normalize)
+        .find((u) => u && q.links.map(normalize).includes(u));
       if (common) edge('shares_url', 'post:' + p.id, 'post:' + q.id, [a.id, b.id]);
     }
   const dependencies = new Map<string, Evidence[]>();
   for (const e of docsEv) {
     const d = e.value.document as SourceDocument;
     for (const raw of d.citations) {
-      const u = normalizedUrl(raw);
+      const u = normalize(raw);
       if (!u) continue;
-      edge('cites', normalizedUrl(d.url)!, u, [e.id]);
+      edge('cites', normalize(d.url)!, u, [e.id]);
       const list = dependencies.get(u) || [];
       if (!list.includes(e)) list.push(e);
       dependencies.set(u, list);
@@ -702,7 +703,7 @@ export function analyze(handle: string, current: Evidence[]): Analysis {
     ),
   ];
   for (const claim of reviewedClaims) {
-    const r = reviewedCorroboration(claim, sources);
+    const r = reviewedCorroboration(claim, sources, canonicalizeStatus);
     add({
       capability: 'claims',
       title: 'Reviewed source agreement',
@@ -928,7 +929,7 @@ export function validateSnapshot(s: Snapshot, evidence: Evidence[]) {
   for (const e of current)
     if (e.derivedFrom?.some((id) => !map.has(id)))
       throw new Error('Derived evidence references missing inputs');
-  const expected = analyze(s.account.handle, current),
+  const expected = analyze(s.account.handle, current, s.engine === 'deterministic@3.1.2'),
     expectedEdges = new Map(expected.edges.map((e) => [e.id, e]));
   for (const edge of s.edges)
     if (JSON.stringify(edge) !== JSON.stringify(expectedEdges.get(edge.id)))

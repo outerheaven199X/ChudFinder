@@ -5,7 +5,7 @@
 import { z } from 'zod';
 
 export const SCHEMA_VERSION = 1 as const;
-export const ENGINE_VERSION = 'deterministic@3.1.1';
+export const ENGINE_VERSION = 'deterministic@3.1.2';
 
 const handle = z.string().regex(/^[A-Za-z0-9_]{1,15}$/);
 const iso = z.iso.datetime({ offset: true });

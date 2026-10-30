@@ -224,6 +224,7 @@ function previousObservation(inv: any): AccountObservation {
       : null,
     posts: s.posts,
     focusPostId: s.focusPostId,
+    searchText: evidence.find((e: any) => e.kind === 'propagation')?.value.query,
     sources: evidence
       .filter((e: any) => e.kind === 'source_document')
       .map((e: any) => e.value.document),
@@ -390,8 +391,11 @@ async function modify(msg: any) {
           ...(msg.start ? { start: msg.start } : {}),
           ...(msg.end ? { end: msg.end } : {}),
         });
-        const map = new Map(obs.posts.map((p) => [p.id, p]));
+        // Keep the selected claim, then prefer the new query's sample over older search rows.
+        const focus = obs.posts.find((p) => p.id === obs.focusPostId);
+        const map = new Map((focus ? [focus] : []).map((p) => [p.id, p]));
         for (const p of r.posts) map.set(p.id, p);
+        for (const p of obs.posts) if (!map.has(p.id)) map.set(p.id, p);
         obs.posts = [...map.values()].slice(0, 100);
         obs.searchText = msg.query;
         if (map.size > 100) r.coverage.limitations.push('Combined sample capped at 100 posts.');

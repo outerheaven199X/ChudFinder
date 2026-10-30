@@ -11,11 +11,17 @@ export function normalized(text: string): string {
     .replace(/\s+/g, ' ')
     .trim();
 }
-export function normalizedUrl(raw: string): string | null {
+export function normalizedUrl(raw: string, canonicalizeStatus = true): string | null {
   const safe = safeHttpsUrl(raw);
   if (!safe) return null;
   const u = new URL(safe);
   u.hash = '';
+  const status = u.pathname.match(/^\/([A-Za-z0-9_]{1,15})\/status\/(\d+)(\/.*)?$/);
+  if (canonicalizeStatus && status && /^(?:(?:www|mobile)\.)?(?:x|twitter)\.com$/.test(u.hostname)) {
+    u.hostname = 'x.com';
+    u.pathname = '/' + status[1].toLowerCase() + '/status/' + status[2] + (status[3] || '');
+    for (const key of ['s', 't', 'ref_src', 'ref_url']) u.searchParams.delete(key);
+  }
   for (const key of [...u.searchParams.keys()])
     if (/^(utm_|fbclid$|gclid$)/i.test(key)) u.searchParams.delete(key);
   u.searchParams.sort();
@@ -283,7 +289,8 @@ export function matchingPassages(claim: string, sources: SourceDocument[]) {
     .sort((a, b) => b.score - a.score || a.url.localeCompare(b.url))
     .slice(0, 8);
 }
-export function reviewedCorroboration(claim: string, sources: SourceDocument[]) {
+export function reviewedCorroboration(claim: string, sources: SourceDocument[], canonicalizeStatus = true) {
+  const normalize = (url: string) => normalizedUrl(url, canonicalizeStatus);
   const result = claimAutopsy(claim, sources),
     docs = [...new Map(result.matches.map((m) => [m.source.url, m.source])).values()];
   const reasons: string[] = [];
@@ -304,14 +311,14 @@ export function reviewedCorroboration(claim: string, sources: SourceDocument[]) 
         b = docs[j],
         ah = new URL(a.url).hostname.replace(/^www\./, ''),
         bh = new URL(b.url).hostname.replace(/^www\./, '');
-      const ac = a.citations.map(normalizedUrl),
-        bc = b.citations.map(normalizedUrl);
+      const ac = a.citations.map(normalize),
+        bc = b.citations.map(normalize);
       if (
         ah === bh ||
         ah.endsWith('.' + bh) ||
         bh.endsWith('.' + ah) ||
-        ac.includes(normalizedUrl(b.url)) ||
-        bc.includes(normalizedUrl(a.url)) ||
+        ac.includes(normalize(b.url)) ||
+        bc.includes(normalize(a.url)) ||
         ac.some((u) => u && bc.includes(u))
       )
         reasons.push(

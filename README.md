@@ -1,4 +1,4 @@
-# Chud Finder 3.1.1
+# Chud Finder 3.1.3
 
 Chud Finder is a Manifest V3 extension for explicit, evidence-backed investigations of public X accounts and claims. The seven-stage workspace runs locally without Grok. It retains the ANTIMEME design, five tabs, versioned evidence store and PNG/JSON/thread receipts.
 
@@ -7,8 +7,8 @@ This is a release candidate. Approved X API access is required for live post col
 ## Install
 
 1. Run `npm ci`, `npm run typecheck`, and `npm test` with Node 22.22.2+, 24.15.0+, or 26+ and Python 3 (`python` on PATH).
-2. Open `brave://extensions`, enable developer mode, and load `dist/` unpacked. The build also writes `chud-finder-3.1.1.zip` with the manifest at its root.
-3. Open **Investigations** from the toolbar, or select a **CF** badge on X and choose **Investigate**. Nothing is collected when you scroll or hover.
+2. Open `brave://extensions`, enable developer mode, and load `dist/` unpacked. The build also writes `chud-finder-3.1.3.zip` with the manifest at its root.
+3. Open **Investigations** from the toolbar, or click the country badge beside an X username to open its investigation directly. Saved About observations show a flag and country on load; regions show a globe and missing observations show `?`. Hover exposes the recorded source and date. Profile location is never used as an operating-country flag. Nothing is collected when you scroll or hover.
 4. User observations and JSON imports work immediately. For programmatic sources, configure the optional local adapter below.
 
 ## Authorized providers
