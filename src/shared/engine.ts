@@ -6,6 +6,8 @@ import {
   normalized,
   normalizedUrl,
   similarity,
+  matchesWording,
+  wordingMethod,
   narrativeAnalysis,
   writingAnalysis,
   claimAutopsy,
@@ -259,7 +261,8 @@ export function evidenceFromObservation(input: AccountObservation): Evidence[] {
   const seed =
     obs.searchText || posts.find((p) => p.id === obs.focusPostId)?.text || posts[0]?.text;
   if (seed && all.length) {
-    const matches = all.filter((e) => similarity((e.value.post as Post).text, seed) >= 0.8);
+    const method = wordingMethod(seed);
+    const matches = all.filter((e) => matchesWording((e.value.post as Post).text, seed, method));
     const dated = matches
       .filter((e) => (e.value.post as Post).createdAt)
       .sort(
@@ -292,6 +295,7 @@ export function evidenceFromObservation(input: AccountObservation): Evidence[] {
       coverage: obs.coverage,
       value: {
         query: seed,
+        method,
         examinedPostIds: all.map((e) => (e.value.post as Post).id),
         postIds: matches.map((e) => (e.value.post as Post).id),
         accounts: [...new Set(matches.map((e) => e.subject.toLowerCase()))],
@@ -539,7 +543,7 @@ export function analyze(handle: string, current: Evidence[]): Analysis {
     info(
       'narrative',
       'Copies and amplification',
-      `${v.postIds.length} matching posts from ${v.accounts.length} distinct observed accounts. ${v.start && v.end ? 'Observed interval: ' + v.start + ' to ' + v.end + '.' : 'Creation timestamps unavailable.'} Counts cover retrieved observations only.`,
+      `${v.postIds.length} matching posts from ${v.accounts.length} distinct observed accounts. ${v.start && v.end ? 'Observed interval: ' + v.start + ' to ' + v.end + '.' : 'Creation timestamps unavailable.'} Counts cover retrieved observations only.${v.method === 'quoted-phrase@1' ? ' Exact normalized phrase occurrences; this does not establish copied whole posts or the same factual claim.' : ''}`,
       [prop],
     );
     const earliest = postEv.find((e) => (e.value.post as Post).id === v.earliestPostId);
@@ -953,7 +957,7 @@ export function validateSnapshot(s: Snapshot, evidence: Evidence[]) {
     if (e.kind === 'propagation') {
       const v = e.value as any,
         examined = (e.derivedFrom || []).map((id) => map.get(id)!.value.post as Post),
-        posts = examined.filter((p) => similarity(p.text, v.query) >= 0.8),
+        posts = examined.filter((p) => matchesWording(p.text, v.query, v.method || 'jaccard@1')),
         dated = posts
           .filter((p) => p.createdAt)
           .sort((a, b) => Date.parse(a.createdAt!) - Date.parse(b.createdAt!));
@@ -961,7 +965,7 @@ export function validateSnapshot(s: Snapshot, evidence: Evidence[]) {
         JSON.stringify(posts.map((p) => p.id)) !== JSON.stringify(v.postIds) ||
         JSON.stringify([...new Set(posts.map((p) => p.handle.toLowerCase()))]) !==
           JSON.stringify(v.accounts) ||
-        posts.some((p) => similarity(p.text, v.query) < 0.8) ||
+        posts.some((p) => !matchesWording(p.text, v.query, v.method || 'jaccard@1')) ||
         v.start !== (dated[0]?.createdAt || null) ||
         v.end !== (dated.at(-1)?.createdAt || null) ||
         v.earliestPostId !== (dated[0]?.id || null)

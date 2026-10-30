@@ -83,7 +83,7 @@ label{display:block;margin:7px 0;color:var(--dim)}details{margin:8px 0}summary{c
 <label>Original warning text <input id="accuracyText" maxlength="600"></label><button id="captureAbout" class="btn">Save my observation</button></details>
 <details><summary>Search matching posts</summary><label>Wording or official X search expression <textarea id="propagationQuery" maxlength="512"></textarea></label>
 <label>Search start (optional ISO timestamp) <input id="searchStart"></label><label>Search end (optional ISO timestamp) <input id="searchEnd"></label>
-<button id="searchPropagation" class="btn">Search observed copies</button><p class="meta">Requires approved X API access. Results are capped at 100 combined posts; recent-search coverage only.</p></details>
+<button id="searchPropagation" class="btn">Search observed copies</button><p class="meta">Requires approved X API access. Results are capped at 100 combined posts; recent-search coverage only. Use one quoted phrase to count exact phrase occurrences. Other expressions use whole-text similarity, so search results may not count as matching copies.</p></details>
 <details><summary>External sources and Claim Autopsy</summary><label>Source discovery query <input id="sourceQuery" maxlength="1000"></label><label>Primary source URL (optional) <input id="sourceUrl" type="url"></label>
 <button id="retrieveSources" class="btn">Retrieve sources</button><label>Retrieved source <select id="sourceSelect"></select></label><pre id="sourceText"></pre>
 <label>Specific claim / quoted excerpt <textarea id="claimText" maxlength="1000"></textarea></label><label>Exact original passage from the retrieved source <textarea id="sourcePassage" maxlength="4000"></textarea></label>

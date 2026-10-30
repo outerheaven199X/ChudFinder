@@ -166,7 +166,7 @@ const querySchema = z
   })
   .strict();
 const fields = {
-  'tweet.fields': 'created_at,lang,author_id,entities,referenced_tweets,public_metrics',
+  'tweet.fields': 'created_at,lang,author_id,entities,referenced_tweets,public_metrics,note_tweet',
   expansions: 'author_id,referenced_tweets.id,referenced_tweets.id.author_id',
   'user.fields': 'username,created_at,public_metrics',
 };
@@ -186,10 +186,10 @@ function officialPosts(data: any) {
       id: p.id,
       handle: u.username,
       url: 'https://x.com/' + u.username + '/status/' + p.id,
-      text: p.note_tweet?.text || p.text,
+      text: cleanText(p.note_tweet?.text || p.text, 4000),
       createdAt: p.created_at || null,
       lang: p.lang || null,
-      links: (p.entities?.urls || [])
+      links: (p.note_tweet?.entities?.urls || p.entities?.urls || [])
         .map((v: any) => v.unwound_url || v.expanded_url || v.url)
         .filter(safeHttpsUrl)
         .slice(0, 20),
@@ -279,6 +279,13 @@ export async function xOperation(
   c.start = payload.start || null;
   c.end = payload.end || null;
   c.status = data.errors?.length || c.nextCursor ? 'partial' : 'ok';
+  const rawPosts = Array.isArray(data.data) ? data.data : data.data ? [data.data] : [];
+  if (rawPosts.some((p: any) => (p.note_tweet?.text || p.text || '').length > 4000)) {
+    c.status = 'partial';
+    c.limitations.push('Long post text was bounded to 4,000 characters; matches beyond that boundary are unavailable.');
+  }
+  if (posts.some((p: any) => p.repostOfId))
+    c.limitations.push('X may shorten repost text. Documented repost IDs remain available; text coverage is not complete.');
   if (data.errors?.length) c.limitations.push('Official response contains partial errors.');
   return { posts, coverage: c };
 }
@@ -287,6 +294,12 @@ function dateOrNull(value: unknown) {
   const n = Date.parse(value);
   return Number.isFinite(n) ? new Date(n).toISOString() : null;
 }
+export function sourcePublicationDate(doc: Document) {
+  return dateOrNull(
+    doc.querySelector('meta[property="article:published_time"],meta[name="date"],meta[name="DC.date.issued"],meta[name="parsely-pub-date"]')?.getAttribute('content') ||
+      doc.querySelector('time[datetime]')?.getAttribute('datetime'),
+  );
+}
 export async function retrieveSource(url: string, s: Session): Promise<SourceDocument> {
   if (s.requests >= s.maxRequests) throw new Error('Request budget reached');
   s.requests++;
@@ -294,12 +307,7 @@ export async function retrieveSource(url: string, s: Session): Promise<SourceDoc
   if (r.status !== 200)
     throw new Error('Source HTTP ' + r.status + ' (redirects require explicit final URL)');
   const doc = new JSDOM(r.text).window.document;
-  const date =
-    doc
-      .querySelector(
-        'meta[property="article:published_time"],meta[name="date"],meta[name="DC.date.issued"]',
-      )
-      ?.getAttribute('content') || doc.querySelector('time[datetime]')?.getAttribute('datetime');
+  const date = sourcePublicationDate(doc);
   const factChecks: any[] = [];
   for (const script of doc.querySelectorAll('script[type="application/ld+json"]'))
     try {

@@ -13,9 +13,18 @@ import {
   xOperation,
   session,
   startServer,
+  sourcePublicationDate,
 } from '../server/adapter.ts';
+import { JSDOM } from 'jsdom';
 import { differenceHash } from '../src/ext/media.ts';
 import { obs, post, T0 } from './helpers.ts';
+
+test('source publication date recognizes NASA metadata without substituting last-updated time', () => {
+  const document = new JSDOM('<meta property="og:updated_time" content="2026-10-29T11:10:20-04:00"><meta name="parsely-pub-date" content="2026-10-29T15:10:18Z">').window.document;
+  assert.equal(sourcePublicationDate(document), '2026-10-29T15:10:18.000Z');
+  document.querySelector('[name="parsely-pub-date"]')!.remove();
+  assert.equal(sourcePublicationDate(document), null);
+});
 
 test('user import cannot impersonate official provenance', async () => {
   const raw = obs(
@@ -272,6 +281,31 @@ test('request budgets, cancellation, caching and bounded retries are enforced be
   await requestJson('https://api.x.com/cache-test', c, {}, undefined, cached);
   assert.equal(calls, 1);
   assert.equal(c.cacheHits, 1);
+});
+
+test('official provider requests long-post text and preserves its links with explicit size limits', async () => {
+  const old = process.env.X_API_BEARER_TOKEN;
+  process.env.X_API_BEARER_TOKEN = 'test-only-not-a-real-credential';
+  try {
+    const api = async (url: string) => {
+      assert.ok(new URL(url).searchParams.get('tweet.fields')!.split(',').includes('note_tweet'));
+      return {
+        data: [{ id: '100', author_id: '9', text: 'Truncated intro', created_at: T0,
+          note_tweet: { text: 'Dragonfly mission ' + 'bounded '.repeat(600),
+            entities: { urls: [{ expanded_url: 'https://www.nasa.gov/long-post-source' }] } } }],
+        includes: {users: [{id:'9', username:'NASA'}]},
+      };
+    };
+    const result = await xOperation('posts', {text:'"Dragonfly mission"', limit:10}, session(), api as any) as any;
+    assert.ok(result.posts[0].text.startsWith('Dragonfly mission'));
+    assert.equal(result.posts[0].text.length, 4000);
+    assert.deepEqual(result.posts[0].links, ['https://www.nasa.gov/long-post-source']);
+    assert.equal(result.coverage.status, 'partial');
+    assert.ok(result.coverage.limitations.some((s: string) => s.includes('4,000')));
+  } finally {
+    if (old) process.env.X_API_BEARER_TOKEN = old;
+    else delete process.env.X_API_BEARER_TOKEN;
+  }
 });
 test('concurrent investigation saves retain both index entries', async () => {
   const data: Record<string, any> = {};

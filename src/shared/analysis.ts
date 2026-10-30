@@ -27,6 +27,20 @@ export function similarity(a: string, b: string): number {
   if (Math.min(A.size, B.size) < 6) return normalized(a) === normalized(b) && A.size ? 1 : 0;
   return [...A].filter((x) => B.has(x)).length / new Set([...A, ...B]).size;
 }
+export function wordingMethod(query: string): 'quoted-phrase@1' | 'jaccard@1' {
+  const phrase = query.trim().match(/^"([^"\n]+)"$/)?.[1];
+  return phrase && normalized(phrase).split(' ').filter(Boolean).length >= 2
+    ? 'quoted-phrase@1'
+    : 'jaccard@1';
+}
+export function matchesWording(text: string, query: string, method = wordingMethod(query)): boolean {
+  if (method === 'quoted-phrase@1') {
+    if (wordingMethod(query) !== method) return false;
+    return (' ' + normalized(text) + ' ').includes(' ' + normalized(query) + ' ');
+  }
+  if (method !== 'jaccard@1') throw new Error('Unknown wording comparison method');
+  return similarity(text, query) >= 0.8;
+}
 export function narrativeAnalysis(posts: Post[]) {
   const clusters: { label: string; postIds: string[]; method: string }[] = [];
   for (const p of posts) {

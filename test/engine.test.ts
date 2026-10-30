@@ -14,6 +14,7 @@ import {
   mediaComparison,
   writingAnalysis,
   similarity,
+  matchesWording,
 } from '../src/shared/analysis.ts';
 import { obs, post, timedPosts, T0 } from './helpers.ts';
 import { syntheticMandate, propagationText } from './synthetic.ts';
@@ -28,6 +29,28 @@ const source = (text: string, url = 'https://example.org/record'): SourceDocumen
   retrievedAt: T0,
   publishedAt: '2026-09-01T00:00:00.000Z',
   citations: [],
+});
+
+test('quoted search phrases count occurrences inside longer posts and preserve earliest evidence', () => {
+  const inv = run(obs('target', null, {
+    searchText: '"Dragonfly mission"',
+    posts: [
+      post('2', 'second', 'A Dragonfly mission update with additional wording.', '2026-10-28T12:00:00.000Z'),
+      post('1', 'target', 'The Dragonfly mission will explore Titan.', '2026-10-27T12:00:00.000Z'),
+      post('3', 'third', 'The Dragonfly missions are different.', T0),
+    ],
+  }));
+  const prop = inv.evidence.find(e => e.kind === 'propagation')!;
+  assert.deepEqual(prop.value.postIds, ['2', '1']);
+  assert.equal(prop.value.earliestPostId, '1');
+  assert.equal(prop.value.method, 'quoted-phrase@1');
+  assert.ok(currentSnapshot(inv).story![5].text.includes('does not establish copied whole posts'));
+  validateSnapshot(currentSnapshot(inv), inv.evidence);
+  assert.equal(matchesWording('Dragonfly mission', '"Dragonfly mission" OR Titan'), false);
+  assert.equal(matchesWording('Dragonfly mission', '"!!!"'), false);
+  const tampered = structuredClone(inv.evidence);
+  tampered.find(e => e.kind === 'propagation')!.value.postIds = ['2', '1', '3'];
+  assert.throws(() => validateSnapshot(currentSnapshot(inv), tampered));
 });
 
 test('three X fields remain independent with user provenance, original values, dates and sources', () => {
