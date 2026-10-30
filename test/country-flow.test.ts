@@ -29,14 +29,14 @@ function storage(initial:any={}){
 
 test('passive install makes no background visits; a user-opened About page populates flags across existing and future tabs',async t=>{
   const s=storage(),session=storage(),windows:any[]=[],listeners=new Map<number,Function>(),messages:any[]=[],injections:any[]=[],reloads:number[]=[];
-  let backgroundMessage:any,onInstalled:any,panelOpens=0,workerCount=0,version='3.3.0';
+  let backgroundMessage:any,onInstalled:any,panelOpens=0,workerCount=0,version='3.3.1',toolbarOpensPanel=false;
   const html='<article data-testid="tweet"><div data-testid="User-Name"><a href="/0xReso">Reso</a></div></article>';
   const page:any=new JSDOM(html,{url:'https://x.com/home',runScripts:'outside-only',pretendToBeVisual:true}).window;
   windows.push(page);page.HTMLElement.prototype.getBoundingClientRect=()=>({top:10,bottom:30,left:0,right:100,height:20,width:100});
   const runtime={id:'b'.repeat(32),getManifest:()=>({version}),getURL:(p:string)=>'chrome-extension://'+'b'.repeat(32)+'/'+p,onMessage:{addListener:(f:any)=>{backgroundMessage=f;}},onInstalled:{addListener:(f:any)=>{onInstalled=f;}},onStartup:{addListener(){}}};
   const wire=(w:any,id:number)=>{w.chrome={runtime:{...runtime,onMessage:{addListener:(f:any)=>listeners.set(id,f),removeListener:(f:any)=>{if(listeners.get(id)===f)listeners.delete(id);}},sendMessage:(m:any)=>new Promise(resolve=>{messages.push(m);backgroundMessage(m,{id:runtime.id,url:w.location.href,tab:{id}},resolve);})},storage:{local:s.area,onChanged:{addListener:(f:any)=>s.listeners.push(f),removeListener:(f:any)=>{const at=s.listeners.indexOf(f);if(at>=0)s.listeners.splice(at,1);}}}};};
   wire(page,1);
-  const background={runtime,storage:{local:s.area,session:session.area},permissions:{contains:async()=>false},alarms:{get:async()=>null,create(){},onAlarm:{addListener(){}}},sidePanel:{setPanelBehavior:async()=>{},open:async()=>{panelOpens++;}},tabs:{
+  const background={runtime,storage:{local:s.area,session:session.area},permissions:{contains:async()=>false},alarms:{get:async()=>null,create(){},onAlarm:{addListener(){}}},sidePanel:{setPanelBehavior:async(p:any)=>{toolbarOpensPanel=p.openPanelOnActionClick;},open:async()=>{panelOpens++;}},tabs:{
     async query(query:any){assert.deepEqual(JSON.parse(JSON.stringify(query.url)),X_PAGES);return[{id:1,url:page.location.href}];},
     async sendMessage(id:number,m:any){if(!listeners.has(id))throw new Error('No receiver');return new Promise(r=>listeners.get(id)!(m,{},r));},
     async create(args:any){workerCount++;const id=100+workerCount,w:any=new JSDOM(aboutHTML+'<div>'+captured.warning+'</div>',{url:args.url,runScripts:'outside-only',pretendToBeVisual:true}).window;windows.push(w);wire(w,id);w.eval(readFileSync('dist/src/content.js','utf8'));return{id};},
@@ -50,6 +50,9 @@ test('passive install makes no background visits; a user-opened About page popul
   assert.equal(page.document.querySelector('.cf-badge'),null);
   await onInstalled({reason:'install'});
   await until(()=>page.document.querySelector('.cf-about-link'));
+  assert.equal(toolbarOpensPanel,true);
+  assert.equal(page.document.querySelector('#cf-mode-control'),null);
+  assert.equal(page.document.querySelector('#cf-lookup-mode'),null);
   assert.equal(s.data.settings.lookupMode,'careful');assert.equal(workerCount,0);
   const aboutLink=page.document.querySelector('.cf-about-link');assert.equal(aboutLink.href,'https://x.com/0xReso/about');assert.equal(aboutLink.target,'_blank');
   page.document.querySelector('.cf-badge').focus();page.document.querySelector('[data-testid="User-Name"]').dispatchEvent(new page.MouseEvent('mouseenter'));page.dispatchEvent(new page.Event('scroll'));
@@ -71,49 +74,52 @@ test('passive install makes no background visits; a user-opened About page popul
   page.dispatchEvent(new page.Event('scroll'));await wait(50);assert.match(page.document.querySelector('.cf-badge').textContent,/South Asia/);assert.equal(workerCount,0);
   // Close extra fixture contexts before lifecycle listener-count checks.
   aboutPage.document.dispatchEvent(new aboutPage.Event('cf-content-restart-'+runtime.id));future.document.dispatchEvent(new future.Event('cf-content-restart-'+runtime.id));
-  const help=page.document.querySelector('.cf-lookup-help'),helpButton=help.querySelector('button'),tip=help.querySelector('[role="tooltip"]');
-  assert.equal(helpButton.getAttribute('aria-describedby'),tip.id);assert.equal(tip.hidden,true);
-  help.dispatchEvent(new page.MouseEvent('mouseenter'));assert.equal(tip.hidden,false);
-  assert.match(tip.textContent,/permanent account suspension/);assert.match(tip.textContent,/Careful is passive/);
-  page.document.dispatchEvent(new page.KeyboardEvent('keydown',{key:'Escape',bubbles:true}));assert.equal(tip.hidden,true);
-  help.dispatchEvent(new page.MouseEvent('mouseleave'));helpButton.focus();assert.equal(tip.hidden,false);
-  helpButton.blur();assert.equal(tip.hidden,true);helpButton.click();assert.equal(tip.hidden,false);helpButton.click();assert.equal(tip.hidden,true);
+  assert.equal(page.document.querySelector('.cf-lookup-help'),null);
   assert.equal(panelOpens,1);assert.equal(workerCount,0);
   // A coincident static injection and repeated installation activation are no-ops.
   page.eval(readFileSync('dist/src/content.js','utf8'));await onInstalled({reason:'update'});
   assert.equal(injections.length,2);assert.equal(page.document.querySelectorAll('.cf-badge').length,1);
   assert.equal(s.listeners.length,1);assert.equal(s.data['cf:activation'].results[0].status,'already_active');
   // Future replacement disposes old observers/listeners and preserves preferences.
-  await s.area.set({settings:{...s.data.settings,lookupMode:'careful'}});version='3.3.1';
+  await s.area.set({settings:{...s.data.settings,lookupMode:'careful'}});version='3.3.2';
   page.eval(readFileSync('dist/src/content.js','utf8'));
   await until(()=>page.document.querySelector('.cf-badge'));
-  assert.equal(page.document.querySelectorAll('#cf-mode-control').length,1);assert.equal(s.listeners.length,1);
-  assert.equal(page.document.querySelector('#cf-lookup-mode').value,'careful');
-  assert.equal(page.document.documentElement.dataset.cfContentVersion,'3.3.1');
+  assert.equal(page.document.querySelectorAll('#cf-mode-control').length,0);assert.equal(s.listeners.length,1);
+  assert.equal(page.document.documentElement.dataset.cfContentVersion,'3.3.2');
 });
 
-test('popup and settings expose risk help and immediately synchronize Auto/Careful changes',async t=>{
+test('panel and settings expose risk help and immediately synchronize Auto/Careful changes without an investigation',async t=>{
   const s=storage({settings:{enabled:true,lookupMode:'auto'},'cf:lookupV32':true,...autoOptIn});
-  const pages=['popup','options'].map(name=>{
+  const pages=['sidepanel','options'].map(name=>{
     const w:any=new JSDOM(readFileSync(`dist/src/${name}.html`,'utf8'),{url:'https://fixture.test/',runScripts:'outside-only'}).window;
-    w.chrome={storage:{local:s.area,onChanged:{addListener:(f:Function)=>s.listeners.push(f)}}};
+    w.chrome={storage:{local:s.area,onChanged:{addListener:(f:Function)=>s.listeners.push(f)}},runtime:{sendMessage:async()=>({ok:true})}};
     w.eval(readFileSync(`dist/src/${name}.js`,'utf8'));return w;
   });
   t.after(()=>pages.forEach(w=>w.close()));
   await until(()=>pages[1].document.querySelector('#homeCountry').options.length>1);
   for(const w of pages){
     const button=w.document.querySelector('.cf-lookup-help button'),tip=w.document.querySelector('[role="tooltip"]');
-    assert(button);button.focus();assert.equal(tip.hidden,false);assert.match(tip.textContent,/Careful is passive/);
+    const help=button.parentElement;assert(button);assert.equal(button.getAttribute('aria-describedby'),tip.id);
+    help.dispatchEvent(new w.MouseEvent('mouseenter'));assert.equal(tip.hidden,false);
+    assert.match(tip.textContent,/permanent account suspension/);assert.match(tip.textContent,/Careful is passive/);
     w.document.dispatchEvent(new w.KeyboardEvent('keydown',{key:'Escape',bubbles:true}));assert.equal(tip.hidden,true);
+    help.dispatchEvent(new w.MouseEvent('mouseleave'));button.focus();assert.equal(tip.hidden,false);
+    button.blur();assert.equal(tip.hidden,true);button.click();assert.equal(tip.hidden,false);button.click();assert.equal(tip.hidden,true);
   }
-  const popupMode=pages[0].document.querySelector('#lookupMode'),optionsMode=pages[1].document.querySelector('#lookupMode');
-  popupMode.value='careful';popupMode.dispatchEvent(new pages[0].Event('change'));
+  const panelMode=pages[0].document.querySelector('#lookupMode'),optionsMode=pages[1].document.querySelector('#lookupMode');
+  panelMode.value='careful';panelMode.dispatchEvent(new pages[0].Event('change'));
   await until(()=>optionsMode.value==='careful');
-  assert.match(pages[0].document.querySelector('#status').textContent,/Careful:/);
+  assert.match(pages[0].document.querySelector('#lookupStatus').textContent,/Careful:/);
+  assert.equal(s.data[BACKGROUND_OPT_IN],false);
   optionsMode.value='auto';optionsMode.dispatchEvent(new pages[1].Event('change'));
-  await until(()=>popupMode.value==='auto');
-  assert.match(pages[0].document.querySelector('#status').textContent,/background X lookups are on/);
+  await until(()=>panelMode.value==='auto');
+  assert.match(pages[0].document.querySelector('#lookupStatus').textContent,/background X lookups are on/);
+  assert.equal(s.data[BACKGROUND_OPT_IN],true);
   assert.equal(s.data['cf:lookupV32'],true);
+  const enabled=pages[0].document.querySelector('#flagsEnabled');enabled.checked=false;enabled.dispatchEvent(new pages[0].Event('change'));
+  await until(()=>s.data.settings.enabled===false);
+  await until(()=>pages[0].document.querySelector('#lookupStatus').textContent==='Flags are switched off.');
+  assert.equal(s.data.settings.lookupMode,'auto');
 });
 
 test('switching to Careful cancels queued automatic visits while allowing the active lookup to finish',async()=>{
@@ -235,7 +241,8 @@ test('empty cache -> automatic About worker -> badge -> immediate panel with pro
   t.after(()=>windows.forEach(w=>w.close()));
   const panel=makeWindow(readFileSync('static/sidepanel.html','utf8'),runtime.getURL('src/sidepanel.html'),undefined,true);
   const page=makeWindow('<span data-testid="UserLocation">New Delhi, India</span><article data-testid="tweet"><div data-testid="User-Name"><a href="/0xReso">Reso</a></div><a href="/0xReso/status/2115756544428298642"><time datetime="2026-10-29T10:44:03Z"></time></a><div data-testid="tweetText" lang="en">A public post rendered on the profile.</div></article>','https://x.com/0xReso',10);
-  await until(()=>created.length===1);assert.equal(page.document.querySelector('#cf-lookup-mode').value,'auto');
+  await until(()=>created.length===1);assert.equal(panel.document.querySelector('#lookupMode').value,'auto');
+  assert.equal(page.document.querySelector('#cf-mode-control'),null);
   // Click while acquisition is still loading. Visible profile/posts must save now.
   page.document.querySelector('#cf-profile-select').click();
   await until(()=>panel.document.querySelector('#main').textContent.includes('New Delhi, India'));
@@ -247,7 +254,7 @@ test('empty cache -> automatic About worker -> badge -> immediate panel with pro
   await until(()=>panel.document.querySelector('#main').textContent.includes('South Asia'));
   assert.match(page.document.querySelector('.cf-badge').textContent,/🌐 South Asia ⚠/);
   assert.equal(closed.length,1);assert.equal(created.length,1);assert.equal(fetches,0);
-  const selector=page.document.querySelector('#cf-lookup-mode');selector.value='careful';selector.dispatchEvent(new page.Event('change'));
+  const selector=panel.document.querySelector('#lookupMode');selector.value='careful';selector.dispatchEvent(new panel.Event('change'));
   await until(()=>s.data.settings.lookupMode==='careful');
   const block=page.document.createElement('div');block.dataset.testid='User-Name';block.innerHTML='<a href="/newaccount">New account</a>';page.document.body.appendChild(block);
   await until(()=>block.querySelector('.cf-badge'));await wait(80);assert.equal(created.length,1);assert.equal(block.querySelector('.cf-badge').textContent,'?');

@@ -504,7 +504,7 @@ const countryLookup = new CountryLookup(chrome, async (handle,about) => {
   try{await task;}finally{if(queues.get(key)===task)queues.delete(key);}
 });
 void countryLookup.recover().catch(()=>{});
-chrome.sidePanel?.setPanelBehavior?.({ openPanelOnActionClick: false }).catch(() => {});
+chrome.sidePanel?.setPanelBehavior?.({ openPanelOnActionClick: true }).catch(() => {});
 chrome.runtime.onMessage.addListener((msg: any, sender: any, reply: (r: any) => void) => {
   if (sender.id !== chrome.runtime.id) return false;
   if (['lookup-country','country-result','about-observed'].includes(msg?.type)) {

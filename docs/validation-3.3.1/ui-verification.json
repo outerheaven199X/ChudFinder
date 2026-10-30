@@ -1,0 +1,38 @@
+{
+  "at": "2026-10-30T11:50:21.932Z",
+  "scope": "Actual built panel and content scripts in Brave localhost fixtures with simulated Chrome APIs and example investigation data; not installed extension acceptance",
+  "panel": {
+    "auto": {
+      "mode": "auto",
+      "status": "Auto: background X lookups are on. See (?) for account risks."
+    },
+    "careful": {
+      "helpRect": {
+        "height": 26,
+        "width": 26.75,
+        "x": 368.25,
+        "y": 102
+      },
+      "mode": "careful",
+      "modeInHeader": true,
+      "scrollWidth": 405,
+      "status": "Careful: saved flags appear automatically. Use About ↗ for an unknown account. No background X visits.",
+      "viewport": 420
+    },
+    "hoverHelp": {
+      "scrollWidth": 405,
+      "text": "Careful is passive: saved flags appear automatically. For an unknown account, use About ↗ to open X normally; its displayed country is saved without typing. Loading, scrolling, hovering and investigating start no background X visits.\nAuto optionally opens extra X About pages in the background. X prohibits website scripting and warns of permanent account suspension. Pacing does not remove that risk.\nSwitching to Careful stops new background lookups; one already running may finish. Passive capture removes these extra visits, but cannot guarantee how X will enforce its rules.",
+      "visible": true,
+      "width": 385
+    },
+    "escapeDismissed": true
+  },
+  "feed": {
+    "badges": [
+      "🇩🇪 Germany"
+    ],
+    "pageModeControls": 0,
+    "version": "3.3.1"
+  },
+  "paidCalls": 0
+}

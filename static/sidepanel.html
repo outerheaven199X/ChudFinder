@@ -10,6 +10,12 @@ body{margin:0;background:var(--bg);color:var(--fg);font:13px/1.45 var(--cf-font-
 header{position:sticky;top:0;z-index:2;background:var(--bg);padding:0 10px 8px;border-bottom:var(--cf-hairline) solid var(--cf-rule)}
 header::before{content:"";display:block;height:6px;margin:0 -10px 8px;background:/*@cf-hazard*/}
 .bar{display:flex;gap:6px;align-items:center}
+.flag-toggle{display:flex;align-items:center;gap:7px;margin:0;color:var(--fg)}
+.flag-toggle input{width:auto;margin:0;accent-color:var(--cf-field)}
+#lookupModeControl{align-items:center;gap:8px;margin-top:8px}
+#lookupModeControl label{margin:0;color:var(--fg)}
+#lookupStatus{margin:6px 0 10px;color:var(--dim);font-size:12px}
+.flag-tools{justify-content:space-between;margin:8px 0}
 .brand{font:800 15px/1 var(--cf-font-display);font-stretch:125%;letter-spacing:-.01em;color:var(--cf-field);margin-right:auto;text-transform:uppercase}
 select,button,textarea{font:inherit;color:var(--fg);background:var(--panel);border:1px solid var(--cf-rule);border-radius:0}
 select{padding:4px 6px;max-width:100%;font:12px var(--cf-font-mono)}
@@ -65,15 +71,21 @@ label{display:block;margin:7px 0;color:var(--dim)}details{margin:8px 0}summary{c
 <body>
 <header>
   <div class="bar"><img src="../icons/icon32.png" alt="" width="22" height="22" style="display:block;margin-right:8px"><span class="brand mono">CHUD FINDER</span>
-    <button id="refresh" class="btn small" type="button" title="Re-observe from the open X tab (new version)">Refresh</button>
-    <button id="delete" class="btn small" type="button" title="Delete this local investigation">Delete</button></div>
+    <button id="options" class="btn small" type="button">Settings</button></div>
+  <div class="bar flag-tools"><label class="flag-toggle"><input id="flagsEnabled" type="checkbox" checked> Flags on X</label>
+    <button id="clearCountryCache" class="btn small" type="button" title="Clear country lookups; keep saved investigations">Clear lookup cache</button></div>
+  <div id="lookupModeControl" data-cf-help-width="container"><label for="lookupMode">Country lookup</label>
+    <select id="lookupMode" aria-label="Country lookup mode"><option value="careful">Careful</option><option value="auto">Auto</option></select></div>
+  <p id="lookupStatus" aria-live="polite"></p>
   <div class="bar" style="margin-top:6px"><select id="recent" aria-label="Recent investigations"></select><select id="version" aria-label="Version"></select></div>
+  <div class="bar" style="margin-top:6px"><button id="refresh" class="btn small" type="button" title="Re-observe from the open X tab (new version)">Refresh evidence</button>
+    <button id="delete" class="btn small" type="button" title="Delete this local investigation">Delete investigation</button></div>
   <nav id="tabs" role="tablist"></nav>
   <div id="status" class="status mono"></div>
 </header>
 <details id="controls" class="card"><summary class="mono">INVESTIGATION &amp; SOURCE CONTROLS</summary>
 <label>Account handle <input id="accountHandle" placeholder="NASA" maxlength="15"></label><button id="startInvestigation" class="btn">Investigate account</button><button id="cancelInvestigation" class="btn">Cancel collection</button>
-<p class="caveat">Saved flags appear automatically. Careful mode captures About pages you open; optional Auto makes background visits. API access is optional. Change modes on X or in the extension popup.</p>
+<p class="caveat">Saved flags appear automatically. Careful mode captures About pages you open; optional Auto makes background visits. API access is optional. Change modes at the top of this panel.</p>
 <details><summary>Optional API data</summary><p class="caveat">An API adapter can retrieve more posts. Flags and the basic investigation work without it. API requests may cost credits.</p>
 <label>Adapter origin <input id="adapterUrl" placeholder="http://127.0.0.1:8787"></label><label>Request budget per action <input id="requestBudget" type="number" min="1" max="20" value="8"></label>
 <button id="saveProvider" class="btn">Connect provider</button><button id="loadApiPosts" class="btn">Fetch more posts via API</button><p id="providerState" class="meta"></p></details>

@@ -1,0 +1,13 @@
+✔ Commons lookup verifies exact SHA-1 and preserves repository date scope (6.7648ms)
+✔ passage candidates retain source context and do not invent originals (1.6061ms)
+✔ three bars require reviewed independent direct agreement; shared origins, conflicting sources and imports block upgrades (15.0499ms)
+✔ Google candidates retain unknown dates and reject private image URLs before any provider call (1.4898ms)
+✔ EXIF date extraction excludes artist, camera and GPS identifiers (2.9116ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1026.2616

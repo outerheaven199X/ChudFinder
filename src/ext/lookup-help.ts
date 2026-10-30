@@ -17,7 +17,7 @@ export function mountLookupHelp(host:HTMLElement, above=false, signal?:AbortSign
   const tip=doc.createElement('span');tip.id='cf-lookup-risk-help';tip.setAttribute('role','tooltip');tip.hidden=true;
   button.setAttribute('aria-describedby',tip.id);
   tip.style.cssText='position:absolute;left:0;'+(above?'bottom:100%':'top:100%')+';z-index:2147483647;box-sizing:border-box;width:min(340px, calc(100vw - 32px));max-width:calc(100vw - 32px);padding:12px;background:#17171c;color:#fff;border:1px solid #aaa;box-shadow:0 4px 16px #0006;text-align:left;white-space:normal;font:12px/1.45 system-ui';
-  // Flow into a new row so the browser popup grows instead of clipping the help.
+  // Flow into a new row so narrow extension panels do not clip the help.
   if(host.dataset.cfHelpWidth==='container'){
     host.style.display='grid';host.style.gridTemplateColumns='1fr auto auto';
     wrap.style.display='contents';tip.style.position='static';tip.style.gridColumn='1 / -1';

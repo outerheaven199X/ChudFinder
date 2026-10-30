@@ -12,6 +12,10 @@ async function until(check:()=>unknown){const start=Date.now();while(!check()){i
 
 test('release excludes page bridge, credential extraction and internal endpoint calls', () => {
   const m = JSON.parse(readFileSync('dist/manifest.json', 'utf8'));
+  assert.equal(m.action.default_popup,undefined,'toolbar opens the full panel directly');
+  assert.equal(m.side_panel.default_path,'src/sidepanel.html');
+  assert.equal(existsSync('dist/src/popup.html'),false);
+  assert.equal(existsSync('dist/src/popup.js'),false);
   assert.ok(!existsSync('dist/src/page.js'));
   assert.ok(!m.content_scripts.some((c: any) => c.world === 'MAIN'));
   assert.deepEqual(m.host_permissions, ['https://x.com/*','https://twitter.com/*']);

@@ -1,0 +1,91 @@
+
+> chud-finder@3.3.1 test
+> npm run build && node --test test/*.test.ts && node test/legacy/settings.test.cjs && node test/legacy/test.cjs && python bot/test_lookup.py
+
+
+> chud-finder@3.3.1 build
+> node tools/build.mjs
+
+built dist/ (22 files) and chud-finder-3.3.1.zip
+✔ built background preserves propagation query on edits and replaces a full sample on new search (750.8168ms)
+✔ passive install makes no background visits; a user-opened About page populates flags across existing and future tabs (1042.2272ms)
+✔ panel and settings expose risk help and immediately synchronize Auto/Careful changes without an investigation (280.7241ms)
+✔ switching to Careful cancels queued automatic visits while allowing the active lookup to finish (43.4066ms)
+✔ old Auto, synchronized settings and click/hover/refresh messages cannot enable background visits without explicit opt-in (0.7872ms)
+✔ activation handles legacy tabs without losing draft text, confines injection to X, and isolates failed tabs (26.6004ms)
+✔ live 0xReso About markup preserves region, store region and the displayed accuracy warning (19.8976ms)
+✔ lookup serializes tabs, deduplicates, caches, validates ownership, and obeys Auto/Careful and daily limits (61.6584ms)
+✔ timeout and X sign-in are visible errors; a user-navigated worker tab is never closed (93.0993ms)
+✔ empty cache -> automatic About worker -> badge -> immediate panel with profile/posts; Careful and live updates work (1515.6432ms)
+✔ panel does not miss an active investigation written while its initial storage read is pending (109.14ms)
+✔ X status aliases share an evidence edge without collapsing unrelated paths or parameters (51.6128ms)
+✔ quoted search phrases count occurrences inside longer posts and preserve earliest evidence (6.7046ms)
+✔ three X fields remain independent with user provenance, original values, dates and sources (10.8804ms)
+✔ partial, unavailable, regional, traveler and organizational cases never infer intent or location (7.6722ms)
+✔ activity describes UTC, preserves simultaneous posts, compares windows and never returns a location estimate (3.9624ms)
+✔ writing compares own chronological sample; multilingual data does not predict identity (0.9969ms)
+✔ synthetic mandate statistics are computed from 62 source records, never hard-coded (266.5376ms)
+✔ same event/shared URL does not prove duplication or common ownership; missing dates stay unknown (2.1578ms)
+✔ dated exact, numerical, qualifier and negation comparisons; semantic ambiguity and missing sources remain unverified (1.3518ms)
+✔ quote reconstruction, organizational ledger, fact-check disagreements and source dependencies share evidence (3.3963ms)
+✔ claim comparison preserves numeric signs, percentages, currency and ratio scope (0.203ms)
+✔ media pairs report distance and observed date conflicts without synthetic/AI claims (0.2499ms)
+✔ stable IDs, changed values and corrections retain old snapshots without orphan evidence (2.2351ms)
+✔ adversarial references, statistics, graph edges, future dates, controls and spoofed origins are rejected (158.5343ms)
+✔ release excludes page bridge, credential extraction and internal endpoint calls (13.9672ms)
+✔ country badges use current About evidence, never stale snapshots or self-described location (20.2971ms)
+✔ built feed renders stored flags on load, updates quoted/recycled authors and opens investigation on one click (398.9281ms)
+✔ Careful mode never looks up on load, scroll or hover; clicking investigates only the selected post (705.4583ms)
+✖ test\media.test.ts (1438.0158ms)
+✔ jitter: passive gaps stay within 4-9 s and vary (1.4773ms)
+✔ pacing: intent >= 2 s apart; passive capped at 10 per rolling minute (1.2979ms)
+✔ daily cap: counts, enforces, resets at local midnight (1.4255ms)
+✔ settings schema: lookupMode/dailyCap optional, bounded; old documents still valid (0.8082ms)
+Chud Finder adapter listening on loopback port 18877; 1 authorized extension origins.
+✔ source publication date recognizes NASA metadata without substituting last-updated time (85.9248ms)
+✔ user import cannot impersonate official provenance (5.4573ms)
+✔ official provider rejects malformed API shapes and propagates auth, rate and outage errors without retries (2.1069ms)
+✔ unconfigured X is unavailable with explicit coverage, without fabricated metadata (0.3378ms)
+✔ source provider validates URLs, timestamps and response schemas (1.2327ms)
+✔ Grok questions with forged evidence refs are discarded and do not become facts (0.9392ms)
+✔ SSRF rejects private, metadata, reserved addresses, credentials, ports and non-approved hosts (6.3628ms)
+✔ loopback service refuses web origins and DNS-rebinding host headers (38.1763ms)
+✔ pixel fingerprint is deterministic and rejects the wrong geometry (0.492ms)
+✔ official response maps actual fields, preserves partial coverage and never substitutes profile location for Based in (2.0347ms)
+✔ timeline and search send the same date bounds reported in coverage with endpoint-specific cursors (1.3335ms)
+✔ request budgets, cancellation, caching and bounded retries are enforced before network work (0.6946ms)
+✔ official provider requests long-post text and preserves its links with explicit size limits (1.1588ms)
+✔ concurrent investigation saves retain both index entries (19.983ms)
+✔ JSON export contains the complete snapshot evidence and the limitations (6.0167ms)
+✔ X thread draft: numbered, <= 280 chars each, labeled, sourced (0.9059ms)
+✔ all five tabs render; untrusted text never becomes markup (XSS) (170.3837ms)
+✔ panel shows labels, conflicts in amber, unknown states and no emoji (36.6962ms)
+✔ Narrative graph exposes supporting observations without a model call (44.9234ms)
+✔ evidence chips jump to stored evidence; every chip id exists (15.4054ms)
+✔ observation schema accepts a valid observation (7.1108ms)
+✔ observation schema rejects bad handles, http URLs, unknown keys and wrong types (3.4098ms)
+✔ finding / evidence schemas enforce id prefixes and closed enums (1.8669ms)
+✔ investigation and export round-trip through their schemas (20.7751ms)
+✔ settings schemaVersion 1: 1.2.0 documents stay valid; new popover / grokBotTemplateUrl keys validated (1.5588ms)
+✔ side panel: loads the active investigation, five tabs, Grok Bot link from settings, receipts (404.0726ms)
+✔ PNG receipt draws handle, headline and labeled findings onto a 1200x675 canvas (0.7848ms)
+✔ topic tags: deterministic keyword regions, acronyms case-sensitive (2.8536ms)
+✔ topic signal: exact neutral wording, inferred basis, mismatch only (0.5624ms)
+✔ topic note + popover row render with textContent only and stay neutral (149.3391ms)
+✔ DOM adapter: main post, quoted author, time, text (quoted text excluded) (89.673ms)
+✔ DOM adapter: links are https only, lang tag, reply target (17.4811ms)
+✔ SPA routes (0.3527ms)
+ℹ tests 67
+ℹ suites 0
+ℹ pass 66
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4416.7216
+
+✖ failing tests:
+
+test at test\media.test.ts:1:1
+✖ test\media.test.ts (1438.0158ms)
+  'test failed'

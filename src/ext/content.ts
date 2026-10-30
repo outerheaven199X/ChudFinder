@@ -8,10 +8,9 @@ import { investigationId } from '../shared/engine.ts';
 import { readAbout, aboutFailure, locationWarning, workerToken } from './about-dom.ts';
 import { COUNTRY_PREFIX } from './country-lookup.ts';
 import type { CountryRecord } from './country-lookup.ts';
-import { mountLookupHelp } from './lookup-help.ts';
-import { readLookupSettings, setLookupMode, PASSIVE_MIGRATION, BACKGROUND_OPT_IN } from './lookup-settings.ts';
+import { readLookupSettings, PASSIVE_MIGRATION, BACKGROUND_OPT_IN } from './lookup-settings.ts';
 declare const chrome:any;
-const version=chrome.runtime.getManifest?.().version || '3.3.0';
+const version=chrome.runtime.getManifest?.().version || '3.3.1';
 const instanceKey='__cfContent_'+(chrome.runtime.id || 'test');
 const restartEvent='cf-content-restart-'+(chrome.runtime.id || 'test');
 const instances=globalThis as any;
@@ -99,16 +98,6 @@ function bind(button:HTMLButtonElement,handle:string,article:Element|null){
   button.addEventListener('focus',()=>void request(handle,'hover'),{signal:events.signal});
 }
 function visible(e:Element){const r=e.getBoundingClientRect();return r.height>0&&r.bottom>0&&r.top<innerHeight;}
-function controls(){
-  let root=document.getElementById('cf-mode-control');
-  if(!root){root=document.createElement('div');root.id='cf-mode-control';root.style.cssText='position:fixed;left:16px;bottom:16px;z-index:1000;display:flex;align-items:center;gap:8px;background:#101014;color:#fff;padding:7px;border:1px solid #888;font:12px system-ui';
-    const label=document.createElement('label');label.textContent='Chud Finder ';const mode=document.createElement('select');mode.id='cf-lookup-mode';mode.setAttribute('aria-label','Chud Finder lookup mode');
-    for(const [v,t]of [['auto','Auto'],['careful','Careful']]){const o=document.createElement('option');o.value=v;o.textContent=t;mode.appendChild(o);}
-    mode.addEventListener('change',()=>void setLookupMode(chrome,mode.value));
-    label.appendChild(mode);root.appendChild(label);mountLookupHelp(root,true,events.signal);document.body.appendChild(root);
-  }
-  const mode=root.querySelector('select')!;if(mode.value!==settings.lookupMode)mode.value=settings.lookupMode;
-}
 function captureOpenAbout(){
   const about=readAbout(document,location.href),handle=parseRoute(location.href).handle;if(!about||!handle)return;
   const prior=records.get(handle.toLowerCase())?.about;
@@ -118,7 +107,7 @@ function captureOpenAbout(){
   chrome.runtime.sendMessage({type:'about-observed',handle,about}).then(r=>{if(!r?.ok)lastAbout='';}).catch(()=>{lastAbout='';});
 }
 function scan(){
-  if(!alive||!settings.enabled)return;controls();captureOpenAbout();
+  if(!alive||!settings.enabled)return;captureOpenAbout();
   for(const block of document.querySelectorAll(SEL.userName)){
     const handle=handleFromUserName(block);if(!handle)continue;loadBadge(handle);const old=mounted.get(block);
     if(old?.handle===handle&&old.button.isConnected)paint(old.button,handle);

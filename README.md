@@ -1,6 +1,6 @@
-# Chud Finder 3.3.0
+# Chud Finder 3.3.1
 
-Chud Finder is a Manifest V3 extension with automatic country badges and evidence-backed investigations of public X accounts and claims. Click a badge to open the seven-stage workspace with visible profile/post data. The core runs locally without Grok or API credits.
+Chud Finder is a Manifest V3 extension with automatic country badges and evidence-backed investigations of public X accounts and claims. The toolbar icon opens the full investigation panel directly. Auto/Careful and its (?) help are at the top of that panel; there is no popup menu or mode control over the X page. Click a badge to open the seven-stage workspace with visible profile/post data. The core runs locally without Grok or API credits. See [3.3.1 validation](docs/release-3.3.1.md).
 
 Careful mode is passive by default. Saved country flags appear automatically. For an unknown account, **About ↗** is a normal link to X's About page; opening it captures the displayed fields without typing. Returning to the feed shows the saved flag wherever that handle appears. Loading, scrolling, hovering and opening an investigation initiate no background X visits in Careful mode. Profile location stays separate from X's country/region display. See [3.3.0 validation](docs/release-3.3.0.md).
 
@@ -9,8 +9,8 @@ Auto is optional and makes extra scripted About visits. [X's automation rules](h
 ## Install
 
 1. Run `npm ci`, `npm run typecheck`, and `npm test` with Node 22.22.2+, 24.15.0+, or 26+ and Python 3 (`python` on PATH).
-2. Open `brave://extensions`, enable developer mode, and load `dist/` unpacked. The build also writes `chud-finder-3.3.0.zip` with the manifest at its root. Installing activates existing X tabs automatically. Reload the extension when replacing an unpacked build; no popup or investigation setup is needed for saved flags.
-3. **Careful** is the fresh-install and first-upgrade default. **Auto** must be selected explicitly on X, in the popup or in settings to enable background visits. Existing evidence remains local. Old settings, imports and sync documents cannot independently enable background access; returning to Careful revokes the local opt-in.
+2. Open `brave://extensions`, enable developer mode, and load `dist/` unpacked. The build also writes `chud-finder-3.3.1.zip` with the manifest at its root. Installing activates existing X tabs automatically. Reload the extension when replacing an unpacked build; no investigation setup is needed for saved flags.
+3. **Careful** is the fresh-install and first-upgrade default. Click the toolbar icon to open the full panel. **Auto** must be selected explicitly in the panel or settings to enable background visits. Existing evidence remains local. Old settings, imports and sync documents cannot independently enable background access; returning to Careful revokes the local opt-in.
 4. Flags show countries; a globe shows a broader region. Click either to investigate. Source/date and X accuracy warnings remain available. `…` means queued/loading; `!` means a lookup error; `Ⅱ` means paused; `?` means no country was displayed. Tooltips explain each state. No manual country entry is required.
 5. Optional Auto uses one temporary inactive X tab, at most ten lookup starts per minute, a default daily cap of 300 (settings: 50–1000), and a 24-hour refresh interval. It pauses after recognized login/access prompts. Careful keeps dated observations and never refreshes them in the background. Use **Open X About** in an investigation to update a saved country. English X About labels are currently supported. No API credits are used for country display or capture.
 

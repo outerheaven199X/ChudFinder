@@ -17,6 +17,8 @@ import { fingerprint, fileDigests } from './media.ts';
 import { GROK_BOT_TEMPLATE_URL } from './config.ts';
 import { matchingPassages } from '../shared/analysis.ts';
 import type { SourceDocument } from '../shared/schemas.ts';
+import { mountLookupHelp } from './lookup-help.ts';
+import { readLookupSettings, setLookupMode, PASSIVE_MIGRATION, BACKGROUND_OPT_IN } from './lookup-settings.ts';
 
 declare const chrome: any;
 const $ = (id: string) => document.getElementById(id)!;
@@ -28,6 +30,45 @@ let tab: Tab = 'Overview';
 let evidenceAll = false;
 let botUrl = GROK_BOT_TEMPLATE_URL;
 let showGeneration = 0;
+let settingsGeneration = 0;
+
+async function refreshFlagControls() {
+  const generation = ++settingsGeneration;
+  const s = await readLookupSettings(chrome);
+  if (generation !== settingsGeneration) return;
+  ($('flagsEnabled') as HTMLInputElement).checked = s.enabled !== false;
+  ($('lookupMode') as HTMLSelectElement).value = s.lookupMode;
+  $('lookupStatus').textContent = s.enabled === false
+    ? 'Flags are switched off.'
+    : s.lookupMode === 'careful'
+      ? 'Careful: saved flags appear automatically. Use About ↗ for an unknown account. No background X visits.'
+      : 'Auto: background X lookups are on. See (?) for account risks.';
+}
+
+function initFlagControls() {
+  const fail = (e: Error) => { $('lookupStatus').textContent = 'Could not update flag settings: ' + e.message; };
+  mountLookupHelp($('lookupModeControl'));
+  $('lookupMode').addEventListener('change', () => {
+    void setLookupMode(chrome, ($('lookupMode') as HTMLSelectElement).value)
+      .then(refreshFlagControls).catch(fail);
+  });
+  $('flagsEnabled').addEventListener('change', () => {
+    const enabled = ($('flagsEnabled') as HTMLInputElement).checked;
+    void store.get('settings').then(({settings = {}}: any) => store.set({settings:{...settings, enabled}}))
+      .then(refreshFlagControls).catch(fail);
+  });
+  $('options').addEventListener('click', () => { void chrome.runtime.openOptionsPage(); });
+  $('clearCountryCache').addEventListener('click', () => {
+    void (async () => {
+      const all = await store.get(null);
+      const keys = Object.keys(all).filter(k => k.startsWith('cf:h:') || k.startsWith('cf:country:'));
+      await store.remove(keys);
+      await store.set({'cf:cacheCleared':Date.now()});
+      status('Lookup cache cleared. Saved investigations are retained.');
+    })().catch(fail);
+  });
+  void refreshFlagControls().catch(fail);
+}
 
 function download(name: string, blob: Blob) {
   const u = URL.createObjectURL(blob);
@@ -145,7 +186,7 @@ function render() {
         document,
         'p',
         'na',
-        'No investigation yet. Open Investigation & Source Controls, or select a CF badge on X.',
+        'Click a country flag or ? beside a username on X to investigate. For an unknown country, open About ↗ once to capture what X displays.',
       ),
     );
     (vsel as any).hidden = true;
@@ -192,6 +233,7 @@ async function show(id: string | null) {
 
 async function init() {
   watchUpdates();
+  initFlagControls();
   const initialGeneration=showGeneration;
   const q = new URLSearchParams(location.search).get('inv');
   const got = await store.get([ACTIVE_KEY, 'settings']);
@@ -244,6 +286,8 @@ async function init() {
 function watchUpdates() {
   chrome.storage.onChanged.addListener((ch: any, area: string) => {
     if (area !== 'local') return;
+    if (ch.settings || ch[PASSIVE_MIGRATION] || ch[BACKGROUND_OPT_IN])
+      void refreshFlagControls().catch(e => { $('lookupStatus').textContent = e.message; });
     if (ch[ACTIVE_KEY] && ch[ACTIVE_KEY].newValue) {
       show(ch[ACTIVE_KEY].newValue);
       return;

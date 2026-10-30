@@ -1,0 +1,15 @@
+✖ test\media.test.ts (1464.4396ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1475.3116
+
+✖ failing tests:
+
+test at test\media.test.ts:1:1
+✖ test\media.test.ts (1464.4396ms)
+  'test failed'

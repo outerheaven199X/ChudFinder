@@ -8,7 +8,7 @@ Includes a five-tab workspace, source passage and quote comparison, local media 
 
 Careful mode is passive by default: saved country flags appear automatically, and About ↗ opens an unknown account's normal X About page. Displayed fields are saved without manual entry or API credits. Optional Auto makes additional background visits for visible accounts. Country flags and region globes open investigations; source/date and displayed accuracy warnings remain available. English About labels are currently supported. The extension does not extract cookies or tokens, intercept traffic, or call undocumented endpoints.
 
-Installing activates flags on existing X tabs as well as new pages. The toolbar menu is optional settings; opening it or starting an investigation is not required to see flags.
+Installing activates flags on existing X tabs as well as new pages. The toolbar icon opens the full investigation panel, with Auto/Careful and its (?) help at the top. No mode control is added over the X page. Opening the panel is not required to see saved flags.
 
 Account risk: Auto makes scripted page visits, which [X prohibits and warns may result in permanent suspension](https://help.x.com/en/rules-and-policies/x-automation). The **(?)** beside Auto/Careful explains the behavior and risk. Careful removes those extra visits. No enforcement guarantee is made.
 
