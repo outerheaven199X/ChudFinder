@@ -1,0 +1,4 @@
+
+> chud-finder@3.2.1 typecheck
+> tsc --noEmit -p tsconfig.json
+

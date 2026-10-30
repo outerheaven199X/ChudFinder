@@ -1,10 +1,16 @@
 # Privacy and data use
 
-Chud Finder 3.1 performs investigations only after an explicit user action. Content scripts add selection controls on X and Twitter. A selected post's public text, author handle, URL, timestamp and visible links may be read when the user chooses Investigate. No scrolling-based collection occurs. No private messages, browsing-history inventory, cookies, browser authorization tokens or intercepted traffic are collected.
+Chud Finder 3.2 reads rendered public X About fields automatically for visible accounts in Auto mode, or on hover/click in Careful mode. It uses one temporary inactive X tab in the existing browser session, with at most ten starts per minute, a configurable daily cap (default 300), and a 24-hour country cache. X receives ordinary page visits for those accounts. The extension does not extract cookies, authorization tokens or intercepted traffic. Login/access prompts pause lookups. It does not collect private messages or a browsing-history inventory.
+
+Clicking a badge saves visible public post text, author handles, URLs, timestamps and links, plus self-described location when on that profile. The investigation opens immediately; About fields arrive asynchronously. Source URLs, observation times and X's location-accuracy warnings are retained. Country fields are not inferred from profile location, bio or language. New installs and the first update from 3.1 use Auto; controls on X, in the popup and in settings persist the selected mode.
+
+The **(?)** beside each mode selector explains the account risk. Both modes script X page visits; [X's automation rules](https://help.x.com/en/rules-and-policies/x-automation) prohibit this and warn of permanent suspension. Careful reduces automatic traffic, not the policy restriction. Switching to Careful stops queued automatic visits; a visit already running may finish. Turning Enabled off stops new lookups. Cache limits and pacing are implementation limits, not X-approved limits.
 
 ## Storage and deletion
 
 Settings and investigation records are stored in `chrome.storage.local`, not Chrome Sync. The store retains up to 50 investigations and the newest 20 snapshots per investigation. Older entries are evicted when those limits are reached. Evidence needed by retained snapshots is retained, along with up to 200 events. New snapshots link to their preceding version; corrections do not overwrite retained older snapshots. These are record-count limits, not a guarantee of available browser storage; a browser quota failure is reported and does not silently discard source records.
+
+The separate country cache retains up to 1500 recent entries, pruned every 25 cache writes. Missing-country responses expire after one hour; errors after five minutes. A worker-tab ID and ownership nonce are stored only for the browser session so a restarted service worker can clean up its own temporary tab. A user-navigated tab is left open. Clear cache in the popup removes country-cache entries without deleting investigation history.
 
 The panel's Delete control removes the selected investigation and its stored versions. Uninstalling the extension removes extension-local records. Exported JSON, PNG and text files are separate local copies; users manage those files themselves. No report is published automatically.
 
@@ -26,4 +32,4 @@ Optional settings sync retains the existing HTTPS settings-file feature. A user-
 
 ## Permissions
 
-`storage`: settings and evidence. `alarms`: optional settings sync. `sidePanel`: investigation workspace. X/Twitter content-script matches: lightweight selection UI. Optional HTTPS host permissions: specific settings and remote adapter origins chosen by the user. Loopback provider calls use origin-restricted CORS. No cookies, webRequest, debugger, clipboard-read or browsing-history permission is requested.
+`storage`: settings, country cache and evidence. `alarms`: optional settings sync. `sidePanel`: investigation workspace. `scripting` and explicit X/Twitter host permissions activate flags on already-open X/Twitter pages at installation, update and browser startup. Injection remains restricted to those two HTTPS sites and the main frame; other tabs are not inspected. Content-script matches handle future navigations. A legacy X tab may refresh once during upgrade; a tab with unsent text is left alone. Activation results retain only tab IDs, statuses, time and bounded error messages locally, not page contents or unrelated URLs. Optional HTTPS host permissions cover specific settings and remote adapter origins chosen by the user. Loopback provider calls use origin-restricted CORS. No cookies, webRequest, debugger, clipboard-read or browsing-history permission is requested.

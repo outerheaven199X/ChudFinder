@@ -1,6 +1,7 @@
 import * as C from '../shared/countries.ts';
 import * as S from '../shared/settings-schema.ts';
 import { DEFAULT_SETTINGS as D } from './lib.ts';
+import { mountLookupHelp } from './lookup-help.ts';
 
 declare const chrome: any;
 const $ = (id: string): any => document.getElementById(id);
@@ -139,4 +140,5 @@ async function init() {
     if (ch.syncState) { const { syncUrl } = await chrome.storage.local.get('syncUrl'); renderSyncState(ch.syncState.newValue, syncUrl); }
   });
 }
+mountLookupHelp($('lookupModeControl'));
 init();

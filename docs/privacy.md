@@ -4,6 +4,8 @@ Chud Finder 3.2 reads rendered public X About fields automatically for visible a
 
 Clicking a badge saves visible public post text, author handles, URLs, timestamps and links, plus self-described location when on that profile. The investigation opens immediately; About fields arrive asynchronously. Source URLs, observation times and X's location-accuracy warnings are retained. Country fields are not inferred from profile location, bio or language. New installs and the first update from 3.1 use Auto; controls on X, in the popup and in settings persist the selected mode.
 
+The **(?)** beside each mode selector explains the account risk. Both modes script X page visits; [X's automation rules](https://help.x.com/en/rules-and-policies/x-automation) prohibit this and warn of permanent suspension. Careful reduces automatic traffic, not the policy restriction. Switching to Careful stops queued automatic visits; a visit already running may finish. Turning Enabled off stops new lookups. Cache limits and pacing are implementation limits, not X-approved limits.
+
 ## Storage and deletion
 
 Settings and investigation records are stored in `chrome.storage.local`, not Chrome Sync. The store retains up to 50 investigations and the newest 20 snapshots per investigation. Older entries are evicted when those limits are reached. Evidence needed by retained snapshots is retained, along with up to 200 events. New snapshots link to their preceding version; corrections do not overwrite retained older snapshots. These are record-count limits, not a guarantee of available browser storage; a browser quota failure is reported and does not silently discard source records.

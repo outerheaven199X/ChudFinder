@@ -51,6 +51,14 @@ test('installation starts flags on an already-open X feed without opening the po
   assert.equal(s.data.settings.enabled,true);assert.equal(s.data.settings.lookupMode,'auto');
   assert.equal(panelOpens,0);assert.equal(reloads.length,0);assert.equal(workerCount,1);
   assert.equal(messages.filter(m=>m.type==='investigate').length,0);assert.equal(injections.length,2);
+  const help=page.document.querySelector('.cf-lookup-help'),helpButton=help.querySelector('button'),tip=help.querySelector('[role="tooltip"]');
+  assert.equal(helpButton.getAttribute('aria-describedby'),tip.id);assert.equal(tip.hidden,true);
+  help.dispatchEvent(new page.MouseEvent('mouseenter'));assert.equal(tip.hidden,false);
+  assert.match(tip.textContent,/permanent account suspension/);assert.match(tip.textContent,/neither mode is ban-safe/);
+  page.document.dispatchEvent(new page.KeyboardEvent('keydown',{key:'Escape',bubbles:true}));assert.equal(tip.hidden,true);
+  help.dispatchEvent(new page.MouseEvent('mouseleave'));helpButton.focus();assert.equal(tip.hidden,false);
+  helpButton.blur();assert.equal(tip.hidden,true);helpButton.click();assert.equal(tip.hidden,false);helpButton.click();assert.equal(tip.hidden,true);
+  assert.equal(panelOpens,0);assert.equal(workerCount,1);
   // A coincident static injection and repeated installation activation are no-ops.
   page.eval(readFileSync('dist/src/content.js','utf8'));await onInstalled({reason:'update'});
   assert.equal(injections.length,2);assert.equal(page.document.querySelectorAll('.cf-badge').length,1);
@@ -62,6 +70,42 @@ test('installation starts flags on an already-open X feed without opening the po
   assert.equal(page.document.querySelectorAll('#cf-mode-control').length,1);assert.equal(s.listeners.length,1);
   assert.equal(page.document.querySelector('#cf-lookup-mode').value,'careful');
   assert.equal(page.document.documentElement.dataset.cfContentVersion,'3.2.2');
+});
+
+test('popup and settings expose risk help and immediately synchronize Auto/Careful changes',async t=>{
+  const s=storage({settings:{enabled:true,lookupMode:'auto'},'cf:lookupV32':true});
+  const pages=['popup','options'].map(name=>{
+    const w:any=new JSDOM(readFileSync(`dist/src/${name}.html`,'utf8'),{url:'https://fixture.test/',runScripts:'outside-only'}).window;
+    w.chrome={storage:{local:s.area,onChanged:{addListener:(f:Function)=>s.listeners.push(f)}}};
+    w.eval(readFileSync(`dist/src/${name}.js`,'utf8'));return w;
+  });
+  t.after(()=>pages.forEach(w=>w.close()));
+  await until(()=>pages[1].document.querySelector('#homeCountry').options.length>1);
+  for(const w of pages){
+    const button=w.document.querySelector('.cf-lookup-help button'),tip=w.document.querySelector('[role="tooltip"]');
+    assert(button);button.focus();assert.equal(tip.hidden,false);assert.match(tip.textContent,/Both modes make scripted visits/);
+    w.document.dispatchEvent(new w.KeyboardEvent('keydown',{key:'Escape',bubbles:true}));assert.equal(tip.hidden,true);
+  }
+  const popupMode=pages[0].document.querySelector('#lookupMode'),optionsMode=pages[1].document.querySelector('#lookupMode');
+  popupMode.value='careful';popupMode.dispatchEvent(new pages[0].Event('change'));
+  await until(()=>optionsMode.value==='careful');
+  assert.match(pages[0].document.querySelector('#status').textContent,/Careful:/);
+  optionsMode.value='auto';optionsMode.dispatchEvent(new pages[1].Event('change'));
+  await until(()=>popupMode.value==='auto');
+  assert.match(pages[0].document.querySelector('#status').textContent,/Automatic flags are on/);
+  assert.equal(s.data['cf:lookupV32'],true);
+});
+
+test('switching to Careful cancels queued automatic visits while allowing the active lookup to finish',async()=>{
+  const s=storage({settings:{lookupMode:'auto'},'cf:lookupV32':true}),created:any[]=[];
+  const chrome={storage:{local:s.area},tabs:{create:async(args:any)=>{const t={id:created.length+1,...args};created.push(t);return t;},sendMessage:async()=>({owned:true}),remove:async()=>{}}};
+  const lookup=new CountryLookup(chrome,async()=>{},1,500);
+  await lookup.request('first','auto');await until(()=>created.length===1);
+  await lookup.request('second','auto');await s.area.set({settings:{lookupMode:'careful'}});
+  const about=readAbout(new JSDOM(aboutHTML).window.document,'https://x.com/first/about')!;
+  await lookup.accept({nonce:new URL(created[0].url).hash.split('=')[1],about},{tab:{id:1},url:created[0].url});
+  await until(()=>s.data['cf:country:second']?.status==='paused');
+  assert.equal(created.length,1);assert.equal(s.data['cf:country:first'].status,'ready');
 });
 
 test('activation handles legacy tabs without losing draft text, confines injection to X, and isolates failed tabs',async t=>{

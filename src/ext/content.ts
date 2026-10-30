@@ -8,6 +8,7 @@ import { investigationId } from '../shared/engine.ts';
 import { readAbout, aboutFailure, locationWarning, workerToken } from './about-dom.ts';
 import { COUNTRY_PREFIX } from './country-lookup.ts';
 import type { CountryRecord } from './country-lookup.ts';
+import { mountLookupHelp } from './lookup-help.ts';
 declare const chrome:any;
 const version=chrome.runtime.getManifest?.().version || '3.2.1';
 const instanceKey='__cfContent_'+(chrome.runtime.id || 'test');
@@ -85,14 +86,13 @@ function bind(button:HTMLButtonElement,handle:string,article:Element|null){
 function visible(e:Element){const r=e.getBoundingClientRect();return r.height>0&&r.bottom>0&&r.top<innerHeight;}
 function controls(){
   let root=document.getElementById('cf-mode-control');
-  if(!root){root=document.createElement('div');root.id='cf-mode-control';root.style.cssText='position:fixed;left:16px;bottom:16px;z-index:1000;background:#101014;color:#fff;padding:7px;border:1px solid #888;font:12px system-ui';
+  if(!root){root=document.createElement('div');root.id='cf-mode-control';root.style.cssText='position:fixed;left:16px;bottom:16px;z-index:1000;display:flex;align-items:center;gap:8px;background:#101014;color:#fff;padding:7px;border:1px solid #888;font:12px system-ui';
     const label=document.createElement('label');label.textContent='Chud Finder ';const mode=document.createElement('select');mode.id='cf-lookup-mode';mode.setAttribute('aria-label','Chud Finder lookup mode');
     for(const [v,t]of [['auto','Auto'],['careful','Careful']]){const o=document.createElement('option');o.value=v;o.textContent=t;mode.appendChild(o);}
     mode.addEventListener('change',async()=>{const g=await chrome.storage.local.get('settings');await chrome.storage.local.set({settings:{...g.settings,lookupMode:mode.value},'cf:lookupV32':true});});
-    label.appendChild(mode);root.appendChild(label);document.body.appendChild(root);
+    label.appendChild(mode);root.appendChild(label);mountLookupHelp(root,true,events.signal);document.body.appendChild(root);
   }
   const mode=root.querySelector('select')!;if(mode.value!==settings.lookupMode)mode.value=settings.lookupMode;
-  root.title='Auto reads visible accounts in one temporary background X tab. Careful reads on hover/click. Results are cached. No API credits.';
 }
 function captureOpenAbout(){
   const about=readAbout(document,location.href),handle=parseRoute(location.href).handle;if(!about||!handle)return;

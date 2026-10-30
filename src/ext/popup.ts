@@ -1,3 +1,4 @@
+import { mountLookupHelp } from './lookup-help.ts';
 declare const chrome: any;
 const $ = (id: string): any => document.getElementById(id);
 export {};
@@ -7,7 +8,7 @@ async function refresh() {
   const s = all.settings || {};
   $('enabled').checked = s.enabled !== false;
   $('lookupMode').value = all['cf:lookupV32'] ? s.lookupMode || 'auto' : 'auto';
-  const msg = s.enabled === false ? 'Flags are switched off.' : s.lookupMode === 'careful' ? 'Careful: hover or click a username to look up its country.' : 'Automatic flags are on. You can close this menu.';
+  const msg = s.enabled === false ? 'Flags are switched off.' : $('lookupMode').value === 'careful' ? 'Careful: hover or click a username to look up its country.' : 'Automatic flags are on. You can close this menu.';
   $('status').textContent = msg;
   const sync = $('sync');
   if (!all.syncUrl) { sync.textContent = ''; }
@@ -40,4 +41,6 @@ $('panel').addEventListener('click', async () => {
   try { const w = await chrome.windows.getCurrent(); await chrome.sidePanel.open({ windowId: w.id }); window.close(); }
   catch (_) { chrome.tabs.create({ url: chrome.runtime.getURL('src/sidepanel.html') }); }
 });
+mountLookupHelp($('lookupModeControl'));
+chrome.storage.onChanged.addListener((_changes:any,area:string)=>{if(area==='local')void refresh();});
 refresh();

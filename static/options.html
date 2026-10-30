@@ -32,7 +32,8 @@ body{font:14px var(--cf-font-sans)!important;color:var(--cf-void-black)!importan
 <h1 style="display:flex;align-items:center;gap:10px"><img src="../icons/icon48.png" alt="" width="40" height="40">Chud Finder settings</h1>
 <p class="hint">Country flags read X's rendered About pages using one temporary background tab. No API key, credits, or manual country entry is needed. Click a badge to open the investigation immediately.</p>
 <h2>Country flags</h2>
-<label class="opt"><span>Lookup mode</span><select id="lookupMode"><option value="auto">Auto: look up visible accounts</option><option value="careful">Careful: only on hover or click</option></select></label>
+<div class="opt" id="lookupModeControl" style="display:flex;align-items:center;gap:8px;margin:10px 0"><label for="lookupMode">Lookup mode</label><select id="lookupMode"><option value="auto">Auto: look up visible accounts</option><option value="careful">Careful: only on hover or click</option></select></div>
+<p class="hint">Both modes use website scripting, which <a href="https://help.x.com/en/rules-and-policies/x-automation" target="_blank" rel="noreferrer">X prohibits and says may lead to permanent suspension</a>. Careful reduces automatic traffic; it does not remove this risk.</p>
 <p class="hint">Auto starts as X loads and continues for visible accounts as you scroll. Lookups run one at a time, at most 10 starts per minute, and countries are cached for 24 hours. Loading, login and retry messages appear on the badge. X must be signed in in this browser.</p>
 <label class="opt"><input type="checkbox" id="showName"><span>Show the country or region name next to the flag</span></label>
 <label class="opt"><input type="checkbox" id="vpnWarnings"><span>Show X's location-accuracy warning</span></label>

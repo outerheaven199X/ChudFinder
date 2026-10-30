@@ -4,6 +4,8 @@ Chud Finder is a Manifest V3 extension with automatic country badges and evidenc
 
 Country lookup reads rendered public X About pages using one temporary inactive tab in your signed-in browser. No credentials or traffic are extracted and no internal API endpoint is called. Approved X API access is needed only for optional larger post samples and recent-search propagation. Self-described profile location is shown separately from X's country/region display. See [3.2.1 validation](docs/release-3.2.1.md) for the tested scope and remaining limitations.
 
+Both lookup modes make scripted page visits. [X's automation rules](https://help.x.com/en/rules-and-policies/x-automation) prohibit website scripting and warn of possible permanent suspension. Caching, pacing and Careful mode reduce traffic, but do not establish a safe request rate or remove policy risk. The **(?)** beside each mode selector explains this on hover, keyboard focus or click. See the [policy and API research](docs/lookup-risk.md).
+
 ## Install
 
 1. Run `npm ci`, `npm run typecheck`, and `npm test` with Node 22.22.2+, 24.15.0+, or 26+ and Python 3 (`python` on PATH).
@@ -14,7 +16,7 @@ Country lookup reads rendered public X About pages using one temporary inactive 
 
 Upgrading a tab that still contains pre-3.2.1 badges refreshes that X tab once to clear stale scripts. Tabs containing unsent text are left alone until their next navigation. New installations inject into existing X pages without a refresh; later activations reuse or replace their own running script without duplicate badges.
 
-## Authorized providers
+## Data providers
 
 `src/shared/providers.ts` defines the shared typed acquisition boundary. All responses include provider identity, retrieval time, scope, actual fields, pagination and limitations.
 
